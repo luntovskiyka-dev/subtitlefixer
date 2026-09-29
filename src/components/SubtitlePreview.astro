@@ -1,0 +1,38 @@
+---
+interface Cue {
+  start: number;
+  end: number;
+  text: string;
+}
+
+interface Props {
+  cues: Cue[];
+}
+
+const { cues } = Astro.props;
+
+function formatCueTime(ms: number): string {
+  const total = Math.trunc(ms);
+  const sign = total < 0 ? '-' : '';
+  const abs = Math.abs(total);
+  const hours = Math.floor(abs / 3_600_000);
+  const minutes = Math.floor((abs % 3_600_000) / 60_000);
+  const seconds = Math.floor((abs % 60_000) / 1_000);
+  const millis = abs % 1_000;
+  const pad = (value: number, width: number) => String(value).padStart(width, '0');
+  return `${sign}${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)},${pad(millis, 3)}`;
+}
+---
+
+<div class="flex flex-col gap-4">
+  {
+    cues.map((cue) => (
+      <div>
+        <p class="font-mono text-sm text-muted">
+          {formatCueTime(cue.start)} --&gt; {formatCueTime(cue.end)}
+        </p>
+        <p class="mt-1 text-ink">{cue.text}</p>
+      </div>
+    ))
+  }
+</div>

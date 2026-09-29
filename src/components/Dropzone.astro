@@ -1,0 +1,74 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  state?: 'idle' | 'hover' | 'drag' | 'error';
+  interactive?: boolean;
+}
+
+const { id, label, state = 'idle', interactive = false } = Astro.props;
+const labelId = `${id}-label`;
+const errorId = `${id}-error`;
+---
+
+<div>
+  <button
+    type="button"
+    id={id}
+    data-state={state}
+    data-dropzone-interactive={interactive ? '' : undefined}
+    aria-labelledby={labelId}
+    aria-describedby={state === 'error' ? errorId : undefined}
+    class:list={[
+      'w-full rounded-sf border-2 border-dashed bg-bg px-6 py-10 text-center text-ink',
+      'transition-colors motion-reduce:transition-none',
+      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
+      'border-brand data-[state=hover]:border-brand-hover data-[state=hover]:bg-surface',
+      'data-[state=drag]:bg-brand-soft',
+      'data-[state=error]:border-danger',
+      'hover:data-[state=idle]:border-brand-hover hover:data-[state=idle]:bg-surface',
+    ]}
+  >
+    <span id={labelId}>{label}</span>
+  </button>
+  {
+    state === 'error' && (
+      <p id={errorId} class="mt-2 text-sm text-danger">
+        Use an SRT, VTT, or ASS file.
+      </p>
+    )
+  }
+</div>
+
+<script>
+  const zones = document.querySelectorAll('[data-dropzone-interactive]');
+
+  for (const zone of zones) {
+    if (!(zone instanceof HTMLElement)) continue;
+
+    let depth = 0;
+
+    zone.addEventListener('dragenter', (event) => {
+      event.preventDefault();
+      depth += 1;
+      zone.dataset.state = 'drag';
+    });
+
+    zone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+    });
+
+    zone.addEventListener('dragleave', () => {
+      depth -= 1;
+      if (depth > 0) return;
+      depth = 0;
+      zone.dataset.state = 'idle';
+    });
+
+    zone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      depth = 0;
+      zone.dataset.state = 'idle';
+    });
+  }
+</script>

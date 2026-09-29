@@ -16,7 +16,7 @@
 ## Этап 1.5 — Визуальная база
 5. **Токены** — подключить `tokens.css` и `tailwind.tokens.js` (D4 Indigo + Mint), светлая + тёмная тема через `prefers-color-scheme`. ✅ в коде нет захардкоженных цветов.
 6. **Шрифт** — системный стек (без загрузки веб-шрифтов) + mono для превью субтитров. ✅ 0 запросов шрифтов.
-7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир brand, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (accent) для ключевого слова в H1. ✅ страница `/_styleguide` со всеми компонентами.
+7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир brand, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (accent) для ключевого слова в H1. ✅ компоненты собраны; страница `/_styleguide` со всеми компонентами.
 8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ favicon во всех размерах.
 
 ## Этап 2 — Ядро (без UI)

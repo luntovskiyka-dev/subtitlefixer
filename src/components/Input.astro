@@ -1,0 +1,28 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  kind: 'milliseconds' | 'encoding';
+  name?: string;
+}
+
+const { id, label, kind, name = id } = Astro.props;
+
+const fieldClass =
+  'w-full rounded-sf border border-line bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
+---
+
+<div class="flex max-w-sm flex-col gap-2">
+  <label for={id} class="text-sm font-medium text-ink">{label}</label>
+  {
+    kind === 'milliseconds' ? (
+      <input id={id} name={name} type="number" inputmode="numeric" step="1" class={fieldClass} />
+    ) : (
+      <select id={id} name={name} class={fieldClass}>
+        <option value="utf-8">UTF-8</option>
+        <option value="windows-1251">Windows-1251</option>
+        <option value="windows-1252">Windows-1252</option>
+      </select>
+    )
+  }
+</div>

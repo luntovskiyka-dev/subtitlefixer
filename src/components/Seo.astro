@@ -3,9 +3,10 @@ interface Props {
   title: string;
   description: string;
   path: string;
+  noindex?: boolean;
 }
 
-const { title, description, path } = Astro.props;
+const { title, description, path, noindex = false } = Astro.props;
 
 const site = Astro.site;
 if (!site) {
@@ -33,6 +34,7 @@ const jsonLd = JSON.stringify({
 
 <title>{title}</title>
 <meta name="description" content={description} />
+{noindex && <meta name="robots" content="noindex" />}
 <link rel="canonical" href={canonical} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

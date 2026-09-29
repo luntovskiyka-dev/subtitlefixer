@@ -1,0 +1,102 @@
+---
+import Base from '../layouts/Base.astro';
+import Badge from '../components/Badge.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import Dropzone from '../components/Dropzone.astro';
+import Input from '../components/Input.astro';
+import Mark from '../components/Mark.astro';
+import SubtitlePreview from '../components/SubtitlePreview.astro';
+
+const cues = [
+  { start: 12400, end: 15120, text: 'We should have left an hour ago.' },
+  { start: 62040, end: 65800, text: 'The train does not wait.' },
+];
+---
+
+<Base
+  title="Internal component set — subtitlefixer"
+  description="Internal component set for subtitlefixer controls. This page is not a public tool."
+  noindex
+>
+  <h1 class="text-3xl font-semibold leading-snug tracking-tight">
+    Internal <Mark>component</Mark> set
+  </h1>
+  <p class="mt-4 max-w-2xl text-lg leading-relaxed">
+    Internal component set for the controls on tool pages.
+  </p>
+
+  <div class="mt-16 flex flex-col gap-16">
+    <section aria-labelledby="buttons-heading">
+      <h2 id="buttons-heading" class="text-xl font-semibold tracking-tight">Buttons</h2>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <Button variant="primary">Shift</Button>
+        <Button variant="secondary">Copy offset</Button>
+        <Button variant="ghost">Clear</Button>
+      </div>
+    </section>
+
+    <section aria-labelledby="dropzone-heading">
+      <h2 id="dropzone-heading" class="text-xl font-semibold tracking-tight">Dropzone</h2>
+      <div class="mt-6">
+        <Dropzone id="dropzone" label="Drop a subtitle file" interactive />
+      </div>
+      <p class="mt-3 text-sm text-muted">Dragging changes the frame only. The file is not read.</p>
+      <div class="mt-8 grid gap-6 sm:grid-cols-3">
+        <div>
+          <h3 class="text-sm font-medium text-muted">Hover</h3>
+          <div class="mt-3">
+            <Dropzone id="dropzone-hover" label="Drop a subtitle file" state="hover" />
+          </div>
+        </div>
+        <div>
+          <h3 class="text-sm font-medium text-muted">Drag</h3>
+          <div class="mt-3">
+            <Dropzone id="dropzone-drag" label="Drop a subtitle file" state="drag" />
+          </div>
+        </div>
+        <div>
+          <h3 class="text-sm font-medium text-muted">Error</h3>
+          <div class="mt-3">
+            <Dropzone id="dropzone-error" label="Drop a subtitle file" state="error" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="badge-heading">
+      <h2 id="badge-heading" class="text-xl font-semibold tracking-tight">Badge</h2>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <Badge>SRT</Badge>
+        <Badge>VTT</Badge>
+        <Badge>ASS</Badge>
+      </div>
+    </section>
+
+    <section aria-labelledby="card-heading">
+      <h2 id="card-heading" class="text-xl font-semibold tracking-tight">Card</h2>
+      <div class="mt-6">
+        <Card>
+          <p class="leading-relaxed">A cue list sits on a surface with a quiet border.</p>
+        </Card>
+      </div>
+    </section>
+
+    <section aria-labelledby="fields-heading">
+      <h2 id="fields-heading" class="text-xl font-semibold tracking-tight">Fields</h2>
+      <div class="mt-6 flex flex-col gap-6">
+        <Input id="offset-ms" label="Offset in milliseconds" kind="milliseconds" />
+        <Input id="encoding" label="Encoding" kind="encoding" />
+      </div>
+    </section>
+
+    <section aria-labelledby="preview-heading">
+      <h2 id="preview-heading" class="text-xl font-semibold tracking-tight">Subtitle preview</h2>
+      <div class="mt-6">
+        <Card>
+          <SubtitlePreview cues={cues} />
+        </Card>
+      </div>
+    </section>
+  </div>
+</Base>

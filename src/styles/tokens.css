@@ -22,5 +22,6 @@
     --sf-accent: #34D399; --sf-accent-strong: #6EE7B7;
     --sf-text: #F3F4F6; --sf-muted: #9CA3AF;
     --sf-bg: #0B0D17; --sf-surface: #12152A; --sf-border: #262A45;
+    --sf-danger: #EF4444; /* #DC2626 is below 4.5:1 on the dark background */
   }
 }

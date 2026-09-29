@@ -1,3 +1,13 @@
 @import "tailwindcss";
 @config "../../tailwind.config.cjs";
 @import "./tokens.css";
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
