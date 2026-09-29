@@ -1,0 +1,15 @@
+---
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="border-b border-line bg-surface">
+  <div class="mx-auto flex w-full max-w-3xl items-center px-6 py-5">
+    <a
+      href="/"
+      class="rounded-sf text-lg font-semibold tracking-tight text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+      aria-current={current === '/' ? 'page' : undefined}
+    >
+      subtitlefixer
+    </a>
+  </div>
+</header>

@@ -1,0 +1,44 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+
+const site = Astro.site;
+if (!site) {
+  throw new Error('Set site in astro.config.mjs to build canonical URLs.');
+}
+
+const withLeadingSlash = path.startsWith('/') ? path : `/${path}`;
+const canonicalPath = withLeadingSlash === '/' ? '/' : withLeadingSlash.replace(/\/+$/, '');
+const canonical = new URL(canonicalPath, site).href;
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: title,
+  description,
+  url: canonical,
+  applicationCategory: 'UtilitiesApplication',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+}).replace(/</g, '\\u003c');
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="en_US" />
+<link rel="alternate" hreflang="en" href={canonical} />
+<link rel="alternate" hreflang="x-default" href={canonical} />
+<script type="application/ld+json" set:html={jsonLd} />

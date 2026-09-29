@@ -1,0 +1,28 @@
+---
+import { tools } from '../data/tools';
+
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<footer class="border-t border-line">
+  <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 py-8">
+    <nav aria-label="Tools">
+      <ul class="flex flex-wrap gap-x-6 gap-y-2">
+        {
+          Object.entries(tools).map(([slug, title]) => (
+            <li>
+              <a
+                href={`/${slug}`}
+                class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+                aria-current={current === `/${slug}` ? 'page' : undefined}
+              >
+                {title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <p class="text-sm text-muted">Support this project</p>
+  </div>
+</footer>

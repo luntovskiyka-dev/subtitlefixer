@@ -1,0 +1,10 @@
+# subtitlefixer.com
+
+> Free subtitle tools that run entirely in the browser. Files are never uploaded.
+
+## Tools
+- [Shift subtitles](https://subtitlefixer.com/shift-subtitles): move all SRT/VTT/ASS timings forward or back by milliseconds.
+- [Fix subtitle encoding](https://subtitlefixer.com/fix-subtitle-encoding): repair garbled characters and convert subtitles to UTF-8.
+- [SRT to VTT](https://subtitlefixer.com/srt-to-vtt): convert SubRip to WebVTT for HTML5 video.
+- [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT to SubRip.
+- [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert Advanced SubStation Alpha to SRT, stripping styles.
