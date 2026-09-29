@@ -1,0 +1,140 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { tools } from '../data/tools';
+
+interface Props {
+  entry: CollectionEntry<'tools'>;
+  /** Render only the FAQPage JSON-LD script, for the document head. */
+  jsonLdOnly?: boolean;
+}
+
+const { entry, jsonLdOnly = false } = Astro.props;
+const { h1, answer, steps, exampleBefore, exampleAfter, does, doesnt, faq, related } = entry.data;
+
+const faqJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+}).replace(/</g, '\\u003c');
+
+function titleForSlug(slug: string): string {
+  if (slug in tools) {
+    return tools[slug as keyof typeof tools];
+  }
+  return slug;
+}
+
+const linkClass =
+  'rounded-sf text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand';
+---
+
+{
+  jsonLdOnly ? (
+    <script type="application/ld+json" set:html={faqJsonLd} />
+  ) : (
+    <div class="flex flex-col gap-16">
+      <h1 class="text-3xl font-semibold tracking-tight">{h1}</h1>
+
+      <section id="tool" />
+
+      <p class="text-lg leading-relaxed">{answer}</p>
+
+      <section aria-labelledby="how-to-heading">
+        <h2 id="how-to-heading" class="text-xl font-semibold tracking-tight">
+          How to
+        </h2>
+        <ol class="mt-6 list-decimal space-y-3 pl-5 leading-relaxed">
+          {steps.map((step) => (
+            <li>{step}</li>
+          ))}
+        </ol>
+      </section>
+
+      <section aria-labelledby="example-heading">
+        <h2 id="example-heading" class="text-xl font-semibold tracking-tight">
+          Before and after
+        </h2>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2">
+          <div>
+            <h3 id="example-before" class="text-sm font-medium text-muted">
+              Before
+            </h3>
+            <pre
+              aria-labelledby="example-before"
+              class="mt-3 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink"
+            >{exampleBefore.trim()}</pre>
+          </div>
+          <div>
+            <h3 id="example-after" class="text-sm font-medium text-muted">
+              After
+            </h3>
+            <pre
+              aria-labelledby="example-after"
+              class="mt-3 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink"
+            >{exampleAfter.trim()}</pre>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="scope-heading">
+        <h2 id="scope-heading" class="text-xl font-semibold tracking-tight">
+          What it does and does not do
+        </h2>
+        <div class="mt-6 grid gap-8 sm:grid-cols-2">
+          <div>
+            <h3 class="text-base font-semibold">What it does</h3>
+            <ul class="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
+              {does.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-base font-semibold">What it doesn't</h3>
+            <ul class="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
+              {doesnt.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="faq-heading">
+        <h2 id="faq-heading" class="text-xl font-semibold tracking-tight">
+          FAQ
+        </h2>
+        <div class="mt-6 flex flex-col gap-8">
+          {faq.map((item) => (
+            <div>
+              <h3 class="text-base font-semibold leading-relaxed">{item.question}</h3>
+              <p class="mt-2 leading-relaxed">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="related-heading">
+        <h2 id="related-heading" class="text-xl font-semibold tracking-tight">
+          Related tools
+        </h2>
+        <ul class="mt-6 flex flex-col gap-3">
+          {related.map((slug) => (
+            <li>
+              <a href={`/${slug}`} class={linkClass}>
+                {titleForSlug(slug)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  )
+}

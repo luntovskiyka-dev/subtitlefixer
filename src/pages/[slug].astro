@@ -1,0 +1,25 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ToolPage from '../components/ToolPage.astro';
+
+export async function getStaticPaths() {
+  const tools = await getCollection('tools');
+  return tools.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'tools'>;
+}
+
+const { entry } = Astro.props;
+const { title, description } = entry.data;
+---
+
+<Base title={title} description={description}>
+  <ToolPage entry={entry} jsonLdOnly slot="head" />
+  <ToolPage entry={entry} />
+</Base>
