@@ -1,0 +1,27 @@
+---
+import { tools } from '../data/tools';
+import Base from '../layouts/Base.astro';
+
+const linkClass =
+  'rounded-sf text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand';
+---
+
+<Base
+  title="Page not found — SubtitleFixer"
+  description="That page is not on SubtitleFixer."
+  noindex
+>
+  <h1 class="text-3xl font-semibold tracking-tight">Page not found</h1>
+  <p class="mt-6 max-w-2xl text-lg leading-relaxed">That page is not on SubtitleFixer.</p>
+  <ul class="mt-8 flex flex-col gap-3">
+    {
+      Object.entries(tools).map(([slug, name]) => (
+        <li>
+          <a href={`/${slug}`} class={linkClass}>
+            {name}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

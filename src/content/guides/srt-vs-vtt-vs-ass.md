@@ -1,5 +1,5 @@
 ---
-title: "SRT vs VTT vs ASS — subtitlefixer"
+title: "SRT vs VTT vs ASS — SubtitleFixer"
 description: "SRT is the usual subtitle file, VTT is the web video format, and ASS carries styles and positions."
 h1: "SRT vs VTT vs ASS"
 ---

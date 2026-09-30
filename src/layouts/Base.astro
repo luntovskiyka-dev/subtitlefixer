@@ -3,14 +3,17 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Seo from '../components/Seo.astro';
+import type { JsonLdInput } from '../lib/seo/jsonld';
 
 interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  schema?: JsonLdInput['kind'];
+  schemaName?: string;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, schema = 'none', schemaName } = Astro.props;
 ---
 
 <!doctype html>
@@ -18,9 +21,17 @@ const { title, description, noindex = false } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <Seo title={title} description={description} path={Astro.url.pathname} noindex={noindex} />
+    <Seo
+      title={title}
+      description={description}
+      path={Astro.url.pathname}
+      noindex={noindex}
+      schema={schema}
+      schemaName={schemaName}
+    />
     <slot name="head" />
   </head>
   <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">

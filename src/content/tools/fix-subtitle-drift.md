@@ -1,5 +1,5 @@
 ---
-title: "Fix subtitle drift — subtitlefixer"
+title: "Fix subtitle drift — SubtitleFixer"
 description: "Fix subtitle drift with two cue times or a frame-rate preset. The SRT, VTT, or ASS file stays on your device."
 h1: "Fix Subtitle Drift (Two-Point Sync)"
 answer: "Two-point sync retimes every SRT, VTT, or ASS cue from two times you type, in your browser, and the file stays on your device."

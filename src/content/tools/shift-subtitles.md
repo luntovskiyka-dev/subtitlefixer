@@ -1,5 +1,5 @@
 ---
-title: "Shift subtitles — subtitlefixer"
+title: "Shift subtitles — SubtitleFixer"
 description: "Shift SRT, VTT, and ASS subtitle timings by milliseconds in your browser. The file stays on your device."
 h1: "Shift subtitles"
 answer: "Shift subtitles moves SRT, VTT, and ASS timings by a given number of milliseconds in your browser."

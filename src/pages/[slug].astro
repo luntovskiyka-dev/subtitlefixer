@@ -6,11 +6,12 @@ import DriftTool from '../components/DriftTool.astro';
 import EncodingTool from '../components/EncodingTool.astro';
 import ShiftTool from '../components/ShiftTool.astro';
 import ToolPage from '../components/ToolPage.astro';
+import { tools } from '../data/tools';
 import Base from '../layouts/Base.astro';
 
 export async function getStaticPaths() {
-  const tools = await getCollection('tools');
-  return tools.map((entry) => ({
+  const entries = await getCollection('tools');
+  return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
   }));
@@ -22,9 +23,11 @@ interface Props {
 
 const { entry } = Astro.props;
 const { title, description } = entry.data;
+const toolName = tools[entry.id as keyof typeof tools];
+if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} schema="webapp" schemaName={toolName}>
   <ToolPage entry={entry} jsonLdOnly slot="head" />
   <ToolPage entry={entry}>
     {entry.id === 'shift-subtitles' && <ShiftTool />}

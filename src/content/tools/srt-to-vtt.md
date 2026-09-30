@@ -1,5 +1,5 @@
 ---
-title: "SRT to VTT — subtitlefixer"
+title: "SRT to VTT — SubtitleFixer"
 description: "Convert SRT to VTT in your browser. The file stays on the device."
 h1: "SRT to VTT"
 answer: "SRT to VTT turns SubRip cues into WebVTT in your browser, and the file stays on the device."

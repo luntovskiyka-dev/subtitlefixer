@@ -1,5 +1,5 @@
 ---
-title: "Fix subtitle encoding — subtitlefixer"
+title: "Fix subtitle encoding — SubtitleFixer"
 description: "Repair a garbled subtitle file and save it as UTF-8 in your browser. The file stays on your device."
 h1: "Fix subtitle encoding"
 answer: "Fix subtitle encoding reads the file in your browser, lets you compare other readings, and saves UTF-8 while the file stays on your device."

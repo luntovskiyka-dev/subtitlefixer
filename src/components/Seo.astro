@@ -1,5 +1,7 @@
 ---
 import { ogImageFilename } from '../lib/og/card';
+import { buildJsonLd, type JsonLdInput } from '../lib/seo/jsonld';
+import { BRAND, canonicalHref } from '../lib/seo/urls';
 
 interface Props {
   title: string;
@@ -7,33 +9,42 @@ interface Props {
   path: string;
   noindex?: boolean;
   image?: string;
+  schema?: JsonLdInput['kind'];
+  /** WebApplication name, or Article headline. */
+  schemaName?: string;
 }
 
-const { title, description, path, noindex = false, image } = Astro.props;
+const { title, description, path, noindex = false, image, schema = 'none', schemaName } = Astro.props;
 
 const site = Astro.site;
 if (!site) {
   throw new Error('Set site in astro.config.mjs to build canonical URLs.');
 }
 
-const withLeadingSlash = path.startsWith('/') ? path : `/${path}`;
-const canonicalPath = withLeadingSlash === '/' ? '/' : withLeadingSlash.replace(/\/+$/, '');
-const canonical = new URL(canonicalPath, site).href;
-const ogImage = image ?? new URL(`/og/${ogImageFilename(canonicalPath)}`, site).href;
+const canonical = canonicalHref(site, path);
+const ogImage = image ?? new URL(`/og/${ogImageFilename(new URL(canonical).pathname)}`, site).href;
 
-const jsonLd = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'WebApplication',
-  name: title,
-  description,
-  url: canonical,
-  applicationCategory: 'UtilitiesApplication',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
-}).replace(/</g, '\\u003c');
+const jsonLdInput: JsonLdInput = (() => {
+  if (schema === 'home') {
+    return {
+      kind: 'home',
+      origin: site.origin,
+      logo: new URL('/apple-touch-icon.png', site).href,
+    };
+  }
+  if (schema === 'article' || schema === 'webapp') {
+    const name = schemaName?.trim() ?? '';
+    if (!name) throw new Error(`Missing schema name for ${schema}.`);
+    if (schema === 'article') {
+      return { kind: 'article', headline: name, description, url: canonical };
+    }
+    return { kind: 'webapp', name, description, url: canonical };
+  }
+  return { kind: 'none' };
+})();
+
+const jsonLdData = buildJsonLd(jsonLdInput);
+const jsonLd = jsonLdData === null ? null : JSON.stringify(jsonLdData).replace(/</g, '\\u003c');
 ---
 
 <title>{title}</title>
@@ -44,6 +55,7 @@ const jsonLd = JSON.stringify({
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:type" content="website" />
+<meta property="og:site_name" content={BRAND} />
 <meta property="og:locale" content="en_US" />
 {!noindex && <meta property="og:image" content={ogImage} />}
 {!noindex && <meta property="og:image:width" content="1200" />}
@@ -51,4 +63,4 @@ const jsonLd = JSON.stringify({
 {!noindex && <meta property="og:image:alt" content={title} />}
 <link rel="alternate" hreflang="en" href={canonical} />
 <link rel="alternate" hreflang="x-default" href={canonical} />
-<script type="application/ld+json" set:html={jsonLd} />
+{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}

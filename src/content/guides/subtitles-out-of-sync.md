@@ -1,5 +1,5 @@
 ---
-title: "Subtitles out of sync: shift or drift — subtitlefixer"
+title: "Subtitles out of sync: shift or drift — SubtitleFixer"
 description: "A constant delay is the same offset on every cue. Drift grows toward the end of the video and needs more than one offset."
 h1: "Subtitles out of sync: shift or drift"
 ---

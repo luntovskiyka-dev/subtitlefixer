@@ -80,7 +80,7 @@
 22. `sitemap.xml` (`@astrojs/sitemap`), `robots.txt`, `llms.txt` (инструменты + 1 фраза о каждом).
 23. Главная (список инструментов), About, Privacy («файлы не покидают браузер», дата обновления).
 24. Гайды по адресу `/guides/<slug>`: `/guides/subtitles-out-of-sync` («Subtitles Out of Sync? Shift vs Drift») и `/guides/srt-vs-vtt-vs-ass` — с внутренними ссылками на инструменты.
-24a. **URL-правило (Worker):** все адреса без слэша в конце (`build.format: 'file'`, `trailingSlash: 'never'` в `astro.config`). В Worker явно: запрос `/path/` → 301 на `/path` (query сохраняется), корень `/` без изменений; `/path.html` → 301 на `/path` (в `wrangler` assets оставить `html_handling: "auto-trailing-slash"` по умолчанию, не отключать). На каждой странице `<link rel="canonical">` на `https://subtitlefixer.com/<path>` без слэша; sitemap содержит только канонические URL. ✅ `curl -I /shift-subtitles/` и `/shift-subtitles.html` → 301 на `/shift-subtitles`; canonical совпадает с URL в sitemap.
+24a. ✅ **URL-правило (Worker):** все адреса без слэша в конце (`build.format: 'file'`, `trailingSlash: 'never'` в `astro.config`). В Worker явно: запрос `/path/` → 301 на `/path` (query сохраняется), корень `/` без изменений; `/path.html` → 301 на `/path` (в `wrangler` assets оставить `html_handling: "auto-trailing-slash"` по умолчанию, не отключать). На каждой странице `<link rel="canonical">` на `https://subtitlefixer.com/<path>` без слэша; sitemap содержит только канонические URL. ✅ `curl -I /shift-subtitles/` и `/shift-subtitles.html` → 301 на `/shift-subtitles`; canonical совпадает с URL в sitemap.
 
 ## Этап 5 — Запуск (вручную)
 25. Cloudflare Pages: подключить репо, build `npm run build`, output `dist`, привязать домен.

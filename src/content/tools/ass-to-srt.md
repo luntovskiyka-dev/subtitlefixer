@@ -1,5 +1,5 @@
 ---
-title: "ASS to SRT — subtitlefixer"
+title: "ASS to SRT — SubtitleFixer"
 description: "Convert ASS and SSA subtitles to SRT in your browser. The file stays on the device."
 h1: "ASS to SRT"
 answer: "ASS to SRT turns ASS and SSA cues into SubRip in your browser, and the file stays on the device."

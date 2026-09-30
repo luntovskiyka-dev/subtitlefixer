@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import { canonicalSitemapLoc } from './src/lib/seo/urls.ts';
+
+const seenSitemapLocs = new Set();
 
 // A `_` segment under src/pages is not a public route. Inject the guide so /_styleguide still prerenders.
 /** @type {import('astro').AstroIntegration} */
@@ -45,13 +48,24 @@ const ogImages = {
 export default defineConfig({
   site: 'https://subtitlefixer.com',
   output: 'static',
+  trailingSlash: 'never',
+  build: {
+    format: 'file',
+  },
   integrations: [
     styleguideRoute,
     ogImages,
     sitemap({
       filter(page) {
-        const { pathname } = new URL(page);
-        return pathname !== '/_styleguide' && !pathname.startsWith('/_styleguide/');
+        const loc = canonicalSitemapLoc(page);
+        if (!loc || seenSitemapLocs.has(loc)) return false;
+        seenSitemapLocs.add(loc);
+        return true;
+      },
+      serialize(item) {
+        const loc = canonicalSitemapLoc(item.url);
+        if (!loc) return undefined;
+        return { ...item, url: loc };
       },
     }),
   ],
