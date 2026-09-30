@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+
+const linkClass =
+  'rounded-sf text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand';
+---
+
+<Base
+  title="Privacy — subtitlefixer"
+  description="Subtitle files are read and saved in the browser and are not uploaded."
+>
+  <h1 class="text-3xl font-semibold tracking-tight">Privacy</h1>
+  <p class="mt-6 max-w-2xl text-lg leading-relaxed">
+    Subtitle files are read and saved in the browser and are not uploaded.
+  </p>
+  <p class="mt-6 text-sm text-muted">Updated 30 September 2026</p>
+  <p class="mt-6">
+    <a href="/" class={linkClass}>Home</a>
+  </p>
+</Base>

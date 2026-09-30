@@ -13,7 +13,7 @@ import ToolStatus from './ToolStatus.astro';
     <select
       id="encoding-label"
       name="language"
-      class="w-full rounded-sf border border-line bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      class="min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <option value="utf-8">UTF-8</option>
       <option value="windows-1251">Windows-1251</option>
@@ -25,17 +25,17 @@ import ToolStatus from './ToolStatus.astro';
       <option value="gb18030">GB18030</option>
     </select>
   </div>
-  <div class="flex items-center gap-3">
+  <div class="flex min-h-11 items-center gap-3">
     <input
       id="encoding-bom"
       name="bom"
       type="checkbox"
-      class="size-4 border-line text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      class="size-6 border-line text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     />
     <label for="encoding-bom" class="text-sm font-medium text-ink">Include UTF-8 BOM</label>
   </div>
-  <div>
-    <Button type="submit">Download UTF-8 file</Button>
+  <div class="w-full sm:w-auto">
+    <Button type="submit" class="w-full sm:w-auto">Download UTF-8 file</Button>
   </div>
   <div id="encoding-result" class="flex flex-col gap-3" aria-live="polite"></div>
 </form>
@@ -96,7 +96,7 @@ import ToolStatus from './ToolStatus.astro';
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     const paragraph = document.createElement('p');
-    paragraph.className = 'text-sm text-danger';
+    paragraph.className = 'text-sm text-danger sf-rise';
     paragraph.textContent = message;
     result.append(paragraph);
   }
@@ -106,7 +106,7 @@ import ToolStatus from './ToolStatus.astro';
     result.replaceChildren();
     const preview = document.createElement('pre');
     preview.className =
-      'overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+      'overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
     preview.textContent = text;
     result.append(preview);
   }
@@ -173,13 +173,14 @@ import ToolStatus from './ToolStatus.astro';
       if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
-      renderStatus(status, 'loaded', names());
       const first = files[0];
       if (!first) {
         candidates.replaceChildren();
         showError('Add a subtitle file.');
+        renderStatus(status, 'error', names());
         return;
       }
+      renderStatus(status, 'loaded', names());
       labelSelect.value = showCandidates(first.bytes);
       showSelectedText();
     });

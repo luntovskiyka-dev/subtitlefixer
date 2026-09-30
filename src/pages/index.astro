@@ -1,5 +1,21 @@
 ---
+import llms from '../../public/llms.txt?raw';
+import { tools } from '../data/tools';
 import Base from '../layouts/Base.astro';
+const sentenceBySlug = new Map<string, string>();
+for (const line of llms.split('\n')) {
+  const match = line.match(/^- \[[^\]]+\]\(https:\/\/subtitlefixer\.com\/([^)]+)\): (.+?)\s*$/);
+  if (match) sentenceBySlug.set(match[1], match[2].trim());
+}
+
+const toolList = Object.entries(tools).map(([slug, name]) => {
+  const sentence = sentenceBySlug.get(slug);
+  if (!sentence) throw new Error(`Missing llms.txt sentence for /${slug}.`);
+  return { slug, name, sentence };
+});
+
+const linkClass =
+  'rounded-sf font-medium text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand';
 ---
 
 <Base
@@ -9,4 +25,19 @@ import Base from '../layouts/Base.astro';
   <h1 class="max-w-2xl text-2xl font-medium leading-relaxed tracking-tight sm:text-3xl">
     Free subtitle tools that run entirely in your browser. Your files never leave your device.
   </h1>
+  <section aria-labelledby="tools-heading" class="mt-16">
+    <h2 id="tools-heading" class="text-xl font-semibold tracking-tight">Tools</h2>
+    <ul class="mt-6 flex flex-col gap-6">
+      {
+        toolList.map(({ slug, name, sentence }) => (
+          <li>
+            <a href={`/${slug}`} class={linkClass}>
+              {name}
+            </a>
+            <p class="mt-1 text-sm leading-relaxed text-muted">{sentence}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 </Base>

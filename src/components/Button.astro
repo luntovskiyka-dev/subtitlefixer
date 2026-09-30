@@ -2,9 +2,10 @@
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost';
   type?: 'button' | 'submit' | 'reset';
+  class?: string;
 }
 
-const { variant = 'primary', type = 'button' } = Astro.props;
+const { variant = 'primary', type = 'button', class: className } = Astro.props;
 
 const variantClass = {
   primary: 'bg-brand text-bg hover:bg-brand-hover',
@@ -16,10 +17,11 @@ const variantClass = {
 <button
   type={type}
   class:list={[
-    'inline-flex items-center justify-center rounded-sf px-4 py-2 text-sm font-medium',
+    'inline-flex min-h-11 items-center justify-center rounded-sf px-4 py-2 text-sm font-medium',
     'transition-colors motion-reduce:transition-none',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
     variantClass,
+    className,
   ]}
 >
   <slot />

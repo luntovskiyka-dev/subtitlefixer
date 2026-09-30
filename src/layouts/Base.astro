@@ -25,7 +25,7 @@ const { title, description, noindex = false } = Astro.props;
   </head>
   <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
     <Header />
-    <main class="mx-auto w-full max-w-3xl flex-1 px-6 py-16 sm:py-24">
+    <main class="mx-auto w-full min-w-0 max-w-3xl flex-1 px-4 py-16 sm:px-6 sm:py-24">
       <slot />
     </main>
     <Footer />

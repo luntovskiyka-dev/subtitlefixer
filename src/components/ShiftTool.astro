@@ -10,8 +10,8 @@ import ToolStatus from './ToolStatus.astro';
   <ToolStatus id="shift-status" />
   <Input id="shift-offset" label="Offset in milliseconds" kind="milliseconds" name="offset" />
   <Input id="shift-from-cue" label="Start from cue" kind="milliseconds" name="from-cue" />
-  <div>
-    <Button type="submit">Download shifted file</Button>
+  <div class="w-full sm:w-auto">
+    <Button type="submit" class="w-full sm:w-auto">Download shifted file</Button>
   </div>
   <div id="shift-result" class="flex flex-col gap-3" aria-live="polite"></div>
 </form>
@@ -61,13 +61,13 @@ import ToolStatus from './ToolStatus.astro';
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger';
+      paragraph.className = 'text-sm text-danger sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
     if (!cues || cues.length === 0) return;
     const preview = document.createElement('pre');
-    preview.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    preview.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
     preview.textContent = cues.map((cue) => `${cue.start} --> ${cue.end}\n${cue.text}`).join('\n\n');
     result.append(preview);
   }

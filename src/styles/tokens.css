@@ -4,14 +4,15 @@
   --sf-brand-hover: #312E81;
   --sf-brand-soft: #E0E7FF;  /* вторичные кнопки, бейджи */
   --sf-accent: #A7F3D0;      /* мятный: маркер в заголовке, success, «готово» */
-  --sf-accent-strong: #059669;
+  --sf-accent-strong: #065F46;
   --sf-text: #111827;
   --sf-muted: #6B7280;
   --sf-bg: #FFFFFF;
   --sf-surface: #F8F9FF;
   --sf-border: #E4E7F5;
+  --sf-control: #767C9B;
   --sf-danger: #DC2626;
-  --sf-warning: #D97706;
+  --sf-warning: #B45309;
   --sf-radius: 12px;
   --sf-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
   --sf-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -19,9 +20,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --sf-brand: #818CF8; --sf-brand-hover: #A5B4FC; --sf-brand-soft: #1E1B4B;
-    --sf-accent: #34D399; --sf-accent-strong: #6EE7B7;
+    --sf-accent: #34D399; --sf-accent-strong: #064E3B;
     --sf-text: #F3F4F6; --sf-muted: #9CA3AF;
-    --sf-bg: #0B0D17; --sf-surface: #12152A; --sf-border: #262A45;
+    --sf-bg: #0B0D17; --sf-surface: #12152A; --sf-border: #262A45; --sf-control: #6A6F99;
     --sf-danger: #EF4444; /* #DC2626 is below 4.5:1 on the dark background */
+    --sf-warning: #D97706; /* #B45309 is below 4.5:1 on the dark background */
   }
 }

@@ -22,7 +22,7 @@ const inputId = `${id}-file`;
     aria-describedby={state === 'error' ? errorId : undefined}
     aria-controls={interactive ? inputId : undefined}
     class:list={[
-      'w-full rounded-sf border-2 border-dashed bg-bg px-6 py-10 text-center text-ink',
+      'min-h-28 w-full rounded-sf border-2 border-dashed bg-bg px-4 py-10 text-center text-ink',
       'transition-colors motion-reduce:transition-none',
       'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
       'border-brand data-[state=hover]:border-brand-hover data-[state=hover]:bg-surface',
@@ -31,7 +31,7 @@ const inputId = `${id}-file`;
       'hover:data-[state=idle]:border-brand-hover hover:data-[state=idle]:bg-surface',
     ]}
   >
-    <span id={labelId}>{label}</span>
+    <span id={labelId} class="block whitespace-normal break-words">{label}</span>
   </button>
   {
     interactive && (

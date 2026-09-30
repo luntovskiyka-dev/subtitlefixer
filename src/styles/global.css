@@ -2,6 +2,21 @@
 @config "../../tailwind.config.cjs";
 @import "./tokens.css";
 
+@keyframes sf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sf-rise {
+  animation: sf-rise 160ms ease-out 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -9,5 +24,9 @@
     transition: none !important;
     animation: none !important;
     scroll-behavior: auto !important;
+  }
+
+  .sf-rise {
+    animation: none;
   }
 }

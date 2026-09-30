@@ -23,8 +23,8 @@ const label = `Add one or more ${sourceLabel} files`;
 >
   <Dropzone id="convert-dropzone" label={label} interactive />
   <ToolStatus id="convert-status" />
-  <div>
-    <Button type="submit" variant="primary">Download converted file</Button>
+  <div class="w-full sm:w-auto">
+    <Button type="submit" variant="primary" class="w-full sm:w-auto">Download converted file</Button>
   </div>
   <div id="convert-result" class="flex flex-col gap-3" aria-live="polite"></div>
 </form>
@@ -63,13 +63,13 @@ const label = `Add one or more ${sourceLabel} files`;
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger';
+      paragraph.className = 'text-sm text-danger sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
     if (preview === null) return;
     const block = document.createElement('pre');
-    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
     block.textContent = preview;
     result.append(block);
   }
@@ -99,9 +99,9 @@ const label = `Add one or more ${sourceLabel} files`;
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (!source || !target) return;
       const chosen = names();
       renderStatus(status, 'working', chosen);
-      if (!source || !target) return;
       if (files.length === 0) {
         showResult([`Add one or more ${sourceLabel} files.`], null);
         renderStatus(status, 'error', chosen);

@@ -1,12 +1,15 @@
 ---
+import { ogImageFilename } from '../lib/og/card';
+
 interface Props {
   title: string;
   description: string;
   path: string;
   noindex?: boolean;
+  image?: string;
 }
 
-const { title, description, path, noindex = false } = Astro.props;
+const { title, description, path, noindex = false, image } = Astro.props;
 
 const site = Astro.site;
 if (!site) {
@@ -16,6 +19,7 @@ if (!site) {
 const withLeadingSlash = path.startsWith('/') ? path : `/${path}`;
 const canonicalPath = withLeadingSlash === '/' ? '/' : withLeadingSlash.replace(/\/+$/, '');
 const canonical = new URL(canonicalPath, site).href;
+const ogImage = image ?? new URL(`/og/${ogImageFilename(canonicalPath)}`, site).href;
 
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',
@@ -41,6 +45,10 @@ const jsonLd = JSON.stringify({
 <meta property="og:url" content={canonical} />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="en_US" />
+{!noindex && <meta property="og:image" content={ogImage} />}
+{!noindex && <meta property="og:image:width" content="1200" />}
+{!noindex && <meta property="og:image:height" content="630" />}
+{!noindex && <meta property="og:image:alt" content={title} />}
 <link rel="alternate" hreflang="en" href={canonical} />
 <link rel="alternate" hreflang="x-default" href={canonical} />
 <script type="application/ld+json" set:html={jsonLd} />

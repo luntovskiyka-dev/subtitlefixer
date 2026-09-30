@@ -27,4 +27,13 @@ const tools = defineCollection({
   }),
 });
 
-export const collections = { tools };
+const guides = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/guides' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    h1: z.string(),
+  }),
+});
+
+export const collections = { tools, guides };

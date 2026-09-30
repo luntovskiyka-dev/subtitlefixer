@@ -1,11 +1,13 @@
 ---
+import { getCollection } from 'astro:content';
 import { tools } from '../data/tools';
 
 const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare(b.id));
 ---
 
 <footer class="border-t border-line">
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 py-8">
+  <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 sm:px-6">
     <nav aria-label="Tools">
       <ul class="flex flex-wrap gap-x-6 gap-y-2">
         {
@@ -17,6 +19,41 @@ const current = Astro.url.pathname.replace(/\/$/, '') || '/';
                 aria-current={current === `/${slug}` ? 'page' : undefined}
               >
                 {title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <nav aria-label="Site">
+      <ul class="flex flex-wrap gap-x-6 gap-y-2">
+        <li>
+          <a
+            href="/about"
+            class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            aria-current={current === '/about' ? 'page' : undefined}
+          >
+            About
+          </a>
+        </li>
+        <li>
+          <a
+            href="/privacy"
+            class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            aria-current={current === '/privacy' ? 'page' : undefined}
+          >
+            Privacy
+          </a>
+        </li>
+        {
+          guides.map((guide) => (
+            <li>
+              <a
+                href={`/guides/${guide.id}`}
+                class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+                aria-current={current === `/guides/${guide.id}` ? 'page' : undefined}
+              >
+                {guide.data.h1}
               </a>
             </li>
           ))

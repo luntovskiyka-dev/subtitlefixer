@@ -7,8 +7,8 @@ import ToolStatus from './ToolStatus.astro';
 <form id="ass-form" class="flex flex-col gap-6">
   <Dropzone id="ass-dropzone" label="Add one or more ASS or SSA files" interactive />
   <ToolStatus id="ass-status" />
-  <div>
-    <Button type="submit" variant="primary">Download SRT file</Button>
+  <div class="w-full sm:w-auto">
+    <Button type="submit" variant="primary" class="w-full sm:w-auto">Download SRT file</Button>
   </div>
   <div id="ass-result" class="flex flex-col gap-3" aria-live="polite"></div>
 </form>
@@ -48,13 +48,13 @@ import ToolStatus from './ToolStatus.astro';
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger';
+      paragraph.className = 'text-sm text-danger sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
     if (preview === null) return;
     const block = document.createElement('pre');
-    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
     block.textContent = preview;
     result.append(block);
   }
