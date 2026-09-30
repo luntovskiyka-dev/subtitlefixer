@@ -2,6 +2,11 @@ name = "subtitlefixer"
 compatibility_date = "2026-09-28"
 main = "worker/index.ts"
 
+# Workers Builds runs `npx wrangler deploy` with no separate build step.
+# Wrangler runs this before it checks that assets.directory exists.
+[build]
+command = "npm run build"
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
