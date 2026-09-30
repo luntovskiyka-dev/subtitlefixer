@@ -6,10 +6,23 @@ const current = Astro.url.pathname.replace(/\/$/, '') || '/';
   <div class="mx-auto flex w-full max-w-3xl items-center px-6 py-5">
     <a
       href="/"
-      class="rounded-sf text-lg font-semibold tracking-tight text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+      class="inline-flex items-center gap-2 rounded-sf text-lg tracking-tight text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+      aria-label="subtitlefixer"
       aria-current={current === '/' ? 'page' : undefined}
     >
-      subtitlefixer
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+        class="size-5 shrink-0"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M4.15 6.25H19.85A2.4 2.4 0 0 1 22.25 8.65V15.35A2.4 2.4 0 0 1 19.85 17.75H4.15A2.4 2.4 0 0 1 1.75 15.35V8.65A2.4 2.4 0 0 1 4.15 6.25ZM5.05 8.4H18.95A1.15 1.15 0 0 1 20.1 9.55V14.45A1.15 1.15 0 0 1 18.95 15.6H5.05A1.15 1.15 0 0 1 3.9 14.45V9.55A1.15 1.15 0 0 1 5.05 8.4ZM7.15 10.9H15.15A1.1 1.1 0 0 1 16.25 12V12A1.1 1.1 0 0 1 15.15 13.1H7.15A1.1 1.1 0 0 1 6.05 12V12A1.1 1.1 0 0 1 7.15 10.9Z"
+        />
+      </svg>
+      <span class="font-normal">subtitle</span><span class="font-bold">fixer</span>
     </a>
   </div>
 </header>

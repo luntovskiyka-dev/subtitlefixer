@@ -17,7 +17,7 @@
 5. **Токены** — подключить `tokens.css` и `tailwind.tokens.js` (D4 Indigo + Mint), светлая + тёмная тема через `prefers-color-scheme`. ✅ в коде нет захардкоженных цветов.
 6. **Шрифт** — системный стек (без загрузки веб-шрифтов) + mono для превью субтитров. ✅ 0 запросов шрифтов.
 7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир brand, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (accent) для ключевого слова в H1. ✅ компоненты собраны; страница `/_styleguide` со всеми компонентами.
-8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ favicon во всех размерах.
+8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ логотип и favicon подключены; favicon во всех размерах.
 
 ## Этап 2 — Ядро (без UI)
 9. **`src/lib/subs`** — парсинг/сериализация SRT, VTT, ASS/SSA → `Cue { start, end, text, style? }` (subsrt-ts / ass-compiler или свой). Vitest + реальные и битые файлы. ✅ SRT→VTT→SRT без потерь таймингов.
