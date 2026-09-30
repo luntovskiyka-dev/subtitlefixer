@@ -1,0 +1,19 @@
+WEBVTT
+
+NOTE
+This note is not a cue.
+
+STYLE
+::cue { color: white; }
+
+REGION
+id:bottom
+width:100%
+
+00:00:01.000 --> 00:00:03.500
+Hello
+
+2
+00:00:04.000 --> 00:00:05.000
+Line one
+Line two

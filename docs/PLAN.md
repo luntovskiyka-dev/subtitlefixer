@@ -20,7 +20,7 @@
 8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ логотип и favicon подключены; favicon во всех размерах.
 
 ## Этап 2 — Ядро (без UI)
-9. **`src/lib/subs`** — парсинг/сериализация SRT, VTT, ASS/SSA → `Cue { start, end, text, style? }` (subsrt-ts / ass-compiler или свой). Vitest + реальные и битые файлы. ✅ SRT→VTT→SRT без потерь таймингов.
+9. **`src/lib/subs`** — парсинг/сериализация SRT, VTT, ASS/SSA → `Cue { start, end, text, style? }` (subsrt-ts / ass-compiler или свой). Vitest + реальные и битые файлы. ✅ Ядро разбирает и собирает три формата. SRT→VTT→SRT без потерь таймингов.
 10. **Кодировки** — детект (`jschardet`) + `TextDecoder` (cp1251, cp1252, cp1256, iso-8859-x, shift_jis, gb18030…), выход UTF-8 с/без BOM. ✅ тесты на кириллице, арабском, турецком, греческом.
 11. **Загрузка/выгрузка** — drag&drop, несколько файлов, скачивание одним файлом или zip (`fflate`). ✅ в Network нет запросов с файлом.
 
