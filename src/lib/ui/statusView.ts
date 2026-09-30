@@ -3,8 +3,8 @@ import { statusCopy, type ToolPhase } from './status';
 const TITLE_CLASS = 'text-sm font-medium text-ink sf-rise';
 const DETAIL_CLASS = 'break-all text-sm text-muted';
 const ERROR_DETAIL_CLASS = 'break-all text-sm text-danger';
-const CHECK_BOX_CLASS = 'inline-flex size-6 shrink-0 items-center justify-center rounded-sf bg-accent';
-const CHECK_CLASS = 'size-4 text-accent-strong';
+const CHECK_BOX_CLASS = 'inline-flex size-6 shrink-0 items-center justify-center rounded-sf bg-mint';
+const CHECK_CLASS = 'size-4 text-success';
 const READY_ROW_CLASS = 'flex items-center gap-2 sf-rise';
 const CHECK_PATH = 'M5 13l4 4L19 7';
 

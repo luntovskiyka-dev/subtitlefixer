@@ -1,50 +1,152 @@
 /** Same hex values as src/styles/tokens.css. Change both together. */
 export type Palette = {
-  brand: string;
-  brandHover: string;
-  brandSoft: string;
-  accent: string;
-  accentStrong: string;
-  text: string;
-  muted: string;
   bg: string;
   surface: string;
-  border: string;
+  subtle: string;
+  text: string;
+  muted: string;
+  brand: string;
+  brandHover: string;
+  lilac: string;
+  onBrand: string;
+  onBrandMuted: string;
+  accent: string;
+  onAccent: string;
+  accentSoft: string;
+  accentWash: string;
+  accentInk: string;
+  teal: string;
+  tealSoft: string;
+  tealInk: string;
+  mint: string;
+  success: string;
+  line: string;
+  edge: string;
   control: string;
   danger: string;
   warning: string;
+  shadowColor: string;
+  dropzone: string;
+  footer: string;
+  footerMuted: string;
+  tShift: string;
+  tShiftBg: string;
+  cShift: string;
+  tDrift: string;
+  tDriftBg: string;
+  cDrift: string;
+  tEnc: string;
+  tEncBg: string;
+  cEnc: string;
+  tS2v: string;
+  tS2vBg: string;
+  cS2v: string;
+  tV2s: string;
+  tV2sBg: string;
+  cV2s: string;
+  tAss: string;
+  tAssBg: string;
+  cAss: string;
 };
 
 export const LIGHT: Palette = {
-  brand: '#3730A3',
-  brandHover: '#312E81',
-  brandSoft: '#E0E7FF',
-  accent: '#A7F3D0',
-  accentStrong: '#065F46',
-  text: '#111827',
-  muted: '#6B7280',
-  bg: '#FFFFFF',
-  surface: '#F8F9FF',
-  border: '#E4E7F5',
-  control: '#767C9B',
-  danger: '#DC2626',
+  bg: '#FFF8EF',
+  surface: '#FFFFFF',
+  subtle: '#FBF1E4',
+  text: '#1B1A3A',
+  muted: '#5E5A7A',
+  brand: '#5B4BFF',
+  brandHover: '#4B3BE6',
+  lilac: '#E6E1FF',
+  onBrand: '#FFFFFF',
+  onBrandMuted: '#F4F2FF',
+  accent: '#FF7A59',
+  onAccent: '#1B1A3A',
+  accentSoft: '#FFD4C7',
+  accentWash: '#FFEDE6',
+  accentInk: '#B93A12',
+  teal: '#2EC4B6',
+  tealSoft: '#D5F5F1',
+  tealInk: '#0F766E',
+  mint: '#B8F2DC',
+  success: '#065F46',
+  line: '#EADFCF',
+  edge: '#1B1A3A',
+  control: '#1B1A3A',
+  danger: '#C81E1E',
   warning: '#B45309',
+  shadowColor: '#1B1A3A',
+  dropzone: '#4B3BE6',
+  footer: '#1B1A3A',
+  footerMuted: '#C9C5E3',
+  tShift: '#FFFFFF',
+  tShiftBg: '#5B4BFF',
+  cShift: '#E6E1FF',
+  tDrift: '#1B1A3A',
+  tDriftBg: '#2EC4B6',
+  cDrift: '#D5F5F1',
+  tEnc: '#1B1A3A',
+  tEncBg: '#6EE7B7',
+  cEnc: '#D9F8EA',
+  tS2v: '#1B1A3A',
+  tS2vBg: '#FF7A59',
+  cS2v: '#FFE3D9',
+  tV2s: '#1B1A3A',
+  tV2sBg: '#FF8FC0',
+  cV2s: '#FFE0EE',
+  tAss: '#1B1A3A',
+  tAssBg: '#7CC8FF',
+  cAss: '#DDF0FF',
 };
 
 export const DARK: Palette = {
-  brand: '#818CF8',
-  brandHover: '#A5B4FC',
-  brandSoft: '#1E1B4B',
-  accent: '#34D399',
-  accentStrong: '#064E3B',
-  text: '#F3F4F6',
-  muted: '#9CA3AF',
-  bg: '#0B0D17',
-  surface: '#12152A',
-  border: '#262A45',
-  control: '#6A6F99',
-  danger: '#EF4444',
-  warning: '#D97706',
+  bg: '#15142B',
+  surface: '#1F1D3F',
+  subtle: '#28264D',
+  text: '#FFF8EF',
+  muted: '#B9B5D6',
+  brand: '#4B3BE6',
+  brandHover: '#A79EFF',
+  lilac: '#2B2760',
+  onBrand: '#FFFFFF',
+  onBrandMuted: '#F4F2FF',
+  accent: '#FF8A6B',
+  onAccent: '#15142B',
+  accentSoft: '#FFD4C7',
+  accentWash: '#4A2230',
+  accentInk: '#FF9C80',
+  teal: '#3DD6C8',
+  tealSoft: '#D5F5F1',
+  tealInk: '#5EEAD4',
+  mint: '#123C3A',
+  success: '#6EE7B7',
+  line: '#EADFCF',
+  edge: '#8E88C8',
+  control: '#8E88C8',
+  danger: '#F87171',
+  warning: '#FBBF24',
+  shadowColor: '#07061A',
+  dropzone: '#3B2FC9',
+  footer: '#0E0D20',
+  footerMuted: '#C9C5E3',
+  tShift: '#FFFFFF',
+  tShiftBg: '#5B4BFF',
+  cShift: '#E6E1FF',
+  tDrift: '#1B1A3A',
+  tDriftBg: '#2EC4B6',
+  cDrift: '#D5F5F1',
+  tEnc: '#1B1A3A',
+  tEncBg: '#6EE7B7',
+  cEnc: '#D9F8EA',
+  tS2v: '#1B1A3A',
+  tS2vBg: '#FF7A59',
+  cS2v: '#FFE3D9',
+  tV2s: '#1B1A3A',
+  tV2sBg: '#FF8FC0',
+  cV2s: '#FFE0EE',
+  tAss: '#1B1A3A',
+  tAssBg: '#7CC8FF',
+  cAss: '#DDF0FF',
 };
 
 const SRGB_THRESHOLD = 0.04045;

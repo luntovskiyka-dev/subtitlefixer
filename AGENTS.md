@@ -11,7 +11,7 @@ Free, browser-only subtitle tools (shift, fix encoding, convert SRT/VTT/ASS…).
 1. **No backend.** All file processing happens in the browser (JS/WASM). No server endpoints, no Cloudflare Functions unless explicitly asked.
 2. **User files never leave the device.** No network request may contain file contents. No third-party scripts that could read them.
 3. **Performance:** Lighthouse ≥ 95 (mobile) in every category. Pages are static HTML; tool JS loads only on tool pages (Astro islands, `client:visible`/`client:idle`).
-4. **No web fonts.** Use the system font stack from `src/styles/tokens.css`.
+4. **Web fonts:** only self-hosted @fontsource latin subsets listed in `docs/B-tokens.md` (Bricolage Grotesque 800, Figtree variable, DM Mono 500), ≤ 60 KB total, ≤ 2 preloads, same-origin, `font-display: swap` (mono `optional`). No font CDNs.
 5. **Colors only via tokens** (`src/styles/tokens.css`, `tailwind.tokens.js`). No hardcoded hex in components.
 6. **Every core function has tests** (`src/lib/**` → `*.test.ts`), including broken/edge-case files in `tests/fixtures/`.
 7. **Accessibility:** WCAG AA contrast (light + dark), keyboard-usable dropzone and controls, labels on all inputs, respect `prefers-reduced-motion`.
@@ -43,7 +43,7 @@ Every page: unique title/description, canonical, Open Graph, JSON-LD `WebApplica
 English first (`en`); i18n (es, pt, ru) comes later — keep strings out of components where practical.
 
 ## Design
-Palette D4 Indigo + Mint: brand `#3730A3` (buttons, links, dropzone border), brand-soft `#E0E7FF` (secondary), accent mint `#A7F3D0` (highlight marker in H1, success states). Dark theme via `prefers-color-scheme`. Radius 12px. Monospace for subtitle previews. Clean, calm, lots of whitespace; no stock images.
+Direction B ("Pop Toolkit"): cream page, indigo stage, coral accent, teal, mint, and lilac. Ink outlines, radii 12–32, loud on top and calm below. Text on coral, teal, and mint is always ink. Dark theme via `prefers-color-scheme`. Monospace for subtitle previews. No stock images.
 
 ## Workflow
 - One task from `docs/PLAN.md` per PR/commit series; tick it off in the plan.

@@ -1,7 +1,7 @@
 # subtitlefixer.com — план действий (задачи для Claude)
 
 Стек: Astro + TypeScript strict + Tailwind, static output, Cloudflare Pages. Вся обработка файлов в браузере, без бэкенда.
-Палитра: D4 Indigo + Mint (см. tokens.css / tailwind.tokens.js).
+Палитра: direction B (cream, indigo, coral, teal, mint, lilac; см. docs/B-tokens.md, tokens.css / tailwind.tokens.js).
 
 ## Этап 0 — Подготовка (вручную)
 - Купить subtitlefixer.com в Cloudflare Registrar.
@@ -15,8 +15,8 @@
 
 ## Этап 1.5 — Визуальная база
 5. **Токены** — подключить `tokens.css` и `tailwind.tokens.js` (D4 Indigo + Mint), светлая + тёмная тема через `prefers-color-scheme`. ✅ в коде нет захардкоженных цветов.
-6. **Шрифт** — системный стек (без загрузки веб-шрифтов) + mono для превью субтитров. ✅ 0 запросов шрифтов.
-7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир brand, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (accent) для ключевого слова в H1. ✅ страница `/_styleguide` со всеми компонентами.
+6. **Шрифты** — self-hosted @fontsource (latin): Bricolage Grotesque 800, Figtree variable, DM Mono 500; ✅ ≤ 3 запроса шрифтов, все same-origin, ≤ 60 KB, CLS < 0.02.
+7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир edge, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (coral accent, текст ink) для ключевого слова в H1. ✅ страница `/_styleguide` со всеми компонентами.
 8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ favicon во всех размерах.
 
 ## Этап 2 — Ядро (без UI)

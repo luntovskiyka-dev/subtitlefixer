@@ -2,6 +2,70 @@
 @config "../../tailwind.config.cjs";
 @import "./tokens.css";
 
+/* latin only. Metrics from fontaine vs Arial / Courier New. */
+@font-face {
+  font-family: "Figtree Fallback";
+  src: local("Arial");
+  size-adjust: 99.5961%;
+  ascent-override: 95.3853%;
+  descent-override: 25.1014%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque Fallback";
+  src: local("Arial");
+  size-adjust: 111.0361%;
+  ascent-override: 83.7565%;
+  descent-override: 24.3164%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "DM Mono Fallback";
+  src: local("Courier New");
+  size-adjust: 99.9837%;
+  ascent-override: 99.2161%;
+  descent-override: 31.005%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2")
+    format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: optional;
+  src: url("@fontsource/dm-mono/files/dm-mono-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:where(code, kbd, pre, samp, .font-mono) {
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0;
+}
+
 @keyframes sf-rise {
   from {
     opacity: 0;
@@ -102,7 +166,7 @@
   max-width: 100%;
   overflow-x: auto;
   white-space: pre-wrap;
-  border: 1px solid var(--sf-border);
+  border: 1px solid var(--sf-line);
   border-radius: var(--sf-radius);
   background: var(--sf-surface);
   padding: 1rem;
@@ -123,7 +187,7 @@
 
 .sf-copy th,
 .sf-copy td {
-  border-bottom: 1px solid var(--sf-border);
+  border-bottom: 1px solid var(--sf-line);
   padding: 0.75rem 0.75rem 0.75rem 0;
   vertical-align: top;
   text-align: start;
@@ -135,7 +199,7 @@
 
 .sf-copy hr {
   border: 0;
-  border-top: 1px solid var(--sf-border);
+  border-top: 1px solid var(--sf-line);
 }
 
 .sf-faq-item + .sf-faq-item {

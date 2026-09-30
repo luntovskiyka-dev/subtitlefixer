@@ -1,29 +1,99 @@
-/* subtitlefixer — D4 Indigo + Mint */
+/* subtitlefixer — direction B "Pop Toolkit" */
 :root {
-  --sf-brand: #3730A3;       /* indigo-800: кнопки, ссылки, рамка дропзоны */
-  --sf-brand-hover: #312E81;
-  --sf-brand-soft: #E0E7FF;  /* вторичные кнопки, бейджи */
-  --sf-accent: #A7F3D0;      /* мятный: маркер в заголовке, success, «готово» */
-  --sf-accent-strong: #065F46;
-  --sf-text: #111827;
-  --sf-muted: #6B7280;
-  --sf-bg: #FFFFFF;
-  --sf-surface: #F8F9FF;
-  --sf-border: #E4E7F5;
-  --sf-control: #767C9B;
-  --sf-danger: #DC2626;
+  --sf-bg: #FFF8EF;
+  --sf-surface: #FFFFFF;
+  --sf-subtle: #FBF1E4;
+  --sf-text: #1B1A3A;
+  --sf-muted: #5E5A7A;
+  --sf-brand: #5B4BFF;
+  --sf-brand-hover: #4B3BE6;
+  --sf-brand-soft: #E6E1FF;
+  --sf-lilac: #E6E1FF;
+  --sf-on-brand: #FFFFFF;
+  --sf-on-brand-muted: #F4F2FF;
+  --sf-accent: #FF7A59;
+  --sf-on-accent: #1B1A3A;
+  --sf-accent-soft: #FFD4C7;
+  --sf-accent-wash: #FFEDE6;
+  --sf-accent-ink: #B93A12;
+  --sf-teal: #2EC4B6;
+  --sf-teal-soft: #D5F5F1;
+  --sf-teal-ink: #0F766E;
+  --sf-mint: #B8F2DC;
+  --sf-success: #065F46;
+  --sf-line: #EADFCF;
+  --sf-edge: #1B1A3A;
+  --sf-control: #1B1A3A;
+  --sf-danger: #C81E1E;
   --sf-warning: #B45309;
-  --sf-radius: 12px;
-  --sf-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
-  --sf-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sf-shadow-color: #1B1A3A;
+  --sf-dropzone: #4B3BE6;
+  --sf-footer: #1B1A3A;
+  --sf-footer-muted: #C9C5E3;
+
+  --sf-border: 2px;
+  --sf-border-strong: 2.5px;
+
+  --sf-radius-sm: 12px;
+  --sf-radius: 18px;
+  --sf-radius-lg: 24px;
+  --sf-radius-xl: 32px;
+
+  --sf-shadow-sm: 3px 3px 0 var(--sf-shadow-color);
+  --sf-shadow: 5px 5px 0 var(--sf-shadow-color);
+  --sf-shadow-lg: 7px 7px 0 var(--sf-shadow-color);
+
+  --sf-display: "Bricolage Grotesque", "Bricolage Grotesque Fallback", ui-sans-serif, system-ui, sans-serif;
+  --sf-font: "Figtree", "Figtree Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sf-mono: "DM Mono", "DM Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --t-shift: #FFFFFF;
+  --t-shift-bg: #5B4BFF;
+  --c-shift: #E6E1FF;
+  --t-drift: #1B1A3A;
+  --t-drift-bg: #2EC4B6;
+  --c-drift: #D5F5F1;
+  --t-enc: #1B1A3A;
+  --t-enc-bg: #6EE7B7;
+  --c-enc: #D9F8EA;
+  --t-s2v: #1B1A3A;
+  --t-s2v-bg: #FF7A59;
+  --c-s2v: #FFE3D9;
+  --t-v2s: #1B1A3A;
+  --t-v2s-bg: #FF8FC0;
+  --c-v2s: #FFE0EE;
+  --t-ass: #1B1A3A;
+  --t-ass-bg: #7CC8FF;
+  --c-ass: #DDF0FF;
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --sf-brand: #818CF8; --sf-brand-hover: #A5B4FC; --sf-brand-soft: #1E1B4B;
-    --sf-accent: #34D399; --sf-accent-strong: #064E3B;
-    --sf-text: #F3F4F6; --sf-muted: #9CA3AF;
-    --sf-bg: #0B0D17; --sf-surface: #12152A; --sf-border: #262A45; --sf-control: #6A6F99;
-    --sf-danger: #EF4444; /* #DC2626 is below 4.5:1 on the dark background */
-    --sf-warning: #D97706; /* #B45309 is below 4.5:1 on the dark background */
+    --sf-bg: #15142B;
+    --sf-surface: #1F1D3F;
+    --sf-subtle: #28264D;
+    --sf-text: #FFF8EF;
+    --sf-muted: #B9B5D6;
+    --sf-brand: #4B3BE6;
+    --sf-brand-hover: #A79EFF;
+    --sf-brand-soft: #2B2760;
+    --sf-lilac: #2B2760;
+    --sf-on-brand: #FFFFFF;
+    --sf-on-brand-muted: #F4F2FF;
+    --sf-accent: #FF8A6B;
+    --sf-on-accent: #15142B;
+    --sf-accent-wash: #4A2230;
+    --sf-accent-ink: #FF9C80;
+    --sf-teal: #3DD6C8;
+    --sf-teal-ink: #5EEAD4;
+    --sf-mint: #123C3A;
+    --sf-success: #6EE7B7;
+    --sf-edge: #8E88C8;
+    --sf-control: #8E88C8;
+    --sf-danger: #F87171;
+    --sf-warning: #FBBF24;
+    --sf-shadow-color: #07061A;
+    --sf-dropzone: #3B2FC9;
+    --sf-footer: #0E0D20;
   }
 }
