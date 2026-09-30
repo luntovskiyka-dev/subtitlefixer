@@ -1,11 +1,15 @@
-import { parseAss, serializeAss } from './ass';
+import { parseAss, serializeAss, shiftAssText } from './ass';
 import { parseSrt, serializeSrt } from './srt';
 import type { Cue, ParseResult, SubtitleFormat } from './types';
 import { parseVtt, serializeVtt } from './vtt';
 
+export { FPS_23_976, scaleCues, scaleSubtitleFile, syncCues, syncSubtitleFile } from './drift';
+export type { DriftFileResult, DriftResult } from './drift';
+
 export type { Cue, ParseError, ParseResult, SubtitleFormat } from './types';
 export { parseAss, serializeAss } from './ass';
-export { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8 } from './encoding';
+export { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8, repairMojibake } from './encoding';
+export type { MojibakeVia } from './encoding';
 export {
   downloadSubtitleFiles,
   downloadText,
@@ -18,6 +22,8 @@ export type { DecodedSubtitleFile, SubtitleTextFile } from './files';
 export { assToSrt } from './assToSrt';
 export { convertSubtitle } from './convert';
 export { shiftCues } from './shift';
+export type { ShiftResult } from './shift';
+export { shiftAssText };
 export { parseSrt, serializeSrt } from './srt';
 export { parseVtt, serializeVtt } from './vtt';
 

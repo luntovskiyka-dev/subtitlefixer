@@ -7,6 +7,7 @@ describe('listOgCards', () => {
     expect(cards.map((card) => card.path)).toEqual([
       '/',
       '/ass-to-srt',
+      '/fix-subtitle-drift',
       '/fix-subtitle-encoding',
       '/shift-subtitles',
       '/srt-to-vtt',
@@ -20,6 +21,7 @@ describe('listOgCards', () => {
       '/',
       '/about',
       '/ass-to-srt',
+      '/fix-subtitle-drift',
       '/fix-subtitle-encoding',
       '/guides/srt-vs-vtt-vs-ass',
       '/guides/subtitles-out-of-sync',

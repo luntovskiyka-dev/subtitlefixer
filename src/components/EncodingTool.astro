@@ -5,11 +5,16 @@ import ToolStatus from './ToolStatus.astro';
 ---
 
 <form id="encoding-form" class="flex flex-col gap-6">
-  <Dropzone id="encoding-dropzone" label="Add a subtitle file" interactive />
+  <Dropzone
+    id="encoding-dropzone"
+    label="Add a subtitle file"
+    interactive
+    accept=".srt,.vtt,.ass,.ssa,.sub,.txt"
+  />
   <ToolStatus id="encoding-status" />
   <div id="encoding-candidates" class="flex flex-col gap-4"></div>
   <div class="flex max-w-sm flex-col gap-2">
-    <label for="encoding-label" class="text-sm font-medium text-ink">Language</label>
+    <label for="encoding-label" class="text-sm font-medium text-ink">Encoding</label>
     <select
       id="encoding-label"
       name="language"
@@ -20,6 +25,7 @@ import ToolStatus from './ToolStatus.astro';
       <option value="windows-1252">Windows-1252</option>
       <option value="windows-1256">Windows-1256</option>
       <option value="iso-8859-7">ISO-8859-7</option>
+      <option value="iso-8859-8">ISO-8859-8</option>
       <option value="iso-8859-9">ISO-8859-9</option>
       <option value="shift_jis">Shift_JIS</option>
       <option value="gb18030">GB18030</option>
@@ -42,7 +48,13 @@ import ToolStatus from './ToolStatus.astro';
 
 <script>
   import type { DecodedSubtitleFile } from '../lib/subs/files';
-  import { candidateDecodings, decodeWithLabel, downloadSubtitleFiles } from '../lib/subs/index';
+  import {
+    candidateDecodings,
+    decodeWithLabel,
+    downloadSubtitleFiles,
+    repairMojibake,
+  } from '../lib/subs/index';
+  import type { MojibakeVia } from '../lib/subs/index';
   import { renderStatus } from '../lib/ui/statusView';
 
   const LANGUAGE_LABELS = [
@@ -51,10 +63,13 @@ import ToolStatus from './ToolStatus.astro';
     'windows-1252',
     'windows-1256',
     'iso-8859-7',
+    'iso-8859-8',
     'iso-8859-9',
     'shift_jis',
     'gb18030',
   ] as const;
+
+  const MOJIBAKE_VALUE = 'mojibake';
 
   const form = document.getElementById('encoding-form');
   const labelSelect = document.getElementById('encoding-label');
@@ -64,6 +79,12 @@ import ToolStatus from './ToolStatus.astro';
   const status = document.getElementById('encoding-status');
 
   let files: DecodedSubtitleFile[] = [];
+  let encodingLabel: (typeof LANGUAGE_LABELS)[number] = 'utf-8';
+
+  function mojibakeHeading(via: MojibakeVia): string {
+    if (via === 'windows-1252') return 'UTF-8 read as Windows-1252';
+    return 'UTF-8 read as Windows-1251';
+  }
 
   function isLanguageLabel(label: string): label is (typeof LANGUAGE_LABELS)[number] {
     return (LANGUAGE_LABELS as readonly string[]).includes(label);
@@ -111,42 +132,77 @@ import ToolStatus from './ToolStatus.astro';
     result.append(preview);
   }
 
-  function showCandidates(bytes: Uint8Array): string {
+  function appendPreview(headingText: string, text: string, detected: boolean): void {
+    if (!(candidates instanceof HTMLElement)) return;
+    const block = document.createElement('div');
+    const heading = document.createElement('p');
+    heading.className = 'flex flex-wrap items-center gap-2 text-sm font-medium text-ink';
+    heading.append(document.createTextNode(headingText));
+    if (detected) {
+      const mark = document.createElement('span');
+      mark.className =
+        'inline-flex items-center rounded-sf bg-brand-soft px-2.5 py-1 text-sm font-medium text-brand';
+      mark.textContent = 'Detected';
+      heading.append(mark);
+    }
+    const preview = document.createElement('pre');
+    preview.className =
+      'mt-2 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink';
+    preview.textContent = previewLines(text);
+    block.append(heading, preview);
+    candidates.append(block);
+  }
+
+  function syncMojibakeOption(via: MojibakeVia | null): void {
+    if (!(labelSelect instanceof HTMLSelectElement)) return;
+    const existing = [...labelSelect.options].find((option) => option.value === MOJIBAKE_VALUE);
+    if (!via) {
+      existing?.remove();
+      return;
+    }
+    const label = mojibakeHeading(via);
+    if (existing) {
+      existing.textContent = label;
+      return;
+    }
+    const option = document.createElement('option');
+    option.value = MOJIBAKE_VALUE;
+    option.textContent = label;
+    labelSelect.append(option);
+  }
+
+  function showCandidates(
+    bytes: Uint8Array,
+    decodedText: string,
+  ): (typeof LANGUAGE_LABELS)[number] {
     if (!(candidates instanceof HTMLElement)) return 'utf-8';
     const readings = candidateDecodings(bytes).slice(0, 4);
     candidates.replaceChildren();
     readings.forEach((reading, index) => {
-      const block = document.createElement('div');
-      const heading = document.createElement('p');
-      heading.className = 'flex flex-wrap items-center gap-2 text-sm font-medium text-ink';
-      heading.append(document.createTextNode(reading.encoding));
-      if (index === 0) {
-        const mark = document.createElement('span');
-        mark.className =
-          'inline-flex items-center rounded-sf bg-brand-soft px-2.5 py-1 text-sm font-medium text-brand';
-        mark.textContent = 'Detected';
-        heading.append(mark);
-      }
-      const preview = document.createElement('pre');
-      preview.className =
-        'mt-2 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink';
-      preview.textContent = previewLines(reading.text);
-      block.append(heading, preview);
-      candidates.append(block);
+      appendPreview(reading.encoding, reading.text, index === 0);
     });
+    const repair = repairMojibake(decodedText);
+    syncMojibakeOption(repair?.via ?? null);
+    if (repair) appendPreview(mojibakeHeading(repair.via), repair.text, false);
     const detected = readings[0]?.encoding ?? 'utf-8';
     return isLanguageLabel(detected) ? detected : 'utf-8';
   }
 
-  function selectedLabel(): string {
-    if (!(labelSelect instanceof HTMLSelectElement)) return 'utf-8';
-    return isLanguageLabel(labelSelect.value) ? labelSelect.value : 'utf-8';
+  function mojibakeSelected(): boolean {
+    return labelSelect instanceof HTMLSelectElement && labelSelect.value === MOJIBAKE_VALUE;
   }
 
   function showSelectedText(): void {
     const first = files[0];
     if (!first) return;
-    showText(decodeWithLabel(first.bytes, selectedLabel()).text);
+    if (mojibakeSelected()) {
+      const repair = repairMojibake(first.text);
+      if (repair) {
+        showText(repair.text);
+        return;
+      }
+    }
+    showText(decodeWithLabel(first.bytes, encodingLabel).text);
   }
 
   if (
@@ -176,17 +232,20 @@ import ToolStatus from './ToolStatus.astro';
       const first = files[0];
       if (!first) {
         candidates.replaceChildren();
+        syncMojibakeOption(null);
         showError('Add a subtitle file.');
         renderStatus(status, 'error', names());
         return;
       }
       renderStatus(status, 'loaded', names());
-      labelSelect.value = showCandidates(first.bytes);
+      encodingLabel = showCandidates(first.bytes, first.text);
+      labelSelect.value = encodingLabel;
       showSelectedText();
     });
 
     labelSelect.addEventListener('change', () => {
       if (files.length === 0) return;
+      if (isLanguageLabel(labelSelect.value)) encodingLabel = labelSelect.value;
       showSelectedText();
     });
 
@@ -199,11 +258,14 @@ import ToolStatus from './ToolStatus.astro';
         renderStatus(status, 'error', chosen);
         return;
       }
-      const label = selectedLabel();
-      const ready = files.map((file) => ({
-        name: file.name,
-        text: decodeWithLabel(file.bytes, label).text,
-      }));
+      const useRepair = mojibakeSelected();
+      const ready = files.map((file) => {
+        if (useRepair) {
+          const repair = repairMojibake(file.text);
+          if (repair) return { name: file.name, text: repair.text };
+        }
+        return { name: file.name, text: decodeWithLabel(file.bytes, encodingLabel).text };
+      });
       showSelectedText();
       downloadSubtitleFiles(ready, bomInput.checked);
       renderStatus(status, 'ready', chosen);

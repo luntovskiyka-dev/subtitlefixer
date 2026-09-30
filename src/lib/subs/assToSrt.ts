@@ -1,14 +1,80 @@
 import { parse, serialize } from './index';
 import type { Cue, ParseError } from './types';
 
-/** Remove every {...} override, turn \h into a space, and trim each line. */
-function stripCueText(text: string): string {
-  return text
-    .replace(/\{[^}]*\}/g, '')
-    .replace(/\\h/g, ' ')
+type Mark = 'i' | 'b';
+
+/** {\p1}, {\p2}, and any other drawing-on tag. {\p0} turns drawing off. */
+function hasDrawingOn(text: string): boolean {
+  for (const block of text.matchAll(/\{[^}]*\}/g)) {
+    for (const code of block[0].matchAll(/\\p(\d+)/gi)) {
+      const level = Number(code[1]);
+      if (level > 0) return true;
+    }
+  }
+  return false;
+}
+
+function openTag(mark: Mark): string {
+  return `<${mark}>`;
+}
+
+function closeTag(mark: Mark): string {
+  return `</${mark}>`;
+}
+
+/** Keep italic and bold toggles, in the order written. Drop every other code. */
+function marksFromBlock(block: string, open: Mark[]): string {
+  let tags = '';
+  for (const code of block.matchAll(/\\([ib])([01])/gi)) {
+    const name = code[1]?.toLowerCase();
+    const flag = code[2];
+    if ((name !== 'i' && name !== 'b') || flag === undefined) continue;
+    const mark: Mark = name;
+    if (flag === '1') {
+      if (open.includes(mark)) continue;
+      open.push(mark);
+      tags += openTag(mark);
+      continue;
+    }
+    const index = open.lastIndexOf(mark);
+    if (index === -1) continue;
+    open.splice(index, 1);
+    tags += closeTag(mark);
+  }
+  return tags;
+}
+
+/**
+ * Drop drawing cues. Turn italic and bold into HTML, strip other overrides,
+ * turn \N and \n into newlines and \h into a space, then trim each line.
+ * A tag that is still open at the end of the cue is closed there.
+ * Returns null when the cue is a drawing and must be removed.
+ */
+function stripCueText(text: string): string | null {
+  if (hasDrawingOn(text)) return null;
+
+  const open: Mark[] = [];
+  let cleaned = '';
+  let last = 0;
+  for (const match of text.matchAll(/\{[^}]*\}/g)) {
+    const index = match.index ?? 0;
+    cleaned += text.slice(last, index);
+    cleaned += marksFromBlock(match[0], open);
+    last = index + match[0].length;
+  }
+  cleaned += text.slice(last);
+
+  cleaned = cleaned.replace(/\\N/g, '\n').replace(/\\n/g, '\n').replace(/\\h/g, ' ');
+  cleaned = cleaned
     .split('\n')
     .map((line) => line.trim())
     .join('\n');
+
+  while (open.length > 0) {
+    const mark = open.pop();
+    if (mark) cleaned += closeTag(mark);
+  }
+  return cleaned;
 }
 
 function isEmptyText(text: string): boolean {
@@ -42,7 +108,7 @@ function collapseLayerDuplicates(cues: readonly Cue[]): Cue[] {
 
   for (const cue of cues) {
     const text = stripCueText(cue.text);
-    if (isEmptyText(text)) continue;
+    if (text === null || isEmptyText(text)) continue;
 
     const key = `${cue.start}\0${cue.end}`;
     const existing = groups.get(key);

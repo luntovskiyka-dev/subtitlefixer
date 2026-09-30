@@ -9,6 +9,14 @@ import ToolStatus from './ToolStatus.astro';
   <Dropzone id="shift-dropzone" label="Add an SRT, VTT, or ASS file" interactive />
   <ToolStatus id="shift-status" />
   <Input id="shift-offset" label="Offset in milliseconds" kind="milliseconds" name="offset" />
+  <div id="shift-offset-steps" class="flex flex-wrap gap-2" role="group" aria-label="Add to the offset">
+    <Button type="button" variant="secondary">−100</Button>
+    <Button type="button" variant="secondary">−500</Button>
+    <Button type="button" variant="secondary">−1000</Button>
+    <Button type="button" variant="secondary">+100</Button>
+    <Button type="button" variant="secondary">+500</Button>
+    <Button type="button" variant="secondary">+1000</Button>
+  </div>
   <Input id="shift-from-cue" label="Start from cue" kind="milliseconds" name="from-cue" />
   <div class="w-full sm:w-auto">
     <Button type="submit" class="w-full sm:w-auto">Download shifted file</Button>
@@ -18,12 +26,13 @@ import ToolStatus from './ToolStatus.astro';
 
 <script>
   import type { DecodedSubtitleFile } from '../lib/subs/files';
-  import { downloadSubtitleFiles, parse, serialize, shiftCues } from '../lib/subs/index';
+  import { downloadSubtitleFiles, parse, serialize, shiftAssText, shiftCues } from '../lib/subs/index';
   import type { Cue, SubtitleFormat } from '../lib/subs/types';
   import { renderStatus } from '../lib/ui/statusView';
 
   const form = document.getElementById('shift-form');
   const offsetInput = document.getElementById('shift-offset');
+  const steps = document.getElementById('shift-offset-steps');
   const fromInput = document.getElementById('shift-from-cue');
   const result = document.getElementById('shift-result');
   const status = document.getElementById('shift-status');
@@ -56,12 +65,22 @@ import ToolStatus from './ToolStatus.astro';
     );
   }
 
-  function showResult(messages: readonly string[], cues: readonly Cue[] | null): void {
+  function showResult(
+    messages: readonly string[],
+    warnings: readonly string[],
+    cues: readonly Cue[] | null,
+  ): void {
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
       paragraph.className = 'text-sm text-danger sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    for (const message of warnings) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-warning sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
@@ -75,6 +94,7 @@ import ToolStatus from './ToolStatus.astro';
   if (
     form instanceof HTMLFormElement &&
     offsetInput instanceof HTMLInputElement &&
+    steps instanceof HTMLElement &&
     fromInput instanceof HTMLInputElement &&
     result instanceof HTMLElement &&
     status instanceof HTMLElement
@@ -87,6 +107,18 @@ import ToolStatus from './ToolStatus.astro';
 
     form.addEventListener('subtitlefailed', () => {
       renderStatus(status, 'error', names());
+    });
+
+    steps.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest('button');
+      if (!(button instanceof HTMLButtonElement) || !steps.contains(button)) return;
+      const delta = readInteger((button.textContent ?? '').replace(/−/g, '-').trim());
+      if (delta === null) return;
+      const raw = offsetInput.value.trim();
+      const current = raw === '' ? 0 : readInteger(raw);
+      offsetInput.value = String((current ?? 0) + delta);
     });
 
     form.addEventListener('subtitlefiles', (event) => {
@@ -102,14 +134,14 @@ import ToolStatus from './ToolStatus.astro';
       event.preventDefault();
       renderStatus(status, 'working', names());
       if (files.length === 0) {
-        showResult(['Add an SRT, VTT, or ASS file.'], null);
+        showResult(['Add an SRT, VTT, or ASS file.'], [], null);
         renderStatus(status, 'error', names());
         return;
       }
 
       const offsetMs = readInteger(offsetInput.value);
       if (offsetMs === null) {
-        showResult(['Enter an offset in milliseconds.'], null);
+        showResult(['Enter an offset in milliseconds.'], [], null);
         renderStatus(status, 'error', names());
         return;
       }
@@ -119,7 +151,7 @@ import ToolStatus from './ToolStatus.astro';
       if (fromRaw !== '') {
         const parsedFrom = readInteger(fromRaw);
         if (parsedFrom === null) {
-          showResult(['Start from cue must be a whole number.'], null);
+          showResult(['Start from cue must be a whole number.'], [], null);
           renderStatus(status, 'error', names());
           return;
         }
@@ -127,6 +159,7 @@ import ToolStatus from './ToolStatus.astro';
       }
 
       const messages: string[] = [];
+      const warnings: string[] = [];
       const ready: { name: string; text: string }[] = [];
       let firstCues: Cue[] | null = null;
 
@@ -139,12 +172,17 @@ import ToolStatus from './ToolStatus.astro';
         const parsed = parse(file.text, format);
         for (const error of parsed.errors) messages.push(`${file.name}: ${error.message}`);
         const shifted = shiftCues(parsed.cues, offsetMs, fromCue);
-        if (index === 0) firstCues = shifted;
+        if (index === 0) firstCues = shifted.cues;
         if (parsed.cues.length === 0 && parsed.errors.length > 0) return;
-        ready.push({ name: file.name, text: serialize(shifted, format) });
+        if (shifted.removed > 0 || shifted.trimmed > 0) {
+          warnings.push(`${shifted.removed} lines removed / ${shifted.trimmed} lines trimmed`);
+        }
+        const text =
+          format === 'ass' ? shiftAssText(file.text, offsetMs, fromCue) : serialize(shifted.cues, format);
+        ready.push({ name: file.name, text });
       });
 
-      showResult(messages, firstCues);
+      showResult(messages, ready.length > 0 ? warnings : [], firstCues);
       if (ready.length > 0) {
         downloadSubtitleFiles(ready, false);
         renderStatus(status, 'ready', names());

@@ -1,3 +1,4 @@
+import { classifyCueShift } from './shift';
 import { isBlankInput, normalizeCueText, normalizeNewlines } from './text';
 import { formatAssTimestamp, parseAssTimestamp } from './time';
 import type { Cue, ParseError, ParseResult } from './types';
@@ -125,6 +126,175 @@ export function parseAss(input: string): ParseResult {
   }
 
   return { cues, errors };
+}
+
+type RawLine = { text: string; ending: string };
+
+/** Split into lines without changing `\n`, `\r\n`, or a final line that has no ending. */
+function splitKeepEndings(input: string): RawLine[] {
+  if (input === '') return [];
+  const lines: RawLine[] = [];
+  const pattern = /\r\n|\n|\r/g;
+  let last = 0;
+  for (const match of input.matchAll(pattern)) {
+    const index = match.index ?? last;
+    lines.push({ text: input.slice(last, index), ending: match[0] });
+    last = index + match[0].length;
+  }
+  if (last < input.length) lines.push({ text: input.slice(last), ending: '' });
+  return lines;
+}
+
+function fieldSpans(body: string, count: number): { start: number; end: number }[] | null {
+  const spans: { start: number; end: number }[] = [];
+  let pos = 0;
+  for (let i = 0; i < count - 1; i++) {
+    const comma = body.indexOf(',', pos);
+    if (comma === -1) return null;
+    spans.push({ start: pos, end: comma });
+    pos = comma + 1;
+  }
+  spans.push({ start: pos, end: body.length });
+  return spans;
+}
+
+function replaceFieldTime(field: string, formatted: string): string {
+  const leading = field.length - field.trimStart().length;
+  const trimmedEnd = field.trimEnd();
+  const trailing = field.length - trimmedEnd.length;
+  if (leading + trailing >= field.length) return formatted;
+  return `${field.slice(0, leading)}${formatted}${trailing > 0 ? field.slice(field.length - trailing) : ''}`;
+}
+
+function replaceDialogueTimes(
+  rawLine: string,
+  fields: FieldMap,
+  startMs: number,
+  endMs: number,
+): string {
+  const bom = rawLine.startsWith('\uFEFF') ? '\uFEFF' : '';
+  const rest = bom === '' ? rawLine : rawLine.slice(1);
+  const match = /^(\s*Dialogue:\s*)/i.exec(rest);
+  if (!match?.[1]) return rawLine;
+  const prefix = match[1];
+  const body = rest.slice(prefix.length);
+  const spans = fieldSpans(body, fields.count);
+  const startSpan = spans?.[fields.start];
+  const endSpan = spans?.[fields.end];
+  if (!spans || !startSpan || !endSpan) return rawLine;
+
+  const edits = [
+    { at: startSpan, value: formatAssTimestamp(startMs) },
+    { at: endSpan, value: formatAssTimestamp(endMs) },
+  ].sort((a, b) => b.at.start - a.at.start);
+
+  let next = body;
+  for (const edit of edits) {
+    const field = next.slice(edit.at.start, edit.at.end);
+    next = `${next.slice(0, edit.at.start)}${replaceFieldTime(field, edit.value)}${next.slice(edit.at.end)}`;
+  }
+  return `${bom}${prefix}${next}`;
+}
+
+/**
+ * Shift Dialogue start/end times inside the original ASS/SSA text.
+ * Header, styles, comments, and dialogue text stay as they were.
+ * A removed cue drops that Dialogue line. A line that does not parse stays.
+ */
+export function shiftAssText(input: string, offsetMs: number, fromCue?: number): string {
+  const lines = splitKeepEndings(input);
+  let inEvents = false;
+  let fields = DEFAULT_FIELDS;
+  let cueIndex = 0;
+
+  const next = lines.flatMap((line, index) => {
+    const source = index === 0 ? line.text.replace(/^\uFEFF/, '') : line.text;
+    const trimmed = source.trim();
+    if (trimmed === '') return [line];
+
+    const section = /^\[(.+)]$/.exec(trimmed);
+    if (section?.[1]) {
+      inEvents = section[1].toLowerCase() === 'events';
+      return [line];
+    }
+
+    if (inEvents && /^Format:/i.test(trimmed)) {
+      const parsed = parseFormatLine(trimmed);
+      if (parsed) fields = parsed;
+      return [line];
+    }
+
+    if (!/^Dialogue:/i.test(trimmed)) return [line];
+
+    const parsed = parseDialogue(trimmed, fields, index + 1);
+    if (!parsed.cue) return [line];
+
+    const change = classifyCueShift(parsed.cue, offsetMs, cueIndex, fromCue);
+    cueIndex += 1;
+    if (change.kind === 'removed') return [];
+    if (change.kind === 'unchanged') return [line];
+    return [
+      {
+        text: replaceDialogueTimes(line.text, fields, change.cue.start, change.cue.end),
+        ending: line.ending,
+      },
+    ];
+  });
+
+  return next.map((line) => line.text + line.ending).join('');
+}
+
+/**
+ * Write new start/end times into Dialogue lines.
+ * `next` returns null to drop that line.
+ * Header, styles, comments, and dialogue text stay.
+ * A Dialogue line that does not parse stays.
+ * When the new times match the parsed cue, the line stays byte-for-byte.
+ */
+export function mapAssDialogueTimes(
+  input: string,
+  next: (cue: Cue, index: number) => { start: number; end: number } | null,
+): string {
+  const lines = splitKeepEndings(input);
+  let inEvents = false;
+  let fields = DEFAULT_FIELDS;
+  let cueIndex = 0;
+
+  const mapped = lines.flatMap((line, index) => {
+    const source = index === 0 ? line.text.replace(/^\uFEFF/, '') : line.text;
+    const trimmed = source.trim();
+    if (trimmed === '') return [line];
+
+    const section = /^\[(.+)]$/.exec(trimmed);
+    if (section?.[1]) {
+      inEvents = section[1].toLowerCase() === 'events';
+      return [line];
+    }
+
+    if (inEvents && /^Format:/i.test(trimmed)) {
+      const parsed = parseFormatLine(trimmed);
+      if (parsed) fields = parsed;
+      return [line];
+    }
+
+    if (!/^Dialogue:/i.test(trimmed)) return [line];
+
+    const parsed = parseDialogue(trimmed, fields, index + 1);
+    if (!parsed.cue) return [line];
+
+    const change = next(parsed.cue, cueIndex);
+    cueIndex += 1;
+    if (!change) return [];
+    if (change.start === parsed.cue.start && change.end === parsed.cue.end) return [line];
+    return [
+      {
+        text: replaceDialogueTimes(line.text, fields, change.start, change.end),
+        ending: line.ending,
+      },
+    ];
+  });
+
+  return mapped.map((line) => line.text + line.ending).join('');
 }
 
 export function serializeAss(cues: readonly Cue[]): string {

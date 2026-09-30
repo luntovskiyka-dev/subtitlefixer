@@ -1,0 +1,365 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const fieldClass =
+  'min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
+---
+
+<form id="drift-form" class="flex flex-col gap-6">
+  <Dropzone id="drift-dropzone" label="Add an SRT, VTT, ASS, or SSA file" interactive />
+  <ToolStatus id="drift-status" />
+
+  <fieldset class="flex flex-col gap-4 border-0 p-0">
+    <legend class="text-sm font-medium text-ink">Two-point sync</legend>
+    <div class="flex max-w-xl flex-col gap-2">
+      <label for="drift-cue-a" class="text-sm font-medium text-ink">First cue</label>
+      <select id="drift-cue-a" name="cue-a" class={fieldClass}></select>
+    </div>
+    <div class="flex max-w-sm flex-col gap-2">
+      <label for="drift-time-a" class="text-sm font-medium text-ink">Correct time for the first cue</label>
+      <input
+        id="drift-time-a"
+        name="time-a"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="hh:mm:ss,mmm"
+        aria-describedby="drift-time-hint"
+        class={fieldClass}
+      />
+    </div>
+    <div class="flex max-w-xl flex-col gap-2">
+      <label for="drift-cue-b" class="text-sm font-medium text-ink">Second cue</label>
+      <select id="drift-cue-b" name="cue-b" class={fieldClass}></select>
+    </div>
+    <div class="flex max-w-sm flex-col gap-2">
+      <label for="drift-time-b" class="text-sm font-medium text-ink">Correct time for the second cue</label>
+      <input
+        id="drift-time-b"
+        name="time-b"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="hh:mm:ss,mmm"
+        aria-describedby="drift-time-hint"
+        class={fieldClass}
+      />
+      <p id="drift-time-hint" class="text-sm text-muted">Use hh:mm:ss,mmm, for example 00:01:05,480.</p>
+    </div>
+    <div class="w-full sm:w-auto">
+      <Button type="submit" class="w-full sm:w-auto">Download synced file</Button>
+    </div>
+  </fieldset>
+
+  <section class="flex flex-col gap-4" aria-labelledby="drift-fps-heading">
+    <h2 id="drift-fps-heading" class="text-xl font-semibold tracking-tight">Subtitle frame rate converter</h2>
+    <div role="group" aria-labelledby="drift-fps-label" class="flex flex-col gap-3">
+      <p id="drift-fps-label" class="text-sm font-medium text-ink">subtitle fps → video fps</p>
+      <div id="drift-fps" class="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary">23.976 → 25</Button>
+        <Button type="button" variant="secondary">25 → 23.976</Button>
+        <Button type="button" variant="secondary">24 → 25</Button>
+        <Button type="button" variant="secondary">25 → 24</Button>
+        <Button type="button" variant="secondary">23.976 → 24</Button>
+        <Button type="button" variant="secondary">24 → 23.976</Button>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex min-h-11 items-center gap-3">
+    <input
+      id="drift-bom"
+      name="bom"
+      type="checkbox"
+      class="size-6 border-line text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    />
+    <label for="drift-bom" class="text-sm font-medium text-ink">Add BOM (old players)</label>
+  </div>
+
+  <div id="drift-result" class="flex flex-col gap-3" aria-live="polite"></div>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles, FPS_23_976, parse, scaleSubtitleFile, syncSubtitleFile } from '../lib/subs/index';
+  import type { DriftFileResult } from '../lib/subs/index';
+  import type { Cue, SubtitleFormat } from '../lib/subs/types';
+  import { formatSrtTimestamp, parseSrtTimestamp } from '../lib/subs/time';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('drift-form');
+  const cueA = document.getElementById('drift-cue-a');
+  const cueB = document.getElementById('drift-cue-b');
+  const timeA = document.getElementById('drift-time-a');
+  const timeB = document.getElementById('drift-time-b');
+  const fps = document.getElementById('drift-fps');
+  const bomInput = document.getElementById('drift-bom');
+  const result = document.getElementById('drift-result');
+  const status = document.getElementById('drift-status');
+
+  const fpsPresets: Record<string, { subtitle: number; video: number }> = {
+    '23.976 → 25': { subtitle: FPS_23_976, video: 25 },
+    '25 → 23.976': { subtitle: 25, video: FPS_23_976 },
+    '24 → 25': { subtitle: 24, video: 25 },
+    '25 → 24': { subtitle: 25, video: 24 },
+    '23.976 → 24': { subtitle: FPS_23_976, video: 24 },
+    '24 → 23.976': { subtitle: 24, video: FPS_23_976 },
+  };
+
+  let files: DecodedSubtitleFile[] = [];
+  let cues: Cue[] = [];
+
+  function formatOf(name: string): SubtitleFormat | null {
+    const lower = name.toLowerCase();
+    if (lower.endsWith('.srt')) return 'srt';
+    if (lower.endsWith('.vtt')) return 'vtt';
+    if (lower.endsWith('.ass') || lower.endsWith('.ssa')) return 'ass';
+    return null;
+  }
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string'
+    );
+  }
+
+  function cueLabel(index: number, cue: Cue): string {
+    const text = cue.text.replace(/\s+/g, ' ').trim();
+    const snippet = text.length > 48 ? `${text.slice(0, 48)}…` : text;
+    return `${index + 1}. ${formatSrtTimestamp(cue.start)} ${snippet}`;
+  }
+
+  function fillSelect(select: HTMLSelectElement, labels: readonly string[]): void {
+    select.replaceChildren();
+    labels.forEach((label, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = label;
+      select.append(option);
+    });
+  }
+
+  function showResult(messages: readonly string[], warnings: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-danger sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    for (const message of warnings) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-warning sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    if (preview === null) return;
+    const block = document.createElement('pre');
+    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
+    block.textContent = preview;
+    result.append(block);
+  }
+
+  function previewOf(output: DriftFileResult): string | null {
+    if (output.cues.length === 0) return null;
+    const shown = output.cues.slice(0, 5);
+    const body = shown.map((cue) => `${formatSrtTimestamp(cue.start)} --> ${formatSrtTimestamp(cue.end)}\n${cue.text}`).join('\n\n');
+    if (output.cues.length <= shown.length) return body;
+    return `${body}\n\nShowing the first ${shown.length} of ${output.cues.length} cues.`;
+  }
+
+  function adjustmentLine(output: DriftFileResult, fileName: string, several: boolean): string | null {
+    if (output.removed === 0 && output.trimmed === 0) return null;
+    const line = `${output.removed} lines removed / ${output.trimmed} lines trimmed`;
+    return several ? `${fileName}: ${line}` : line;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    cueA instanceof HTMLSelectElement &&
+    cueB instanceof HTMLSelectElement &&
+    timeA instanceof HTMLInputElement &&
+    timeB instanceof HTMLInputElement &&
+    fps instanceof HTMLElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement
+  ) {
+    const names = () => files.map((file) => file.name);
+
+    const fail = (message: string): void => {
+      showResult([message], [], null);
+      renderStatus(status, 'error', names());
+    };
+
+    const loadCues = (): void => {
+      cues = [];
+      fillSelect(cueA, []);
+      fillSelect(cueB, []);
+      if (files.length !== 1) return;
+      const file = files[0];
+      if (!file) return;
+      const format = formatOf(file.name);
+      if (!format) return;
+      cues = parse(file.text, format).cues;
+      const labels = cues.map((cue, index) => cueLabel(index, cue));
+      fillSelect(cueA, labels);
+      fillSelect(cueB, labels);
+      if (cues.length === 0) return;
+      cueA.selectedIndex = 0;
+      cueB.selectedIndex = cues.length - 1;
+    };
+
+    const deliver = (
+      ready: { name: string; text: string }[],
+      messages: string[],
+      warnings: string[],
+      preview: string | null,
+    ): void => {
+      showResult(messages, ready.length > 0 ? warnings : [], ready.length > 0 ? preview : null);
+      if (ready.length === 0) {
+        renderStatus(status, 'error', names());
+        return;
+      }
+      downloadSubtitleFiles(ready, bomInput.checked);
+      renderStatus(status, 'ready', names());
+    };
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      loadCues();
+      renderStatus(status, 'loaded', names());
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderStatus(status, 'working', names());
+      if (files.length === 0) {
+        fail('Add an SRT, VTT, or ASS file.');
+        return;
+      }
+      if (files.length > 1) {
+        fail('Two-point sync works on one file. Add a single subtitle file.');
+        return;
+      }
+
+      const file = files[0];
+      const format = file ? formatOf(file.name) : null;
+      if (!file || !format) {
+        fail('Use an SRT, VTT, or ASS file.');
+        return;
+      }
+      if (cues.length < 2) {
+        fail('This file needs two cues with different start times.');
+        return;
+      }
+
+      const indexA = Number(cueA.value);
+      const indexB = Number(cueB.value);
+      const first = cues[indexA];
+      const second = cues[indexB];
+      if (!first || !second || !Number.isInteger(indexA) || !Number.isInteger(indexB)) {
+        fail('Pick two cues from the list.');
+        return;
+      }
+      if (indexA === indexB) {
+        fail('Pick two different cues.');
+        return;
+      }
+      if (first.start === second.start) {
+        fail('Those two cues start at the same time. Pick cues with different start times.');
+        return;
+      }
+
+      const t1Prime = parseSrtTimestamp(timeA.value);
+      const t2Prime = parseSrtTimestamp(timeB.value);
+      if (t1Prime === null || t2Prime === null) {
+        fail('Enter each correct time as hh:mm:ss,mmm.');
+        return;
+      }
+
+      let output: DriftFileResult;
+      try {
+        output = syncSubtitleFile(file.text, format, first.start, t1Prime, second.start, t2Prime);
+      } catch (error) {
+        fail(error instanceof Error ? error.message : 'Those two cues cannot be synced.');
+        return;
+      }
+
+      const messages = output.errors.map((parseError) => `${file.name}: ${parseError.message}`);
+      if (output.cues.length === 0 && output.removed === 0) {
+        deliver([], messages.length > 0 ? messages : [`${file.name}: This file has no cues.`], [], null);
+        return;
+      }
+      const warning = adjustmentLine(output, file.name, false);
+      deliver([{ name: file.name, text: output.text }], messages, warning ? [warning] : [], previewOf(output));
+    });
+
+    fps.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest('button');
+      if (!(button instanceof HTMLButtonElement) || !fps.contains(button)) return;
+      const rates = fpsPresets[(button.textContent ?? '').trim()];
+      if (!rates) return;
+
+      renderStatus(status, 'working', names());
+      if (files.length === 0) {
+        fail('Add an SRT, VTT, or ASS file.');
+        return;
+      }
+
+      const messages: string[] = [];
+      const warnings: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+
+      for (const file of files) {
+        const format = formatOf(file.name);
+        if (!format) {
+          messages.push(`${file.name}: Use an SRT, VTT, or ASS file.`);
+          continue;
+        }
+        let output: DriftFileResult;
+        try {
+          output = scaleSubtitleFile(file.text, format, rates.subtitle, rates.video);
+        } catch (error) {
+          messages.push(error instanceof Error ? `${file.name}: ${error.message}` : `${file.name}: Could not scale.`);
+          continue;
+        }
+        for (const parseError of output.errors) messages.push(`${file.name}: ${parseError.message}`);
+        if (output.cues.length === 0 && output.removed === 0) {
+          if (output.errors.length === 0) messages.push(`${file.name}: This file has no cues.`);
+          continue;
+        }
+        if (preview === null) preview = previewOf(output);
+        const warning = adjustmentLine(output, file.name, files.length > 1);
+        if (warning) warnings.push(warning);
+        ready.push({ name: file.name, text: output.text });
+      }
+
+      deliver(ready, messages, warnings, preview);
+    });
+  }
+</script>

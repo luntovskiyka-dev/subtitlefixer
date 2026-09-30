@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8 } from './encoding';
+import { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8, repairMojibake } from './encoding';
 import {
   candidateDecodings as candidateDecodingsFromIndex,
   decodeBytes as decodeFromIndex,
@@ -169,6 +169,60 @@ describe('decodeWithLabel', () => {
 
   it('throws when the label is not a TextDecoder label', () => {
     expect(() => decodeWithLabel(Uint8Array.of(0x41), 'not-a-real-encoding')).toThrow();
+  });
+});
+
+function asMojibake(text: string, encoding: 'windows-1252' | 'windows-1251'): string {
+  return new TextDecoder(encoding).decode(new TextEncoder().encode(text));
+}
+
+describe('repairMojibake', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('repairs French text that was read as windows-1252', () => {
+    const text = 'Café déjà';
+    expect(repairMojibake(asMojibake(text, 'windows-1252'))).toEqual({
+      text,
+      via: 'windows-1252',
+    });
+  });
+
+  it('repairs German text that was read as windows-1252', () => {
+    const text = 'Größe';
+    expect(repairMojibake(asMojibake(text, 'windows-1252'))).toEqual({
+      text,
+      via: 'windows-1252',
+    });
+  });
+
+  it('repairs Russian text that was read as windows-1251', () => {
+    const text = 'привет';
+    expect(repairMojibake(asMojibake(text, 'windows-1251'))).toEqual({
+      text,
+      via: 'windows-1251',
+    });
+  });
+
+  it('returns null for text that is already UTF-8', () => {
+    expect(repairMojibake('Café')).toBeNull();
+    expect(repairMojibake('привет')).toBeNull();
+  });
+
+  it('does not call fetch', () => {
+    const fetchSpy = vi.fn(() => {
+      throw new Error('fetch must not be called');
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+
+    repairMojibake(asMojibake('Café déjà', 'windows-1252'));
+    repairMojibake(asMojibake('Größe', 'windows-1252'));
+    repairMojibake(asMojibake('привет', 'windows-1251'));
+    repairMojibake('Café');
+    repairMojibake('привет');
+
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
 

@@ -4,4 +4,5 @@ export const tools = {
   'srt-to-vtt': 'SRT to VTT',
   'vtt-to-srt': 'VTT to SRT',
   'ass-to-srt': 'ASS to SRT',
+  'fix-subtitle-drift': 'Fix subtitle drift',
 } as const;

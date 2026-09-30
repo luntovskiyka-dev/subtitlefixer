@@ -4,9 +4,10 @@ interface Props {
   label: string;
   state?: 'idle' | 'hover' | 'drag' | 'error';
   interactive?: boolean;
+  accept?: string;
 }
 
-const { id, label, state = 'idle', interactive = false } = Astro.props;
+const { id, label, state = 'idle', interactive = false, accept = '.srt,.vtt,.ass,.ssa' } = Astro.props;
 const labelId = `${id}-label`;
 const errorId = `${id}-message`;
 const inputId = `${id}-file`;
@@ -40,7 +41,7 @@ const inputId = `${id}-file`;
         type="file"
         class="sr-only"
         multiple
-        accept=".srt,.vtt,.ass,.ssa"
+        accept={accept}
         tabindex="-1"
         aria-labelledby={labelId}
       />
