@@ -1,0 +1,119 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolStatus from './ToolStatus.astro';
+---
+
+<form id="ass-form" class="flex flex-col gap-6">
+  <Dropzone id="ass-dropzone" label="Add one or more ASS or SSA files" interactive />
+  <ToolStatus id="ass-status" />
+  <div>
+    <Button type="submit" variant="primary">Download SRT file</Button>
+  </div>
+  <div id="ass-result" class="flex flex-col gap-3" aria-live="polite"></div>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { assToSrt, downloadSubtitleFiles } from '../lib/subs/index';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('ass-form');
+  const result = document.getElementById('ass-result');
+  const status = document.getElementById('ass-status');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string'
+    );
+  }
+
+  function isAssName(name: string): boolean {
+    const lower = name.toLowerCase();
+    return lower.endsWith('.ass') || lower.endsWith('.ssa');
+  }
+
+  function srtName(name: string): string {
+    return name.replace(/\.(?:ass|ssa)$/i, '.srt');
+  }
+
+  function showResult(messages: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-danger';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    if (preview === null) return;
+    const block = document.createElement('pre');
+    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    block.textContent = preview;
+    result.append(block);
+  }
+
+  if (form instanceof HTMLFormElement && result instanceof HTMLElement && status instanceof HTMLElement) {
+    const names = () => files.map((file) => file.name);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      renderStatus(status, 'loaded', names());
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      if (files.length === 0) {
+        showResult(['Add one or more ASS or SSA files.'], null);
+        renderStatus(status, 'error', chosen);
+        return;
+      }
+
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+
+      for (const file of files) {
+        if (!isAssName(file.name)) {
+          messages.push(`${file.name}: Use an ASS or SSA file.`);
+          continue;
+        }
+        const converted = assToSrt(file.text);
+        for (const error of converted.errors) messages.push(`${file.name}: ${error.message}`);
+        if (preview === null) preview = converted.text;
+        ready.push({
+          name: srtName(file.name),
+          text: converted.text,
+        });
+      }
+
+      showResult(messages, preview);
+      if (ready.length > 0) {
+        downloadSubtitleFiles(ready, false);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>

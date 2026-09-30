@@ -42,7 +42,9 @@ const linkClass =
     <div class="flex flex-col gap-16">
       <h1 class="text-3xl font-semibold tracking-tight">{h1}</h1>
 
-      <section id="tool" />
+      <section id="tool">
+        <slot />
+      </section>
 
       <p class="text-lg leading-relaxed">{answer}</p>
 

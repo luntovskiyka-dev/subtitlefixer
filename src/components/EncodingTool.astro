@@ -1,0 +1,211 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolStatus from './ToolStatus.astro';
+---
+
+<form id="encoding-form" class="flex flex-col gap-6">
+  <Dropzone id="encoding-dropzone" label="Add a subtitle file" interactive />
+  <ToolStatus id="encoding-status" />
+  <div id="encoding-candidates" class="flex flex-col gap-4"></div>
+  <div class="flex max-w-sm flex-col gap-2">
+    <label for="encoding-label" class="text-sm font-medium text-ink">Language</label>
+    <select
+      id="encoding-label"
+      name="language"
+      class="w-full rounded-sf border border-line bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    >
+      <option value="utf-8">UTF-8</option>
+      <option value="windows-1251">Windows-1251</option>
+      <option value="windows-1252">Windows-1252</option>
+      <option value="windows-1256">Windows-1256</option>
+      <option value="iso-8859-7">ISO-8859-7</option>
+      <option value="iso-8859-9">ISO-8859-9</option>
+      <option value="shift_jis">Shift_JIS</option>
+      <option value="gb18030">GB18030</option>
+    </select>
+  </div>
+  <div class="flex items-center gap-3">
+    <input
+      id="encoding-bom"
+      name="bom"
+      type="checkbox"
+      class="size-4 border-line text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    />
+    <label for="encoding-bom" class="text-sm font-medium text-ink">Include UTF-8 BOM</label>
+  </div>
+  <div>
+    <Button type="submit">Download UTF-8 file</Button>
+  </div>
+  <div id="encoding-result" class="flex flex-col gap-3" aria-live="polite"></div>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { candidateDecodings, decodeWithLabel, downloadSubtitleFiles } from '../lib/subs/index';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const LANGUAGE_LABELS = [
+    'utf-8',
+    'windows-1251',
+    'windows-1252',
+    'windows-1256',
+    'iso-8859-7',
+    'iso-8859-9',
+    'shift_jis',
+    'gb18030',
+  ] as const;
+
+  const form = document.getElementById('encoding-form');
+  const labelSelect = document.getElementById('encoding-label');
+  const bomInput = document.getElementById('encoding-bom');
+  const candidates = document.getElementById('encoding-candidates');
+  const result = document.getElementById('encoding-result');
+  const status = document.getElementById('encoding-status');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isLanguageLabel(label: string): label is (typeof LANGUAGE_LABELS)[number] {
+    return (LANGUAGE_LABELS as readonly string[]).includes(label);
+  }
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file) || !('bytes' in file)) {
+      return false;
+    }
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string' &&
+      file.bytes instanceof Uint8Array
+    );
+  }
+
+  function previewLines(text: string): string {
+    const lines: string[] = [];
+    for (const line of text.split(/\r?\n/)) {
+      if (line.length === 0) continue;
+      lines.push(line);
+      if (lines.length === 4) break;
+    }
+    return lines.join('\n');
+  }
+
+  function showError(message: string): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    const paragraph = document.createElement('p');
+    paragraph.className = 'text-sm text-danger';
+    paragraph.textContent = message;
+    result.append(paragraph);
+  }
+
+  function showText(text: string): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    const preview = document.createElement('pre');
+    preview.className =
+      'overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    preview.textContent = text;
+    result.append(preview);
+  }
+
+  function showCandidates(bytes: Uint8Array): string {
+    if (!(candidates instanceof HTMLElement)) return 'utf-8';
+    const readings = candidateDecodings(bytes).slice(0, 4);
+    candidates.replaceChildren();
+    readings.forEach((reading, index) => {
+      const block = document.createElement('div');
+      const heading = document.createElement('p');
+      heading.className = 'flex flex-wrap items-center gap-2 text-sm font-medium text-ink';
+      heading.append(document.createTextNode(reading.encoding));
+      if (index === 0) {
+        const mark = document.createElement('span');
+        mark.className =
+          'inline-flex items-center rounded-sf bg-brand-soft px-2.5 py-1 text-sm font-medium text-brand';
+        mark.textContent = 'Detected';
+        heading.append(mark);
+      }
+      const preview = document.createElement('pre');
+      preview.className =
+        'mt-2 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink';
+      preview.textContent = previewLines(reading.text);
+      block.append(heading, preview);
+      candidates.append(block);
+    });
+    const detected = readings[0]?.encoding ?? 'utf-8';
+    return isLanguageLabel(detected) ? detected : 'utf-8';
+  }
+
+  function selectedLabel(): string {
+    if (!(labelSelect instanceof HTMLSelectElement)) return 'utf-8';
+    return isLanguageLabel(labelSelect.value) ? labelSelect.value : 'utf-8';
+  }
+
+  function showSelectedText(): void {
+    const first = files[0];
+    if (!first) return;
+    showText(decodeWithLabel(first.bytes, selectedLabel()).text);
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    labelSelect instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    candidates instanceof HTMLElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement
+  ) {
+    const names = () => files.map((file) => file.name);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      renderStatus(status, 'loaded', names());
+      const first = files[0];
+      if (!first) {
+        candidates.replaceChildren();
+        showError('Add a subtitle file.');
+        return;
+      }
+      labelSelect.value = showCandidates(first.bytes);
+      showSelectedText();
+    });
+
+    labelSelect.addEventListener('change', () => {
+      if (files.length === 0) return;
+      showSelectedText();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      if (files.length === 0) {
+        showError('Add a subtitle file.');
+        renderStatus(status, 'error', chosen);
+        return;
+      }
+      const label = selectedLabel();
+      const ready = files.map((file) => ({
+        name: file.name,
+        text: decodeWithLabel(file.bytes, label).text,
+      }));
+      showSelectedText();
+      downloadSubtitleFiles(ready, bomInput.checked);
+      renderStatus(status, 'ready', chosen);
+    });
+  }
+</script>

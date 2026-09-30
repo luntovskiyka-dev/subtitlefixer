@@ -5,6 +5,19 @@ import { parseVtt, serializeVtt } from './vtt';
 
 export type { Cue, ParseError, ParseResult, SubtitleFormat } from './types';
 export { parseAss, serializeAss } from './ass';
+export { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8 } from './encoding';
+export {
+  downloadSubtitleFiles,
+  downloadText,
+  readFileBytes,
+  readSubtitleFiles,
+  textFileBlob,
+  zipTexts,
+} from './files';
+export type { DecodedSubtitleFile, SubtitleTextFile } from './files';
+export { assToSrt } from './assToSrt';
+export { convertSubtitle } from './convert';
+export { shiftCues } from './shift';
 export { parseSrt, serializeSrt } from './srt';
 export { parseVtt, serializeVtt } from './vtt';
 

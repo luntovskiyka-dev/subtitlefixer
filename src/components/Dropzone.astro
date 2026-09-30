@@ -8,10 +8,11 @@ interface Props {
 
 const { id, label, state = 'idle', interactive = false } = Astro.props;
 const labelId = `${id}-label`;
-const errorId = `${id}-error`;
+const errorId = `${id}-message`;
+const inputId = `${id}-file`;
 ---
 
-<div>
+<div class="relative">
   <button
     type="button"
     id={id}
@@ -19,6 +20,7 @@ const errorId = `${id}-error`;
     data-dropzone-interactive={interactive ? '' : undefined}
     aria-labelledby={labelId}
     aria-describedby={state === 'error' ? errorId : undefined}
+    aria-controls={interactive ? inputId : undefined}
     class:list={[
       'w-full rounded-sf border-2 border-dashed bg-bg px-6 py-10 text-center text-ink',
       'transition-colors motion-reduce:transition-none',
@@ -32,43 +34,112 @@ const errorId = `${id}-error`;
     <span id={labelId}>{label}</span>
   </button>
   {
-    state === 'error' && (
-      <p id={errorId} class="mt-2 text-sm text-danger">
-        Use an SRT, VTT, or ASS file.
-      </p>
+    interactive && (
+      <input
+        id={inputId}
+        type="file"
+        class="sr-only"
+        multiple
+        accept=".srt,.vtt,.ass,.ssa"
+        tabindex="-1"
+        aria-labelledby={labelId}
+      />
     )
   }
+  <p id={errorId} class="mt-2 text-sm text-danger" hidden={state !== 'error'}>
+    Use an SRT, VTT, or ASS file.
+  </p>
 </div>
 
 <script>
+  import { readSubtitleFiles } from '../lib/subs/files';
+
   const zones = document.querySelectorAll('[data-dropzone-interactive]');
+  const bound = new WeakSet<HTMLElement>();
+
+  function setZoneState(zone: HTMLElement, state: 'idle' | 'drag' | 'error') {
+    zone.dataset.state = state;
+    const errorId = `${zone.id}-message`;
+    const error = document.getElementById(errorId);
+    if (error instanceof HTMLElement) error.hidden = state !== 'error';
+    if (state === 'error') zone.setAttribute('aria-describedby', errorId);
+    else zone.removeAttribute('aria-describedby');
+  }
+
+  function failZone(zone: HTMLElement) {
+    setZoneState(zone, 'error');
+    zone.dispatchEvent(new CustomEvent('subtitlefailed', { bubbles: true }));
+  }
+
+  async function acceptFiles(zone: HTMLElement, files: File[]) {
+    if (files.length === 0) {
+      failZone(zone);
+      return;
+    }
+
+    zone.dispatchEvent(new CustomEvent('subtitlereading', { bubbles: true }));
+
+    try {
+      const decoded = await readSubtitleFiles(files);
+      if (decoded.length === 0) {
+        failZone(zone);
+        return;
+      }
+      setZoneState(zone, 'idle');
+      zone.dispatchEvent(
+        new CustomEvent('subtitlefiles', {
+          bubbles: true,
+          detail: { files: decoded },
+        }),
+      );
+    } catch {
+      failZone(zone);
+    }
+  }
 
   for (const zone of zones) {
-    if (!(zone instanceof HTMLElement)) continue;
+    if (!(zone instanceof HTMLElement) || bound.has(zone)) continue;
+    bound.add(zone);
 
     let depth = 0;
+    const input = document.getElementById(`${zone.id}-file`);
+
+    zone.addEventListener('click', () => {
+      if (input instanceof HTMLInputElement) input.click();
+    });
+
+    if (input instanceof HTMLInputElement) {
+      input.addEventListener('change', () => {
+        const selected = input.files ? Array.from(input.files) : [];
+        input.value = '';
+        void acceptFiles(zone, selected);
+      });
+    }
 
     zone.addEventListener('dragenter', (event) => {
       event.preventDefault();
       depth += 1;
-      zone.dataset.state = 'drag';
+      setZoneState(zone, 'drag');
     });
 
     zone.addEventListener('dragover', (event) => {
       event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
     });
 
     zone.addEventListener('dragleave', () => {
       depth -= 1;
       if (depth > 0) return;
       depth = 0;
-      zone.dataset.state = 'idle';
+      setZoneState(zone, 'idle');
     });
 
     zone.addEventListener('drop', (event) => {
       event.preventDefault();
       depth = 0;
-      zone.dataset.state = 'idle';
+      const dropped = event.dataTransfer?.files;
+      const files = dropped ? Array.from(dropped) : [];
+      void acceptFiles(zone, files);
     });
   }
 </script>

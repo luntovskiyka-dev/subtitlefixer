@@ -1,0 +1,156 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import Input from './Input.astro';
+import ToolStatus from './ToolStatus.astro';
+---
+
+<form id="shift-form" class="flex flex-col gap-6">
+  <Dropzone id="shift-dropzone" label="Add an SRT, VTT, or ASS file" interactive />
+  <ToolStatus id="shift-status" />
+  <Input id="shift-offset" label="Offset in milliseconds" kind="milliseconds" name="offset" />
+  <Input id="shift-from-cue" label="Start from cue" kind="milliseconds" name="from-cue" />
+  <div>
+    <Button type="submit">Download shifted file</Button>
+  </div>
+  <div id="shift-result" class="flex flex-col gap-3" aria-live="polite"></div>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles, parse, serialize, shiftCues } from '../lib/subs/index';
+  import type { Cue, SubtitleFormat } from '../lib/subs/types';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('shift-form');
+  const offsetInput = document.getElementById('shift-offset');
+  const fromInput = document.getElementById('shift-from-cue');
+  const result = document.getElementById('shift-result');
+  const status = document.getElementById('shift-status');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function formatOf(name: string): SubtitleFormat | null {
+    const lower = name.toLowerCase();
+    if (lower.endsWith('.srt')) return 'srt';
+    if (lower.endsWith('.vtt')) return 'vtt';
+    if (lower.endsWith('.ass') || lower.endsWith('.ssa')) return 'ass';
+    return null;
+  }
+
+  function readInteger(value: string): number | null {
+    const trimmed = value.trim();
+    if (!/^[+-]?\d+$/.test(trimmed)) return null;
+    const parsed = Number(trimmed);
+    if (!Number.isSafeInteger(parsed)) return null;
+    return parsed;
+  }
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string'
+    );
+  }
+
+  function showResult(messages: readonly string[], cues: readonly Cue[] | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-danger';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    if (!cues || cues.length === 0) return;
+    const preview = document.createElement('pre');
+    preview.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    preview.textContent = cues.map((cue) => `${cue.start} --> ${cue.end}\n${cue.text}`).join('\n\n');
+    result.append(preview);
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    offsetInput instanceof HTMLInputElement &&
+    fromInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement
+  ) {
+    const names = () => files.map((file) => file.name);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      renderStatus(status, 'loaded', names());
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderStatus(status, 'working', names());
+      if (files.length === 0) {
+        showResult(['Add an SRT, VTT, or ASS file.'], null);
+        renderStatus(status, 'error', names());
+        return;
+      }
+
+      const offsetMs = readInteger(offsetInput.value);
+      if (offsetMs === null) {
+        showResult(['Enter an offset in milliseconds.'], null);
+        renderStatus(status, 'error', names());
+        return;
+      }
+
+      const fromRaw = fromInput.value.trim();
+      let fromCue: number | undefined;
+      if (fromRaw !== '') {
+        const parsedFrom = readInteger(fromRaw);
+        if (parsedFrom === null) {
+          showResult(['Start from cue must be a whole number.'], null);
+          renderStatus(status, 'error', names());
+          return;
+        }
+        fromCue = parsedFrom;
+      }
+
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let firstCues: Cue[] | null = null;
+
+      files.forEach((file, index) => {
+        const format = formatOf(file.name);
+        if (!format) {
+          messages.push(`${file.name}: Use an SRT, VTT, or ASS file.`);
+          return;
+        }
+        const parsed = parse(file.text, format);
+        for (const error of parsed.errors) messages.push(`${file.name}: ${error.message}`);
+        const shifted = shiftCues(parsed.cues, offsetMs, fromCue);
+        if (index === 0) firstCues = shifted;
+        if (parsed.cues.length === 0 && parsed.errors.length > 0) return;
+        ready.push({ name: file.name, text: serialize(shifted, format) });
+      });
+
+      showResult(messages, firstCues);
+      if (ready.length > 0) {
+        downloadSubtitleFiles(ready, false);
+        renderStatus(status, 'ready', names());
+        return;
+      }
+      renderStatus(status, 'error', names());
+    });
+  }
+</script>

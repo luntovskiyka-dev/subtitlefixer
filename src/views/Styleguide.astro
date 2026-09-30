@@ -7,6 +7,7 @@ import Dropzone from '../components/Dropzone.astro';
 import Input from '../components/Input.astro';
 import Mark from '../components/Mark.astro';
 import SubtitlePreview from '../components/SubtitlePreview.astro';
+import ToolStatus from '../components/ToolStatus.astro';
 
 const cues = [
   { start: 12400, end: 15120, text: 'We should have left an hour ago.' },
@@ -41,7 +42,8 @@ const cues = [
       <div class="mt-6">
         <Dropzone id="dropzone" label="Drop a subtitle file" interactive />
       </div>
-      <p class="mt-3 text-sm text-muted">Dragging changes the frame only. The file is not read.</p>
+      <p class="mt-3 text-sm text-muted">Names of chosen files appear below. Files stay on this device.</p>
+      <ul id="dropzone-files" class="mt-3 list-inside list-disc text-sm empty:hidden" aria-live="polite"></ul>
       <div class="mt-8 grid gap-6 sm:grid-cols-3">
         <div>
           <h3 class="text-sm font-medium text-muted">Hover</h3>
@@ -100,3 +102,21 @@ const cues = [
     </section>
   </div>
 </Base>
+
+<script>
+  const zone = document.getElementById('dropzone');
+  const list = document.getElementById('dropzone-files');
+
+  zone?.addEventListener('subtitlefiles', (event) => {
+    if (!(event instanceof CustomEvent) || !(list instanceof HTMLUListElement)) return;
+    const detail = event.detail as { files?: { name?: string }[] };
+    const files = Array.isArray(detail.files) ? detail.files : [];
+    list.replaceChildren(
+      ...files.map((file) => {
+        const item = document.createElement('li');
+        item.textContent = file.name ?? '';
+        return item;
+      }),
+    );
+  });
+</script>

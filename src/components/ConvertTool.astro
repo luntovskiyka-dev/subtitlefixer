@@ -1,0 +1,139 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolStatus from './ToolStatus.astro';
+
+interface Props {
+  direction: 'srt-to-vtt' | 'vtt-to-srt';
+}
+
+const { direction } = Astro.props;
+const source = direction === 'srt-to-vtt' ? 'srt' : 'vtt';
+const target = source === 'srt' ? 'vtt' : 'srt';
+const sourceLabel = source === 'srt' ? 'SRT' : 'VTT';
+const label = `Add one or more ${sourceLabel} files`;
+---
+
+<form
+  id="convert-form"
+  class="flex flex-col gap-6"
+  data-source={source}
+  data-target={target}
+  data-source-label={sourceLabel}
+>
+  <Dropzone id="convert-dropzone" label={label} interactive />
+  <ToolStatus id="convert-status" />
+  <div>
+    <Button type="submit" variant="primary">Download converted file</Button>
+  </div>
+  <div id="convert-result" class="flex flex-col gap-3" aria-live="polite"></div>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { convertSubtitle, downloadSubtitleFiles } from '../lib/subs/index';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('convert-form');
+  const result = document.getElementById('convert-result');
+  const status = document.getElementById('convert-status');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isFormat(value: string | undefined): value is 'srt' | 'vtt' {
+    return value === 'srt' || value === 'vtt';
+  }
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string'
+    );
+  }
+
+  function replaceExtension(name: string, source: 'srt' | 'vtt', target: 'srt' | 'vtt'): string {
+    return `${name.slice(0, -(source.length + 1))}.${target}`;
+  }
+
+  function showResult(messages: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-sm text-danger';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    if (preview === null) return;
+    const block = document.createElement('pre');
+    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink';
+    block.textContent = preview;
+    result.append(block);
+  }
+
+  if (form instanceof HTMLFormElement && result instanceof HTMLElement && status instanceof HTMLElement) {
+    const source = isFormat(form.dataset.source) ? form.dataset.source : null;
+    const target = isFormat(form.dataset.target) ? form.dataset.target : null;
+    const sourceLabel = form.dataset.sourceLabel === 'VTT' ? 'VTT' : 'SRT';
+    const names = () => files.map((file) => file.name);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      renderStatus(status, 'loaded', names());
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      if (!source || !target) return;
+      if (files.length === 0) {
+        showResult([`Add one or more ${sourceLabel} files.`], null);
+        renderStatus(status, 'error', chosen);
+        return;
+      }
+
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      const article = source === 'srt' ? 'an' : 'a';
+
+      for (const file of files) {
+        if (!file.name.toLowerCase().endsWith(`.${source}`)) {
+          messages.push(`${file.name}: Use ${article} ${sourceLabel} file.`);
+          continue;
+        }
+        const converted = convertSubtitle(file.text, source, target);
+        for (const error of converted.errors) messages.push(`${file.name}: ${error.message}`);
+        if (preview === null) preview = converted.text;
+        ready.push({
+          name: replaceExtension(file.name, source, target),
+          text: converted.text,
+        });
+      }
+
+      showResult(messages, preview);
+      if (ready.length > 0) {
+        downloadSubtitleFiles(ready, false);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>
