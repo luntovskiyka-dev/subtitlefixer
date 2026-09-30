@@ -171,12 +171,12 @@ import ToolStatus from './ToolStatus.astro';
     labelSelect.append(option);
   }
 
-  function showCandidates(
+  async function showCandidates(
     bytes: Uint8Array,
     decodedText: string,
-  ): (typeof LANGUAGE_LABELS)[number] {
+  ): Promise<(typeof LANGUAGE_LABELS)[number]> {
     if (!(candidates instanceof HTMLElement)) return 'utf-8';
-    const readings = candidateDecodings(bytes).slice(0, 4);
+    const readings = (await candidateDecodings(bytes)).slice(0, 4);
     candidates.replaceChildren();
     readings.forEach((reading, index) => {
       appendPreview(reading.encoding, reading.text, index === 0);
@@ -238,9 +238,16 @@ import ToolStatus from './ToolStatus.astro';
         return;
       }
       renderStatus(status, 'loaded', names());
-      encodingLabel = showCandidates(first.bytes, first.text);
-      labelSelect.value = encodingLabel;
-      showSelectedText();
+      void showCandidates(first.bytes, first.text)
+        .then((label) => {
+          encodingLabel = label;
+          labelSelect.value = encodingLabel;
+          showSelectedText();
+        })
+        .catch(() => {
+          showError('Could not read that subtitle file.');
+          renderStatus(status, 'error', names());
+        });
     });
 
     labelSelect.addEventListener('change', () => {

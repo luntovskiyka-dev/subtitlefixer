@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as detector from './detectEncoding';
 import { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8, repairMojibake } from './encoding';
 import {
   candidateDecodings as candidateDecodingsFromIndex,
@@ -49,7 +50,7 @@ const LEGACY = [
 ] as const;
 
 describe('decodeBytes', () => {
-  it.each(LEGACY)('decodes $encoding text to the original phrase', ({ encoding, phrase, script }) => {
+  it.each(LEGACY)('decodes $encoding text to the original phrase', async ({ encoding, phrase, script }) => {
     for (const char of phrase) {
       const code = char.codePointAt(0) ?? 0;
       if (code < 0x80) continue;
@@ -57,21 +58,42 @@ describe('decodeBytes', () => {
     }
 
     const text = repeatPhrase(phrase, 8);
-    const decoded = decodeBytes(legacyBytes(encoding, text));
+    const decoded = await decodeBytes(legacyBytes(encoding, text));
     expect(decoded.encoding).toBe(encoding);
     expect(decoded.text).toBe(text);
     expect(decoded.text.startsWith(phrase)).toBe(true);
   });
 
-  it('decodes UTF-8 with and without a BOM', () => {
+  it('decodes UTF-8 with and without a BOM', async () => {
     for (const phrase of [CYRILLIC, ARABIC, TURKISH, GREEK]) {
-      const plain = decodeBytes(encodeUtf8(phrase, false));
+      const plain = await decodeBytes(encodeUtf8(phrase, false));
       expect(plain).toEqual({ encoding: 'utf-8', text: phrase });
 
-      const marked = decodeBytes(encodeUtf8(phrase, true));
+      const marked = await decodeBytes(encodeUtf8(phrase, true));
       expect(marked).toEqual({ encoding: 'utf-8', text: phrase });
       expect(marked.text.includes('\uFEFF')).toBe(false);
     }
+  });
+});
+
+describe('detector loading', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does not load the detector for valid UTF-8', async () => {
+    const spy = vi.spyOn(detector, 'detectEncodingLabel');
+    await decodeBytes(encodeUtf8(CYRILLIC, false));
+    await decodeBytes(encodeUtf8(CYRILLIC, true));
+    await decodeBytes(encodeUtf8('', false));
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('loads the detector when the bytes are not UTF-8', async () => {
+    const spy = vi.spyOn(detector, 'detectEncodingLabel');
+    const bytes = legacyBytes('windows-1251', repeatPhrase(CYRILLIC, 8));
+    await decodeBytes(bytes);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -85,10 +107,10 @@ describe('encodeUtf8', () => {
     expect([...marked.slice(3)]).toEqual([...plain]);
   });
 
-  it('round-trips an empty string', () => {
-    expect(decodeBytes(encodeUtf8('', false))).toEqual({ encoding: 'utf-8', text: '' });
+  it('round-trips an empty string', async () => {
+    await expect(decodeBytes(encodeUtf8('', false))).resolves.toEqual({ encoding: 'utf-8', text: '' });
     expect([...encodeUtf8('', true)]).toEqual([0xef, 0xbb, 0xbf]);
-    expect(decodeBytes(encodeUtf8('', true))).toEqual({ encoding: 'utf-8', text: '' });
+    await expect(decodeBytes(encodeUtf8('', true))).resolves.toEqual({ encoding: 'utf-8', text: '' });
   });
 });
 
@@ -107,10 +129,10 @@ describe('candidateDecodings', () => {
     vi.unstubAllGlobals();
   });
 
-  it('lists windows-1251 first and other readings whose text differs', () => {
+  it('lists windows-1251 first and other readings whose text differs', async () => {
     const text = repeatPhrase(CYRILLIC, 8);
     const bytes = legacyBytes('windows-1251', text);
-    const candidates = candidateDecodings(bytes);
+    const candidates = await candidateDecodings(bytes);
 
     expect(candidates[0]).toEqual({ encoding: 'windows-1251', text });
     expect(candidates.length).toBeGreaterThan(1);
@@ -137,22 +159,22 @@ describe('candidateDecodings', () => {
     expect(decoded.text).not.toBe(text);
   });
 
-  it('lists utf-8 first for UTF-8 Cyrillic bytes', () => {
+  it('lists utf-8 first for UTF-8 Cyrillic bytes', async () => {
     const bytes = encodeUtf8(CYRILLIC, false);
-    const candidates = candidateDecodings(bytes);
+    const candidates = await candidateDecodings(bytes);
     expect(candidates[0]?.encoding).toBe('utf-8');
     expect(candidates[0]?.text).toBe(CYRILLIC);
     expect(candidates.length).toBeLessThanOrEqual(4);
   });
 
-  it('does not call fetch', () => {
+  it('does not call fetch', async () => {
     const fetchSpy = vi.fn(() => {
       throw new Error('fetch must not be called');
     });
     vi.stubGlobal('fetch', fetchSpy);
 
     const bytes = legacyBytes('windows-1251', repeatPhrase(CYRILLIC, 8));
-    candidateDecodings(bytes);
+    await candidateDecodings(bytes);
     decodeWithLabel(bytes, 'windows-1252');
     decodeWithLabel(encodeUtf8(CYRILLIC, false), 'utf-8');
 

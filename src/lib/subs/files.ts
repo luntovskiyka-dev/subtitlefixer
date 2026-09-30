@@ -37,7 +37,7 @@ export async function readSubtitleFiles(
   return Promise.all(
     list.map(async (file) => {
       const bytes = await readFileBytes(file);
-      const decoded = decodeBytes(bytes);
+      const decoded = await decodeBytes(bytes);
       return {
         name: file.name ?? '',
         encoding: decoded.encoding,
