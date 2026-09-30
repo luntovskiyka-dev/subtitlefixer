@@ -8,9 +8,9 @@ interface Props {
 const { variant = 'primary', type = 'button', class: className } = Astro.props;
 
 const variantClass = {
-  primary: 'bg-brand text-bg hover:bg-brand-hover',
-  secondary: 'bg-brand-soft text-brand hover:text-brand-hover',
-  ghost: 'bg-transparent text-brand hover:text-brand-hover',
+  primary: 'bg-brand text-on-brand hover:bg-[var(--sf-dropzone)]',
+  secondary: 'bg-lilac text-ink hover:text-brand-hover',
+  ghost: 'bg-transparent text-brand-hover hover:text-ink',
 }[variant];
 ---
 
@@ -19,7 +19,7 @@ const variantClass = {
   class:list={[
     'inline-flex min-h-11 items-center justify-center rounded-sf px-4 py-2 text-sm font-medium',
     'transition-colors motion-reduce:transition-none',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
+    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
     variantClass,
     className,
   ]}

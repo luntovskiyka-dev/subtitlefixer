@@ -18,7 +18,7 @@ import ToolStatus from './ToolStatus.astro';
     <select
       id="encoding-label"
       name="language"
-      class="min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      class="min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
     >
       <option value="utf-8">UTF-8</option>
       <option value="windows-1251">Windows-1251</option>
@@ -36,7 +36,7 @@ import ToolStatus from './ToolStatus.astro';
       id="encoding-bom"
       name="bom"
       type="checkbox"
-      class="size-6 border-line text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      class="size-6 border-line text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
     />
     <label for="encoding-bom" class="text-sm font-medium text-ink">Include UTF-8 BOM</label>
   </div>
@@ -141,7 +141,7 @@ import ToolStatus from './ToolStatus.astro';
     if (detected) {
       const mark = document.createElement('span');
       mark.className =
-        'inline-flex items-center rounded-sf bg-brand-soft px-2.5 py-1 text-sm font-medium text-brand';
+        'inline-flex items-center rounded-sf bg-lilac px-2.5 py-1 text-sm font-medium text-ink';
       mark.textContent = 'Detected';
       heading.append(mark);
     }

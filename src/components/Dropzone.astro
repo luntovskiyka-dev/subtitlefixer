@@ -25,11 +25,11 @@ const inputId = `${id}-file`;
     class:list={[
       'min-h-28 w-full rounded-sf border-2 border-dashed bg-bg px-4 py-10 text-center text-ink',
       'transition-colors motion-reduce:transition-none',
-      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
-      'border-brand data-[state=hover]:border-brand-hover data-[state=hover]:bg-surface',
+      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
+      'border-brand-hover data-[state=hover]:border-edge data-[state=hover]:bg-surface',
       'data-[state=drag]:bg-brand-soft',
       'data-[state=error]:border-danger',
-      'hover:data-[state=idle]:border-brand-hover hover:data-[state=idle]:bg-surface',
+      'hover:data-[state=idle]:border-edge hover:data-[state=idle]:bg-surface',
     ]}
   >
     <span id={labelId} class="block whitespace-normal break-words">{label}</span>

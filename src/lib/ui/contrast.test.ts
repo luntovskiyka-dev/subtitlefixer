@@ -24,6 +24,7 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'brand-hover on surface', foreground: 'brandHover', background: 'surface', minimum: TEXT },
   { label: 'brand-hover on lilac', foreground: 'brandHover', background: 'lilac', minimum: TEXT },
   { label: 'on-brand on brand', foreground: 'onBrand', background: 'brand', minimum: TEXT },
+  { label: 'on-brand on dropzone', foreground: 'onBrand', background: 'dropzone', minimum: TEXT },
   { label: 'on-brand on brand-hover', foreground: 'onBrand', background: 'brandHover', minimum: TEXT },
   { label: 'on-brand-muted on brand', foreground: 'onBrandMuted', background: 'brand', minimum: TEXT },
   { label: 'on-brand-muted on brand-hover', foreground: 'onBrandMuted', background: 'brandHover', minimum: TEXT },
@@ -55,6 +56,7 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
   { label: 'control on surface', foreground: 'control', background: 'surface', minimum: NON_TEXT },
+  { label: 'brand-hover on bg', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
 ];
 
 const DARK_PAIRS: readonly Pair[] = [
@@ -68,7 +70,11 @@ const DARK_PAIRS: readonly Pair[] = [
   { label: 'on-brand on dropzone', foreground: 'onBrand', background: 'dropzone', minimum: TEXT },
   { label: 'link on bg', foreground: 'brandHover', background: 'bg', minimum: TEXT },
   { label: 'link on surface', foreground: 'brandHover', background: 'surface', minimum: TEXT },
+  { label: 'brand-hover on lilac', foreground: 'brandHover', background: 'lilac', minimum: TEXT },
   { label: 'text on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'text on accent-soft', foreground: 'text', background: 'accentSoft', minimum: TEXT },
+  { label: 'text on teal-soft', foreground: 'text', background: 'tealSoft', minimum: TEXT },
+  { label: 'muted on accent-soft', foreground: 'muted', background: 'accentSoft', minimum: TEXT },
   { label: 'text on accent-wash', foreground: 'text', background: 'accentWash', minimum: TEXT },
   { label: 'text on mint wash', foreground: 'text', background: 'mint', minimum: TEXT },
   { label: 'on-accent on coral', foreground: 'onAccent', background: 'accent', minimum: TEXT },
@@ -83,6 +89,7 @@ const DARK_PAIRS: readonly Pair[] = [
   { label: 'footer text on footer', foreground: 'text', background: 'footer', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on bg', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
+  { label: 'brand-hover on bg', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
 ];
 
 const TOOL_PAIRS: readonly Pair[] = [

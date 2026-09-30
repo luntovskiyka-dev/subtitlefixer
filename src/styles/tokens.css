@@ -82,12 +82,15 @@
     --sf-on-brand-muted: #F4F2FF;
     --sf-accent: #FF8A6B;
     --sf-on-accent: #15142B;
+    --sf-accent-soft: #5A2C24;
     --sf-accent-wash: #4A2230;
     --sf-accent-ink: #FF9C80;
     --sf-teal: #3DD6C8;
+    --sf-teal-soft: #123C3A;
     --sf-teal-ink: #5EEAD4;
     --sf-mint: #123C3A;
     --sf-success: #6EE7B7;
+    --sf-line: #34315C;
     --sf-edge: #8E88C8;
     --sf-control: #8E88C8;
     --sf-danger: #F87171;

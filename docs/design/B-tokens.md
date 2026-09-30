@@ -68,9 +68,12 @@ Outlines can't be black on a dark page, so `edge` becomes a light violet line an
 | link (`brand-hover` in dark) | `#A79EFF` | 7.7 bg · 6.9 surface |
 | lilac / accent-wash / mint-wash | `#2B2760` / `#4A2230` / `#123C3A` | text 12.8 / 12.8 / 11.5 |
 | accent / on-accent | `#FF8A6B` / `#15142B` | 7.8 |
+| accent-soft | `#5A2C24` | text 10.9 · muted 5.8 |
 | teal / on-teal | `#3DD6C8` / `#15142B` | 10.0 |
+| teal-soft | `#123C3A` | text 11.5 |
 | accent-ink / teal-ink / success | `#FF9C80` / `#5EEAD4` / `#6EE7B7` | 7.9 / 10.9 / 10.6 on surface |
 | danger / warning | `#F87171` / `#FBBF24` | 5.8 / 9.6 |
+| line | `#34315C` | decorative hairline |
 | edge + control (outlines) | `#8E88C8` | 5.0 surface · 5.6 bg |
 | hard-shadow colour | `#07061A` | — |
 | footer | bg `#0E0D20`, text as light | — |

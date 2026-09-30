@@ -15,7 +15,7 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
             <li>
               <a
                 href={`/${slug}`}
-                class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+                class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
                 aria-current={current === `/${slug}` ? 'page' : undefined}
               >
                 {title}
@@ -30,7 +30,7 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
         <li>
           <a
             href="/about"
-            class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
             aria-current={current === '/about' ? 'page' : undefined}
           >
             About
@@ -39,7 +39,7 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
         <li>
           <a
             href="/privacy"
-            class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
             aria-current={current === '/privacy' ? 'page' : undefined}
           >
             Privacy
@@ -50,7 +50,7 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
             <li>
               <a
                 href={`/guides/${guide.id}`}
-                class="rounded-sf text-sm text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+                class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
                 aria-current={current === `/guides/${guide.id}` ? 'page' : undefined}
               >
                 {guide.data.h1}

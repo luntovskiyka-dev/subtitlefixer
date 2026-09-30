@@ -14,7 +14,7 @@
 4. **Шаблон `ToolPage`** — H1 под запрос → инструмент → ответ в 1 фразу → 3 шага → пример до/после → «что умеет / чего нет» → FAQ 5–8 (`FAQPage` JSON-LD) → похожие инструменты. ✅ страница создаётся из одного файла `src/content/tools/*.md`.
 
 ## Этап 1.5 — Визуальная база
-5. **Токены** — подключить `tokens.css` и `tailwind.tokens.js` (D4 Indigo + Mint), светлая + тёмная тема через `prefers-color-scheme`. ✅ в коде нет захардкоженных цветов.
+5. **Токены** — подключить `tokens.css` и `tailwind.tokens.js` (direction B, see docs/B-tokens.md), светлая + тёмная тема через `prefers-color-scheme`. ✅ в коде нет захардкоженных цветов.
 6. **Шрифты** — self-hosted @fontsource (latin): Bricolage Grotesque 800, Figtree variable, DM Mono 500; ✅ ≤ 3 запроса шрифтов, все same-origin, ≤ 60 KB, CLS < 0.02.
 7. **Базовые компоненты** — Button (primary/secondary/ghost), Dropzone (пунктир edge, состояния hover/drag/error), Badge, Card, Input (число мс, select кодировки), SubtitlePreview (моно, тайминги muted, текст ink), маркер-выделение (coral accent, текст ink) для ключевого слова в H1. ✅ страница `/_styleguide` со всеми компонентами.
 8. **Логотип-заготовка + favicon** — текстовый wordmark «subtitle**fixer**» + простой знак (строка субтитра / скобки таймкода), SVG favicon + apple-touch-icon. ✅ favicon во всех размерах.
