@@ -22,13 +22,12 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, description } = entry.data;
+const { title, description, faq } = entry.data;
 const toolName = tools[entry.id as keyof typeof tools];
 if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
 ---
 
-<Base title={title} description={description} schema="webapp" schemaName={toolName}>
-  <ToolPage entry={entry} jsonLdOnly slot="head" />
+<Base title={title} description={description} schema="webapp" schemaName={toolName} faq={faq}>
   <ToolPage entry={entry}>
     {entry.id === 'shift-subtitles' && <ShiftTool />}
     {entry.id === 'fix-subtitle-encoding' && <EncodingTool />}

@@ -23,4 +23,13 @@ describe('brand spelling', () => {
     }
     expect(hits).toEqual([]);
   });
+
+  it('does not suffix a title with an em dash and subtitlefixer', () => {
+    const hits: string[] = [];
+    for (const path of roots.flatMap((root) => filesIn(root))) {
+      const source = readFileSync(path, 'utf8');
+      if (/—\s*subtitlefixer/i.test(source)) hits.push(path);
+    }
+    expect(hits).toEqual([]);
+  });
 });

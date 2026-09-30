@@ -51,6 +51,7 @@ describe('buildJsonLd', () => {
         name: BRAND,
         url: 'https://subtitlefixer.com',
         logo: 'https://subtitlefixer.com/apple-touch-icon.png',
+        founder: { '@type': 'Person', name: 'Kirill Luntovskii' },
       },
       {
         '@context': 'https://schema.org',

@@ -1,10 +1,17 @@
 // @ts-check
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import {
+  appendMissingRelated,
+  externalLinks,
+  injectFaq,
+  stripDuplicateH1,
+  wrapTables,
+} from './src/lib/seo/markdownPlugins.ts';
 import { canonicalSitemapLoc } from './src/lib/seo/urls.ts';
 
 const seenSitemapLocs = new Set();
@@ -28,20 +35,25 @@ const styleguideRoute = {
 const ogImages = {
   name: 'og-images',
   hooks: {
-    'astro:build:done': async ({ dir, logger }) => {
-      const { listOgCards, ogImageFilename } = await import('./src/lib/og/card.ts');
-      const { renderOgCard } = await import('./src/lib/og/render.ts');
-      const folder = join(fileURLToPath(dir), 'og');
-      await mkdir(folder, { recursive: true });
-      const cards = listOgCards();
-      for (const card of cards) {
-        const png = await renderOgCard(card);
-        const file = join(folder, ogImageFilename(card.path));
-        await mkdir(dirname(file), { recursive: true });
-        await writeFile(file, png);
-      }
-      logger.info(`Wrote ${cards.length} Open Graph images.`);
-    },
+    // Spawn Node directly. Importing these modules through Vite's runner fails
+    // once the Markdown processor has loaded the native Sätteri addon.
+    'astro:build:done': ({ dir }) =>
+      new Promise((resolve, reject) => {
+        const child = spawn(
+          process.execPath,
+          [
+            '--experimental-strip-types',
+            fileURLToPath(new URL('./scripts/write-og-images.mjs', import.meta.url)),
+            fileURLToPath(dir),
+          ],
+          { stdio: 'inherit' },
+        );
+        child.on('error', reject);
+        child.on('exit', (code) => {
+          if (code === 0) resolve(undefined);
+          else reject(new Error(`Open Graph image build exited with code ${code ?? 'none'}.`));
+        });
+      }),
   },
 };
 
@@ -51,6 +63,14 @@ export default defineConfig({
   trailingSlash: 'never',
   build: {
     format: 'file',
+  },
+  markdown: {
+    syntaxHighlight: false,
+    processor: satteri({
+      features: { smartPunctuation: false },
+      mdastPlugins: [stripDuplicateH1, injectFaq, appendMissingRelated],
+      hastPlugins: [externalLinks, wrapTables],
+    }),
   },
   integrations: [
     styleguideRoute,

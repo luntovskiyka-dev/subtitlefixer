@@ -1,20 +1,15 @@
 ---
+import { getEntry, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 
-const linkClass =
-  'rounded-sf text-brand hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand';
+const entry = await getEntry('pages', 'about');
+if (!entry) throw new Error('Missing about page content.');
+const { title, description } = entry.data;
+const { Content } = await render(entry);
 ---
 
-<Base
-  title="About — SubtitleFixer"
-  description="SubtitleFixer is a set of free browser tools for SRT, VTT, and ASS. Files stay on the device."
->
-  <h1 class="text-3xl font-semibold tracking-tight">About</h1>
-  <p class="mt-6 max-w-2xl text-lg leading-relaxed">
-    SubtitleFixer is a set of free browser tools for SRT, VTT, and ASS. Files stay on the device.
-  </p>
-  <p class="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-    <a href="/" class={linkClass}>Home</a>
-    <a href="/privacy" class={linkClass}>Privacy</a>
-  </p>
+<Base title={title} description={description}>
+  <div class="sf-copy">
+    <Content />
+  </div>
 </Base>

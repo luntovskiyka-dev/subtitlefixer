@@ -15,16 +15,15 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, description, h1 } = entry.data;
+const { title, description, h1, answer, faq } = entry.data;
 const { Content } = await render(entry);
 ---
 
-<Base title={title} description={description} schema="article" schemaName={h1}>
+<Base title={title} description={description} schema="article" schemaName={h1} faq={faq}>
   <article>
     <h1 class="text-3xl font-semibold tracking-tight">{h1}</h1>
-    <div
-      class="mt-6 max-w-2xl text-lg leading-relaxed text-ink [&_a]:rounded-sf [&_a]:text-brand [&_a:hover]:text-brand-hover [&_a:focus-visible]:outline [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-brand [&_p+p]:mt-6"
-    >
+    <p class="mt-6 text-lg leading-relaxed">{answer}</p>
+    <div class="sf-copy mt-10">
       <Content />
     </div>
   </article>

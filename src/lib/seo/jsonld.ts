@@ -1,5 +1,7 @@
 import { BRAND } from './urls';
 
+const FOUNDER = 'Kirill Luntovskii';
+
 export type JsonLdInput =
   | { kind: 'none' }
   | { kind: 'home'; origin: string; logo: string }
@@ -18,6 +20,10 @@ export function buildJsonLd(input: JsonLdInput): unknown {
           name: BRAND,
           url: input.origin,
           logo: input.logo,
+          founder: {
+            '@type': 'Person',
+            name: FOUNDER,
+          },
         },
         {
           '@context': 'https://schema.org',

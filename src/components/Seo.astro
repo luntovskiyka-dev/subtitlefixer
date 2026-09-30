@@ -1,5 +1,6 @@
 ---
 import { ogImageFilename } from '../lib/og/card';
+import { faqPageJsonLd, type FaqItem } from '../lib/seo/faqText';
 import { buildJsonLd, type JsonLdInput } from '../lib/seo/jsonld';
 import { BRAND, canonicalHref } from '../lib/seo/urls';
 
@@ -12,9 +13,11 @@ interface Props {
   schema?: JsonLdInput['kind'];
   /** WebApplication name, or Article headline. */
   schemaName?: string;
+  faq?: readonly FaqItem[];
 }
 
-const { title, description, path, noindex = false, image, schema = 'none', schemaName } = Astro.props;
+const { title, description, path, noindex = false, image, schema = 'none', schemaName, faq } =
+  Astro.props;
 
 const site = Astro.site;
 if (!site) {
@@ -45,6 +48,7 @@ const jsonLdInput: JsonLdInput = (() => {
 
 const jsonLdData = buildJsonLd(jsonLdInput);
 const jsonLd = jsonLdData === null ? null : JSON.stringify(jsonLdData).replace(/</g, '\\u003c');
+const faqJsonLd = faq && faq.length > 0 ? faqPageJsonLd(faq) : null;
 ---
 
 <title>{title}</title>
@@ -64,3 +68,4 @@ const jsonLd = jsonLdData === null ? null : JSON.stringify(jsonLdData).replace(/
 <link rel="alternate" hreflang="en" href={canonical} />
 <link rel="alternate" hreflang="x-default" href={canonical} />
 {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+{faqJsonLd && <script type="application/ld+json" set:html={faqJsonLd} />}

@@ -1,0 +1,23 @@
+---
+import { renderInlineMarkdown, type FaqItem } from '../lib/seo/faqText';
+
+interface Props {
+  items: readonly FaqItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section aria-labelledby="faq-heading">
+  <h2 id="faq-heading">FAQ</h2>
+  <div class="sf-faq">
+    {
+      items.map((item) => (
+        <div class="sf-faq-item">
+          <h3>{item.q}</h3>
+          <p set:html={renderInlineMarkdown(item.a)} />
+        </div>
+      ))
+    }
+  </div>
+</section>
