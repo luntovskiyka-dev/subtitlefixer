@@ -1,0 +1,30 @@
+---
+import ToolIcon from './ToolIcon.astro';
+import { toolGridCopy, tools, type ToolMeta } from '../data/tools';
+
+interface Props {
+  tool: ToolMeta
+}
+
+const { tool } = Astro.props
+const nameId = `tool-card-${tool.key}-name`
+const textId = `tool-card-${tool.key}-text`
+---
+
+<a
+  href={`/${tool.slug}`}
+  class={`sf-card sf-card-${tool.key}`}
+  aria-labelledby={nameId}
+  aria-describedby={textId}
+>
+  <span class="sf-card-top">
+    <ToolIcon name={tool.key} size="l" />
+    <span class="sf-card-group">{tool.group}</span>
+  </span>
+  <h3 id={nameId} class="sf-card-name">{tools[tool.slug]}</h3>
+  <p id={textId} class="sf-card-text">{tool.card}</p>
+  <span class="sf-card-foot">
+    <span class="sf-card-formats">{tool.formats}</span>
+    <span class="sf-card-go" aria-hidden="true">{toolGridCopy.open}</span>
+  </span>
+</a>

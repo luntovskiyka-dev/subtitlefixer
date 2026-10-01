@@ -1,5 +1,8 @@
 ---
 import { getEntry, render } from 'astro:content';
+import Mark from '../components/Mark.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+import { homeTrust } from '../data/tools';
 import Base from '../layouts/Base.astro';
 
 const entry = await getEntry('pages', 'home');
@@ -7,12 +10,53 @@ if (!entry) throw new Error('Missing home page content.');
 const { title, description, h1, answer, faq } = entry.data;
 if (!h1 || !answer || !faq) throw new Error('Home page is missing h1, answer, or faq.');
 const { Content } = await render(entry);
+const mark = 'Subtitles';
+const markAt = h1.indexOf(mark);
 ---
 
-<Base title={title} description={description} schema="home" faq={faq} width="wide">
-  <h1 class="text-3xl font-display font-extrabold tracking-tight">{h1}</h1>
-  <p class="mt-6 text-lg leading-relaxed">{answer}</p>
-  <div class="sf-copy mt-10">
+<Base title={title} description={description} schema="home" faq={faq} width="wide" spacing="tight">
+  <section class="sf-hero">
+    <div class="sf-hero-blob sf-hero-blob-a" aria-hidden="true"></div>
+    <div class="sf-hero-blob sf-hero-blob-b" aria-hidden="true"></div>
+    <div class="sf-hero-body">
+      <h1 class="sf-hero-title">
+        {
+          markAt >= 0 ? (
+            <>
+              {h1.slice(0, markAt)}
+              <Mark>{mark}</Mark>
+              {h1.slice(markAt + mark.length)}
+            </>
+          ) : (
+            h1
+          )
+        }
+      </h1>
+      <p class="sf-hero-lead">{answer}</p>
+      <ul class="sf-trust">
+        {
+          homeTrust.map((label) => (
+            <li>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              {label}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+  <ToolGrid />
+  <div class="sf-copy mt-16">
     <Content />
   </div>
 </Base>

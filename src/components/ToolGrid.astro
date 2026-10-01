@@ -1,0 +1,17 @@
+---
+import ToolCard from './ToolCard.astro';
+import { toolGridCopy, toolMeta } from '../data/tools';
+---
+
+<section class="sf-tools" aria-labelledby="pick-a-tool">
+  <h2 id="pick-a-tool" class="sf-tools-title">{toolGridCopy.heading}</h2>
+  <ul class="sf-tool-grid">
+    {
+      toolMeta.map((tool) => (
+        <li>
+          <ToolCard tool={tool} />
+        </li>
+      ))
+    }
+  </ul>
+</section>

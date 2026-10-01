@@ -25,6 +25,15 @@ export type ToolMeta = {
 };
 
 /** Header order. Footer links keep the insertion order of `tools`. */
+/** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 6 tools', 'Many files → one zip'] as const;
+
+/** Labels of the tool grid on the home page and the 404 page. */
+export const toolGridCopy = {
+  heading: 'Pick a tool',
+  open: 'Open tool →',
+} as const;
+
 export const toolMeta: readonly ToolMeta[] = [
   {
     slug: 'shift-subtitles',
