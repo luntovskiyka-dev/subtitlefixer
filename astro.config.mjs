@@ -7,8 +7,11 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import {
   appendMissingRelated,
+  decorateSections,
   externalLinks,
+  highlightSubtitleCode,
   injectFaq,
+  sectionize,
   stripDuplicateH1,
   wrapTables,
 } from './src/lib/seo/markdownPlugins.ts';
@@ -69,7 +72,7 @@ export default defineConfig({
     processor: satteri({
       features: { smartPunctuation: false },
       mdastPlugins: [stripDuplicateH1, injectFaq, appendMissingRelated],
-      hastPlugins: [externalLinks, wrapTables],
+      hastPlugins: [externalLinks, wrapTables, sectionize, decorateSections, highlightSubtitleCode],
     }),
   },
   integrations: [

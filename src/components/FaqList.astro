@@ -12,11 +12,13 @@ const { items } = Astro.props;
   <h2 id="faq-heading">FAQ</h2>
   <div class="sf-faq">
     {
-      items.map((item) => (
-        <div class="sf-faq-item">
-          <h3>{item.q}</h3>
-          <p set:html={renderInlineMarkdown(item.a)} />
-        </div>
+      items.map((item, index) => (
+        <details class="sf-faq-item" open={index === 0 || undefined}>
+          <summary>
+            <h3>{item.q}</h3>
+          </summary>
+          <div set:html={renderInlineMarkdown(item.a)} />
+        </details>
       ))
     }
   </div>

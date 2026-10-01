@@ -3,6 +3,7 @@ import { render, type CollectionEntry } from 'astro:content';
 import FaqList from './FaqList.astro';
 import Mark from './Mark.astro';
 import { toolMeta } from '../data/tools';
+import { toolPageToc } from '../lib/seo/toc';
 
 interface Props {
   entry: CollectionEntry<'tools'>;
@@ -13,6 +14,7 @@ const { h1, answer, faq } = entry.data;
 const { Content } = await render(entry);
 const mark = toolMeta.find((tool) => tool.slug === entry.id)?.mark;
 const markAt = h1 && mark ? h1.indexOf(mark) : -1;
+const toc = toolPageToc(entry.body ?? '');
 ---
 
 <div class="flex flex-col">
@@ -49,8 +51,25 @@ const markAt = h1 && mark ? h1.indexOf(mark) : -1;
       </div>
     )
   }
-  <div class="sf-copy mt-16">
-    <Content />
-    <FaqList items={faq} />
+  <div class="sf-layout mt-16">
+    <div class="sf-copy">
+      <Content />
+      <FaqList items={faq} />
+    </div>
+    <aside class="sf-toc">
+      <p id="toc-heading">On this page</p>
+      <nav aria-labelledby="toc-heading">
+        <ol>
+          {
+            toc.map((item) => (
+              <li>
+                <a href={`#${item.id}`}>{item.text}</a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <a class="sf-toc-back" href="#tool">↑ Back to the tool</a>
+    </aside>
   </div>
 </div>

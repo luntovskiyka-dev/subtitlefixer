@@ -138,9 +138,42 @@ function checkPairs(scheme: string, palette: Palette, pairs: readonly Pair[]): v
   });
 }
 
+/** Below-the-fold surfaces added in the calm reading layout. */
+const BELOW_FOLD_PAIRS: readonly Pair[] = [
+  { label: 'step number on coral', foreground: 'onAccent', background: 'accent', minimum: TEXT },
+  { label: 'step number on teal', foreground: 'onAccent', background: 'teal', minimum: TEXT },
+  { label: 'step number on mint', foreground: 'onAccent', background: 'footerMint', minimum: TEXT },
+  { label: 'callout text on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'code chip on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'table header on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'before pill on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'after pill on mint', foreground: 'onAccent', background: 'footerMint', minimum: TEXT },
+  { label: 'does text on mint wash', foreground: 'text', background: 'mint', minimum: TEXT },
+  { label: 'does not text on coral wash', foreground: 'text', background: 'accentWash', minimum: TEXT },
+  { label: 'card text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'pre text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'faq text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'toc text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'copy link on page', foreground: 'brandHover', background: 'bg', minimum: TEXT },
+  { label: 'copy link on card', foreground: 'brandHover', background: 'surface', minimum: TEXT },
+  { label: 'copy link on callout', foreground: 'brandHover', background: 'lilac', minimum: TEXT },
+  { label: 'copy link on does card', foreground: 'brandHover', background: 'mint', minimum: TEXT },
+  { label: 'copy link on does not card', foreground: 'brandHover', background: 'accentWash', minimum: TEXT },
+  { label: 'timestamp on pre', foreground: 'tealInk', background: 'surface', minimum: TEXT },
+  { label: 'cue number on pre', foreground: 'muted', background: 'surface', minimum: TEXT },
+  { label: 'faq closed marker on lilac', foreground: 'text', background: 'lilac', minimum: TEXT },
+  { label: 'faq open marker on coral', foreground: 'onAccent', background: 'accent', minimum: TEXT },
+  { label: 'does marker on mint', foreground: 'onAccent', background: 'footerMint', minimum: TEXT },
+  { label: 'does not marker on coral', foreground: 'onAccent', background: 'accent', minimum: TEXT },
+  { label: 'back to tool pill', foreground: 'bg', background: 'text', minimum: TEXT },
+  { label: 'ink outline on card', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
+];
+
 checkPairs('light', LIGHT, LIGHT_PAIRS);
 checkPairs('dark', DARK, DARK_PAIRS);
 checkPairs('tool tiles', LIGHT, TOOL_PAIRS);
+checkPairs('below-fold light', LIGHT, BELOW_FOLD_PAIRS);
+checkPairs('below-fold dark', DARK, BELOW_FOLD_PAIRS);
 
 describe('dark stage outlines cannot reuse edge', () => {
   it('dark edge on brand is below 3:1', () => {
@@ -165,6 +198,10 @@ describe('ink is required on coral and teal', () => {
 
     it(`${scheme} white on teal is below 4.5:1`, () => {
       expect(contrastRatio(WHITE, palette.teal)).toBeLessThan(TEXT);
+    });
+
+    it(`${scheme} white on the mint chip is below 4.5:1`, () => {
+      expect(contrastRatio(WHITE, palette.footerMint)).toBeLessThan(TEXT);
     });
   }
 });

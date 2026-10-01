@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { faqPageJsonLd, renderInlineMarkdown, stripMarkdown } from './faqText';
+import { faqPageJsonLd, renderFaqBlocks, renderInlineMarkdown, stripMarkdown } from './faqText';
 
 describe('stripMarkdown', () => {
   it('keeps link labels and code text, and drops markers', () => {
@@ -25,6 +25,19 @@ describe('renderInlineMarkdown', () => {
   it('opens external links in a new tab', () => {
     expect(renderInlineMarkdown('[Ko-fi](https://ko-fi.com/gngpromo)')).toBe(
       '<a href="https://ko-fi.com/gngpromo" rel="noopener noreferrer" target="_blank">Ko-fi</a>',
+    );
+  });
+});
+
+describe('renderFaqBlocks', () => {
+  it('renders native details with the first item open', () => {
+    expect(
+      renderFaqBlocks([
+        { q: 'Uploaded?', a: 'No. See [privacy](/privacy) and `<i>`.' },
+        { q: 'Second?', a: 'Yes.' },
+      ]),
+    ).toBe(
+      '<details class="sf-faq-item" open><summary><h3>Uploaded?</h3></summary><div>No. See <a href="/privacy">privacy</a> and <code>&lt;i&gt;</code>.</div></details><details class="sf-faq-item"><summary><h3>Second?</h3></summary><div>Yes.</div></details>',
     );
   });
 });

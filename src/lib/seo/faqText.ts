@@ -48,10 +48,10 @@ export function renderInlineMarkdown(source: string): string {
 
 export function renderFaqBlocks(items: readonly FaqItem[]): string {
   return items
-    .map(
-      (item) =>
-        `<div class="sf-faq-item"><h3>${escapeHtml(item.q)}</h3><p>${renderInlineMarkdown(item.a)}</p></div>`,
-    )
+    .map((item, index) => {
+      const open = index === 0 ? ' open' : '';
+      return `<details class="sf-faq-item"${open}><summary><h3>${escapeHtml(item.q)}</h3></summary><div>${renderInlineMarkdown(item.a)}</div></details>`;
+    })
     .join('');
 }
 
