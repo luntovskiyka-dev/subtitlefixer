@@ -35,13 +35,15 @@ describe('tool card and tool grid components', () => {
 describe('home hero', () => {
   const home = read('src/pages/index.astro');
 
-  it('keeps the H1, the answer and the content, and does not repeat the subline', () => {
+  it('keeps the H1, pills and content, and shows no lead line (home.md is the single source)', () => {
     expect(home).toContain('<Mark>{mark}</Mark>');
-    expect(home).toContain('{answer}');
+    expect(home).toContain('<ul class="sf-trust">');
     expect(home).toContain('<ToolGrid />');
     expect(home).toContain('<div class="sf-copy mt-16">');
     expect(home).toContain('<Content />');
+    expect(home).not.toContain('answer');
     expect(home).not.toContain('subline');
+    expect(home).not.toContain('sf-hero-lead');
     expect(home).not.toMatch(HEX);
     expect(home).not.toMatch(/<style|<script/);
   });

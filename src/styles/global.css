@@ -1091,19 +1091,11 @@ input[type='number']::-webkit-outer-spin-button {
   line-height: 1.08;
 }
 
-.sf-hero-lead {
-  margin: 14px 0 18px;
-  color: var(--sf-on-brand-muted);
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.55;
-}
-
 .sf-trust {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0;
+  margin: 18px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1309,9 +1301,8 @@ input[type='number']::-webkit-outer-spin-button {
     line-height: 1.02;
   }
 
-  .sf-hero-lead {
-    margin: 16px 0 22px;
-    font-size: 18px;
+  .sf-trust {
+    margin-top: 22px;
   }
 
   .sf-tools {

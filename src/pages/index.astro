@@ -7,8 +7,8 @@ import Base from '../layouts/Base.astro';
 
 const entry = await getEntry('pages', 'home');
 if (!entry) throw new Error('Missing home page content.');
-const { title, description, h1, answer, faq } = entry.data;
-if (!h1 || !answer || !faq) throw new Error('Home page is missing h1, answer, or faq.');
+const { title, description, h1, faq } = entry.data;
+if (!h1 || !faq) throw new Error('Home page is missing h1 or faq.');
 const { Content } = await render(entry);
 const mark = 'Subtitles';
 const markAt = h1.indexOf(mark);
@@ -32,7 +32,6 @@ const markAt = h1.indexOf(mark);
           )
         }
       </h1>
-      <p class="sf-hero-lead">{answer}</p>
       <ul class="sf-trust">
         {
           homeTrust.map((label) => (
