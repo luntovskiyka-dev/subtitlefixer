@@ -55,12 +55,18 @@ function stageStatus(root: HTMLElement, phase: ToolPhase, fileNames: readonly st
   root.replaceChildren(row);
 }
 
+function setSupportNote(root: HTMLElement, phase: ToolPhase): void {
+  const note = root.closest('form')?.querySelector('[data-kofi-note]');
+  if (note instanceof HTMLElement) note.hidden = phase !== 'ready';
+}
+
 /** Same element shape as ToolStatus.astro. Replaces the children of the status root. */
 export function renderStatus(
   root: HTMLElement,
   phase: ToolPhase,
   fileNames: readonly string[],
 ): void {
+  setSupportNote(root, phase);
   if (root.dataset.tone === 'stage') {
     stageStatus(root, phase, fileNames);
     return;

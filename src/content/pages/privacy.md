@@ -63,7 +63,7 @@ Like any web host, Cloudflare needs basic technical information to deliver pages
 
 ## Donations (Ko-fi)
 
-SubtitleFixer is free. If you want to support it, you can use the optional Ko-fi button in the footer or after a file has been processed.
+SubtitleFixer is free. If you want to support it, you can use the optional Ko-fi button in the header, the link in the footer, or the note shown after a file has been processed. All of these are plain links to our Ko-fi page, so no Ko-fi code runs on SubtitleFixer.
 
 **Ko-fi is a separate website with its own privacy policy, and we don't receive your payment details.**
 

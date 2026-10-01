@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Logo from './Logo.astro';
+import { KOFI_URL } from '../config/site';
 import { tools } from '../data/tools';
 import { pagePath } from '../lib/ui/pagePath';
 
@@ -21,7 +22,9 @@ const headingClass = 'mb-2.5 font-display text-[15px] font-extrabold text-footer
       <p class="mt-3 max-w-[290px] text-sm text-footer-muted">
         Free subtitle tools that run entirely in your browser: no upload, no sign-up.
       </p>
-      <p class="mt-3.5 text-sm text-footer-muted">Support this project</p>
+      <a href={KOFI_URL} target="_blank" rel="noopener" class:list={[linkClass, 'mt-3.5']}>
+        Support on Ko-fi
+      </a>
     </div>
     <nav class="min-w-0" aria-label="Tools">
       <h2 class={headingClass}>Tools</h2>

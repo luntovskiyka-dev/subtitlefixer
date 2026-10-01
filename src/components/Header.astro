@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import { KOFI_URL } from '../config/site';
 import { toolMeta } from '../data/tools';
 import { pagePath } from '../lib/ui/pagePath';
 
@@ -51,11 +52,16 @@ const linkClass =
         })
       }
     </nav>
-    <p
-      class="ml-auto hidden shrink-0 items-center rounded-full border-2 border-edge bg-mint px-3.5 py-1.5 text-[13px] font-extrabold text-ink md:inline-flex"
+    <a
+      href={KOFI_URL}
+      target="_blank"
+      rel="noopener"
+      aria-label="Buy me a coffee, Support"
+      class="ml-auto inline-flex shrink-0 items-center whitespace-nowrap rounded-full border-2 border-edge bg-accent px-3.5 py-1.5 text-[13px] font-extrabold text-on-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
     >
-      No upload · Free
-    </p>
+      <span class="sm:hidden">☕ Support</span>
+      <span class="hidden sm:inline">☕ Buy me a coffee</span>
+    </a>
   </div>
   <nav
     class="sf-nav-scroll flex w-full min-w-0 gap-1.5 overflow-x-auto px-3 pb-3 sm:px-6 min-[1120px]:hidden"

@@ -84,7 +84,3 @@ When you add a file, the page reads it and fixes it with code running in your br
 ## FAQ
 
 <!-- FAQ is rendered from the `faq` frontmatter (FAQPage JSON-LD). -->
-
----
-
-SubtitleFixer is run by Kirill Luntovskii. [About SubtitleFixer](/about) · [Privacy](/privacy)
