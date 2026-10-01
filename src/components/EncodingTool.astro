@@ -29,7 +29,12 @@ const formats = [
       <ToolStatus id="encoding-status" tone="stage" />
     </div>
     <div slot="preview">
-      <div id="encoding-candidates" class="flex flex-col gap-3">
+      <div
+        id="encoding-candidates"
+        class="sf-preview-scroll flex flex-col gap-3"
+        tabindex="0"
+        aria-label="Encoding readings"
+      >
         <p class="text-sm font-medium text-on-brand-muted">Add a subtitle file to compare readings.</p>
       </div>
     </div>
@@ -61,6 +66,16 @@ const formats = [
       <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
         Your file never leaves your device.
       </p>
+      <div
+        id="encoding-output"
+        class="sf-preview-scroll sf-preview-in-panel mt-3"
+        tabindex="0"
+        aria-label="Decoded subtitle preview"
+        hidden
+      >
+        <p id="encoding-output-tag" class="text-[12.5px] font-extrabold"></p>
+        <pre id="encoding-output-text" class="sf-preview-text"></pre>
+      </div>
       <div id="encoding-result" class="mt-3" aria-live="polite"></div>
     </div>
   </ToolLayout>
@@ -75,6 +90,7 @@ const formats = [
     repairMojibake,
   } from '../lib/subs/index';
   import type { MojibakeVia } from '../lib/subs/index';
+  import { slicePreviewLines } from '../lib/ui/previewSlice';
   import { renderStatus } from '../lib/ui/statusView';
 
   const LANGUAGE_LABELS = [
@@ -126,17 +142,9 @@ const formats = [
     );
   }
 
-  function previewLines(text: string): string {
-    const lines: string[] = [];
-    for (const line of text.split(/\r?\n/)) {
-      if (line.length === 0) continue;
-      lines.push(line);
-      if (lines.length === 4) break;
-    }
-    return lines.join('\n');
-  }
-
   function showError(message: string): void {
+    const output = document.getElementById('encoding-output');
+    if (output instanceof HTMLElement) output.hidden = true;
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     const paragraph = document.createElement('p');
@@ -146,12 +154,15 @@ const formats = [
   }
 
   function showText(text: string): void {
-    if (!(result instanceof HTMLElement)) return;
-    result.replaceChildren();
-    const preview = document.createElement('pre');
-    preview.className = 'sf-preview-text sf-rise';
-    preview.textContent = text;
-    result.append(preview);
+    const output = document.getElementById('encoding-output');
+    const preview = document.getElementById('encoding-output-text');
+    const tag = document.getElementById('encoding-output-tag');
+    if (!(output instanceof HTMLElement) || !(preview instanceof HTMLElement) || !(tag instanceof HTMLElement)) return;
+    const sliced = slicePreviewLines(text);
+    preview.textContent = sliced.preview;
+    tag.textContent = sliced.caption;
+    output.hidden = false;
+    if (result instanceof HTMLElement) result.replaceChildren();
   }
 
   function appendPreview(value: string, headingText: string, text: string, detected: boolean): void {
@@ -170,9 +181,17 @@ const formats = [
       mark.textContent = 'Detected';
       heading.append(mark);
     }
+    const sliced = slicePreviewLines(text);
     const preview = document.createElement('pre');
-    preview.textContent = previewLines(text);
-    block.append(heading, preview);
+    preview.textContent = sliced.preview;
+    block.append(heading);
+    if (sliced.total > sliced.shown) {
+      const cap = document.createElement('p');
+      cap.className = 'sf-preview-cap';
+      cap.textContent = sliced.caption;
+      block.append(cap);
+    }
+    block.append(preview);
     candidates.append(block);
   }
 

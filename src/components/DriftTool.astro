@@ -26,15 +26,20 @@ const formats = [
       <ToolStatus id="drift-status" tone="stage" />
     </div>
     <div slot="preview">
-      <p id="drift-preview-empty" class="text-sm font-medium text-on-brand-muted">
-        Sync two cues or pick a frame rate to preview the first lines.
-      </p>
-      <div id="drift-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+      <div
+        id="drift-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Synced subtitle preview"
+      >
         <div class="mb-1.5 flex items-center justify-between gap-3">
           <p class="font-display text-lg font-extrabold">Preview</p>
-          <p id="drift-preview-tag" class="rounded-full border-2 border-stage-line bg-lilac px-2.5 py-0.5 text-[12.5px] font-extrabold"></p>
+          <p id="drift-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent" hidden></p>
         </div>
-        <div id="drift-preview-rows" class="sf-cue-list"></div>
+        <p id="drift-preview-empty" class="text-sm font-medium text-muted">
+          Sync two cues or pick a frame rate to preview the first lines.
+        </p>
+        <div id="drift-preview-rows" class="sf-cue-list" hidden></div>
       </div>
       <template id="drift-row">
         <div class="sf-cue-row">
@@ -107,6 +112,7 @@ const formats = [
   import type { DriftFileResult } from '../lib/subs/index';
   import type { Cue, SubtitleFormat } from '../lib/subs/types';
   import { formatSrtTimestamp, parseSrtTimestamp } from '../lib/subs/time';
+  import { previewCaption } from '../lib/ui/previewSlice';
   import { renderStatus } from '../lib/ui/statusView';
 
   const form = document.getElementById('drift-form');
@@ -194,11 +200,13 @@ const formats = [
     if (!(live instanceof HTMLElement) || !(rows instanceof HTMLElement) || !(tag instanceof HTMLElement)) return;
     const root = tpl instanceof HTMLTemplateElement ? tpl.content.firstElementChild : null;
     if (!(root instanceof HTMLElement) || !output || output.cues.length === 0) {
-      live.hidden = true;
+      rows.hidden = true;
+      rows.replaceChildren();
+      tag.hidden = true;
       if (empty instanceof HTMLElement) empty.hidden = false;
       return;
     }
-    const shown = output.cues.slice(0, 5);
+    const shown = output.cues.slice(0, 6);
     const frag = document.createDocumentFragment();
     for (const cue of shown) {
       const line = root.cloneNode(true) as HTMLElement;
@@ -208,11 +216,9 @@ const formats = [
       frag.append(line);
     }
     rows.replaceChildren(frag);
-    tag.textContent =
-      output.cues.length > shown.length
-        ? `Showing the first ${shown.length} of ${output.cues.length} cues.`
-        : `${shown.length} ${shown.length === 1 ? 'cue' : 'cues'}`;
-    live.hidden = false;
+    tag.textContent = previewCaption(shown.length, output.cues.length);
+    tag.hidden = false;
+    rows.hidden = false;
     if (empty instanceof HTMLElement) empty.hidden = true;
   }
 

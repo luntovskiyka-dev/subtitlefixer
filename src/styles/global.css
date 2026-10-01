@@ -403,9 +403,32 @@ input[type='number']::-webkit-outer-spin-button {
   outline-offset: 2px;
 }
 
+.sf-preview-scroll {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.sf-preview-scroll:focus-visible,
+.sf-candidate:focus-visible {
+  outline: 3px solid var(--sf-on-brand);
+  outline-offset: 3px;
+}
+
+.sf-preview-scroll.sf-preview-in-panel:focus-visible {
+  outline-color: var(--sf-brand-hover);
+}
+
+.sf-preview-cap {
+  margin-top: 0.35rem;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
 .sf-candidate {
   display: block;
   width: 100%;
+  max-height: 360px;
+  overflow: auto;
   border-radius: var(--sf-radius);
   border: 2.5px solid var(--sf-stage-line);
   background: var(--sf-surface);

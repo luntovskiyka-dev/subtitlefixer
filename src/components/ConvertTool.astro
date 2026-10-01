@@ -37,8 +37,17 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
     </div>
     <div slot="preview">
       <p id="convert-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
-      <div id="convert-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
-        <p class="mb-2 font-display text-lg font-extrabold">Preview</p>
+      <div
+        id="convert-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Converted subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="convert-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
         <pre class="sf-preview-text"></pre>
       </div>
     </div>
@@ -60,6 +69,7 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
 <script>
   import type { DecodedSubtitleFile } from '../lib/subs/files';
   import { convertSubtitle, downloadSubtitleFiles } from '../lib/subs/index';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
   import { renderStatus } from '../lib/ui/statusView';
 
   const form = document.getElementById('convert-form');
@@ -101,13 +111,16 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
     const card = document.getElementById('convert-preview');
     const empty = document.getElementById('convert-preview-empty');
     const pre = card?.querySelector('pre');
+    const tag = document.getElementById('convert-preview-tag');
     if (!(card instanceof HTMLElement) || !pre) return;
     if (preview === null) {
       card.hidden = true;
       if (empty instanceof HTMLElement) empty.hidden = false;
       return;
     }
-    pre.textContent = preview;
+    const sliced = slicePreviewCues(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
     card.hidden = false;
     if (empty instanceof HTMLElement) empty.hidden = true;
   }
