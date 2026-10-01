@@ -2,42 +2,184 @@
 import Button from './Button.astro';
 import Dropzone from './Dropzone.astro';
 import Input from './Input.astro';
+import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+] as const;
+
+const earlier = ['−1000', '−500', '−100'] as const;
+const later = ['+100', '+500', '+1000'] as const;
 ---
 
-<form id="shift-form" class="flex flex-col gap-6">
-  <Dropzone id="shift-dropzone" label="Add an SRT, VTT, or ASS file" interactive />
-  <ToolStatus id="shift-status" />
-  <Input id="shift-offset" label="Offset in milliseconds" kind="milliseconds" name="offset" />
-  <div id="shift-offset-steps" class="flex flex-wrap gap-2" role="group" aria-label="Add to the offset">
-    <Button type="button" variant="secondary">−100</Button>
-    <Button type="button" variant="secondary">−500</Button>
-    <Button type="button" variant="secondary">−1000</Button>
-    <Button type="button" variant="secondary">+100</Button>
-    <Button type="button" variant="secondary">+500</Button>
-    <Button type="button" variant="secondary">+1000</Button>
-  </div>
-  <Input id="shift-from-cue" label="Start from cue" kind="milliseconds" name="from-cue" />
-  <div class="w-full sm:w-auto">
-    <Button type="submit" class="w-full sm:w-auto">Download shifted file</Button>
-  </div>
-  <div id="shift-result" class="flex flex-col gap-3" aria-live="polite"></div>
+<form id="shift-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="shift-dropzone"
+        variant="stage"
+        label="Drop .srt, .vtt or .ass file here"
+        note="Several files get the same shift"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="shift-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <div id="shift-example" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink max-md:hidden">
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p class="rounded-full border-2 border-stage-line bg-lilac px-2.5 py-0.5 text-[12.5px] font-extrabold">
+            Example · −2500 ms
+          </p>
+        </div>
+        <div class="sf-preview-list">
+          <div class="sf-preview-row">
+            <span class="font-mono text-xs text-muted">1</span>
+            <span class="sf-tc"><s class="text-muted">00:00:12,400</s> → <em class="rounded-lg bg-footer-mint px-1.5 py-px font-medium not-italic text-on-accent">00:00:09,900</em></span>
+            <span class="sf-tx">Where were you last night?</span>
+          </div>
+          <div class="sf-preview-row">
+            <span class="font-mono text-xs text-muted">2</span>
+            <span class="sf-tc"><s class="text-muted">00:00:15,600</s> → <em class="rounded-lg bg-footer-mint px-1.5 py-px font-medium not-italic text-on-accent">00:00:13,100</em></span>
+            <span class="sf-tx">I told you. I was at work.</span>
+          </div>
+          <div class="sf-preview-row">
+            <span class="font-mono text-xs text-muted">3</span>
+            <span class="sf-tc"><s class="text-muted">00:01:03,980</s> → <em class="rounded-lg bg-footer-mint px-1.5 py-px font-medium not-italic text-on-accent">00:01:01,480</em></span>
+            <span class="sf-tx">Nobody at work has seen you all week.</span>
+          </div>
+        </div>
+      </div>
+      <div id="shift-live" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="shift-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <div id="shift-preview-rows" class="sf-preview-list">
+          <div class="sf-preview-row">
+            <span></span>
+            <span class="sf-tc"><s></s> → <em></em></span>
+            <span class="sf-tx"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div slot="settings">
+      <h2 class="font-display text-[22px] font-extrabold">Settings</h2>
+      <div class="mt-3.5">
+        <Input
+          id="shift-offset"
+          label="Offset (ms)"
+          kind="milliseconds"
+          name="offset"
+          variant="hero"
+          suffix="ms"
+          aside="1 s = 1000 ms"
+          placeholder="e.g. -2500"
+          full
+        />
+      </div>
+      <div id="shift-offset-steps" class="mt-3 grid grid-cols-3 gap-2" role="group" aria-label="Add to the offset">
+        {
+          earlier.map((step) => (
+            <button
+              type="button"
+              class="h-[42px] rounded-[14px] border-2 border-edge bg-accent-soft font-mono text-[14.5px] text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
+            >
+              {step}
+            </button>
+          ))
+        }
+        {
+          later.map((step) => (
+            <button
+              type="button"
+              class="h-[42px] rounded-[14px] border-2 border-edge bg-mint font-mono text-[14.5px] text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
+            >
+              {step}
+            </button>
+          ))
+        }
+      </div>
+      <div class="mt-2 flex justify-between text-[12.5px] font-bold text-muted">
+        <span>← earlier</span>
+        <span>later →</span>
+      </div>
+      <div class="mt-4">
+        <Input
+          id="shift-from-cue"
+          label="Start from cue"
+          kind="milliseconds"
+          name="from-cue"
+          aside="optional"
+          placeholder="1"
+          hint="Lines before it stay unchanged."
+          full
+        />
+      </div>
+    </div>
+    <div slot="action">
+      <Button
+        id="shift-download"
+        type="submit"
+        size="lg"
+        class="w-full gap-2"
+        softDisabled
+        hint="Add a file to enable the download."
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+          <path d="M12 4v11M7 10l5 5 5-5M5 20h14" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        Download shifted file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        <svg class="size-[18px] shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"
+            fill="var(--sf-footer-mint)"
+            stroke="var(--sf-on-accent)"
+            stroke-width="2.2"
+            stroke-linejoin="round"></path>
+          <path d="m9 12 2 2 4-4" fill="none" stroke="var(--sf-on-accent)" stroke-width="2.2" stroke-linecap="round"
+          ></path>
+        </svg>
+        Your file never leaves your device.
+      </p>
+      <div id="shift-result" class="mt-3 hidden rounded-sf bg-bg px-3 py-2" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
 </form>
 
 <script>
   import type { DecodedSubtitleFile } from '../lib/subs/files';
   import { downloadSubtitleFiles, parse, serialize, shiftAssText, shiftCues } from '../lib/subs/index';
-  import type { Cue, SubtitleFormat } from '../lib/subs/types';
+  import type { SubtitleFormat } from '../lib/subs/types';
   import { renderStatus } from '../lib/ui/statusView';
+  import { applyShiftPreview, fileCueLine } from '../lib/ui/shiftPreview';
 
-  const form = document.getElementById('shift-form');
-  const offsetInput = document.getElementById('shift-offset');
-  const steps = document.getElementById('shift-offset-steps');
-  const fromInput = document.getElementById('shift-from-cue');
-  const result = document.getElementById('shift-result');
-  const status = document.getElementById('shift-status');
+  const byId = (id: string) => document.getElementById(id);
+  const form = byId('shift-form');
+  const offsetInput = byId('shift-offset');
+  const steps = byId('shift-offset-steps');
+  const fromInput = byId('shift-from-cue');
+  const result = byId('shift-result');
+  const status = byId('shift-status');
+  const download = byId('shift-download');
+  const hint = byId('shift-download-hint');
+  const example = byId('shift-example');
+  const live = byId('shift-live');
+  const tag = byId('shift-preview-tag');
+  const rows = byId('shift-preview-rows');
+  const meta = document.querySelector('#shift-dropzone [data-file-meta]');
+  const sample = rows?.querySelector('.sf-preview-row') ?? null;
 
   let files: DecodedSubtitleFile[] = [];
+  let timer = 0;
 
   function formatOf(name: string): SubtitleFormat | null {
     const lower = name.toLowerCase();
@@ -45,6 +187,11 @@ import ToolStatus from './ToolStatus.astro';
     if (lower.endsWith('.vtt')) return 'vtt';
     if (lower.endsWith('.ass') || lower.endsWith('.ssa')) return 'ass';
     return null;
+  }
+
+  function labelOf(name: string, format: SubtitleFormat): string {
+    if (name.toLowerCase().endsWith('.ssa')) return 'SSA';
+    return format.toUpperCase();
   }
 
   function readInteger(value: string): number | null {
@@ -57,38 +204,8 @@ import ToolStatus from './ToolStatus.astro';
 
   function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
     if (typeof file !== 'object' || file === null) return false;
-    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
-    return (
-      typeof file.name === 'string' &&
-      typeof file.encoding === 'string' &&
-      typeof file.text === 'string'
-    );
-  }
-
-  function showResult(
-    messages: readonly string[],
-    warnings: readonly string[],
-    cues: readonly Cue[] | null,
-  ): void {
-    if (!(result instanceof HTMLElement)) return;
-    result.replaceChildren();
-    for (const message of messages) {
-      const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger sf-rise';
-      paragraph.textContent = message;
-      result.append(paragraph);
-    }
-    for (const message of warnings) {
-      const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-warning sf-rise';
-      paragraph.textContent = message;
-      result.append(paragraph);
-    }
-    if (!cues || cues.length === 0) return;
-    const preview = document.createElement('pre');
-    preview.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
-    preview.textContent = cues.map((cue) => `${cue.start} --> ${cue.end}\n${cue.text}`).join('\n\n');
-    result.append(preview);
+    const row = file as DecodedSubtitleFile;
+    return typeof row.name === 'string' && typeof row.encoding === 'string' && typeof row.text === 'string';
   }
 
   if (
@@ -97,9 +214,65 @@ import ToolStatus from './ToolStatus.astro';
     steps instanceof HTMLElement &&
     fromInput instanceof HTMLInputElement &&
     result instanceof HTMLElement &&
-    status instanceof HTMLElement
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement &&
+    hint instanceof HTMLElement &&
+    example instanceof HTMLElement &&
+    live instanceof HTMLElement &&
+    tag instanceof HTMLElement &&
+    rows instanceof HTMLElement &&
+    meta instanceof HTMLElement &&
+    sample instanceof HTMLElement
   ) {
     const names = () => files.map((file) => file.name);
+
+    const showResult = (messages: readonly string[], warnings: readonly string[]) => {
+      result.replaceChildren();
+      for (const message of messages) {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'sf-rise';
+        paragraph.textContent = message;
+        result.append(paragraph);
+      }
+      for (const message of warnings) {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'sf-rise sf-warn';
+        paragraph.textContent = message;
+        result.append(paragraph);
+      }
+      result.classList.toggle('hidden', result.childElementCount === 0);
+    };
+
+    const previewNow = () => {
+      const file = files[0];
+      const format = file ? formatOf(file.name) : null;
+      if (!file || !format) {
+        live.hidden = true;
+        example.hidden = false;
+        return;
+      }
+      const offsetRaw = offsetInput.value.trim();
+      const offset = offsetRaw === '' ? 0 : readInteger(offsetRaw);
+      const fromRaw = fromInput.value.trim();
+      const fromCue = fromRaw === '' ? undefined : readInteger(fromRaw);
+      if (offset === null || (fromRaw !== '' && fromCue === null)) return;
+      const parsed = parse(file.text, format);
+      applyShiftPreview(rows, sample, tag, parsed.cues, offset, fromCue, format);
+      live.hidden = false;
+      example.hidden = true;
+      meta.textContent = fileCueLine(labelOf(file.name, format), parsed.cues.length, file.encoding);
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(previewNow, 150);
+    };
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      hint.hidden = enabled;
+    };
 
     form.addEventListener('subtitlereading', () => {
       renderStatus(status, 'working', names());
@@ -119,7 +292,11 @@ import ToolStatus from './ToolStatus.astro';
       const raw = offsetInput.value.trim();
       const current = raw === '' ? 0 : readInteger(raw);
       offsetInput.value = String((current ?? 0) + delta);
+      schedule();
     });
+
+    offsetInput.addEventListener('input', schedule);
+    fromInput.addEventListener('input', schedule);
 
     form.addEventListener('subtitlefiles', (event) => {
       if (!(event instanceof CustomEvent)) return;
@@ -127,21 +304,24 @@ import ToolStatus from './ToolStatus.astro';
       if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
-      renderStatus(status, 'loaded', names());
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      setDownload(files.length > 0);
+      previewNow();
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
       renderStatus(status, 'working', names());
       if (files.length === 0) {
-        showResult(['Add an SRT, VTT, or ASS file.'], [], null);
+        showResult(['Add an SRT, VTT, or ASS file.'], []);
         renderStatus(status, 'error', names());
         return;
       }
 
       const offsetMs = readInteger(offsetInput.value);
       if (offsetMs === null) {
-        showResult(['Enter an offset in milliseconds.'], [], null);
+        showResult(['Enter an offset in milliseconds.'], []);
         renderStatus(status, 'error', names());
         return;
       }
@@ -151,7 +331,7 @@ import ToolStatus from './ToolStatus.astro';
       if (fromRaw !== '') {
         const parsedFrom = readInteger(fromRaw);
         if (parsedFrom === null) {
-          showResult(['Start from cue must be a whole number.'], [], null);
+          showResult(['Start from cue must be a whole number.'], []);
           renderStatus(status, 'error', names());
           return;
         }
@@ -161,9 +341,8 @@ import ToolStatus from './ToolStatus.astro';
       const messages: string[] = [];
       const warnings: string[] = [];
       const ready: { name: string; text: string }[] = [];
-      let firstCues: Cue[] | null = null;
 
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         const format = formatOf(file.name);
         if (!format) {
           messages.push(`${file.name}: Use an SRT, VTT, or ASS file.`);
@@ -172,17 +351,15 @@ import ToolStatus from './ToolStatus.astro';
         const parsed = parse(file.text, format);
         for (const error of parsed.errors) messages.push(`${file.name}: ${error.message}`);
         const shifted = shiftCues(parsed.cues, offsetMs, fromCue);
-        if (index === 0) firstCues = shifted.cues;
         if (parsed.cues.length === 0 && parsed.errors.length > 0) return;
         if (shifted.removed > 0 || shifted.trimmed > 0) {
           warnings.push(`${shifted.removed} lines removed / ${shifted.trimmed} lines trimmed`);
         }
-        const text =
-          format === 'ass' ? shiftAssText(file.text, offsetMs, fromCue) : serialize(shifted.cues, format);
+        const text = format === 'ass' ? shiftAssText(file.text, offsetMs, fromCue) : serialize(shifted.cues, format);
         ready.push({ name: file.name, text });
       });
 
-      showResult(messages, ready.length > 0 ? warnings : [], firstCues);
+      showResult(messages, ready.length > 0 ? warnings : []);
       if (ready.length > 0) {
         downloadSubtitleFiles(ready, false);
         renderStatus(status, 'ready', names());

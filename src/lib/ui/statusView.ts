@@ -37,12 +37,34 @@ function checkMark(): HTMLSpanElement {
   return box;
 }
 
+function stageStatus(root: HTMLElement, phase: ToolPhase, fileNames: readonly string[]): void {
+  const copy = statusCopy(phase, fileNames);
+  const dot = document.createElement('span');
+  dot.className =
+    phase === 'loaded' || phase === 'ready'
+      ? 'size-2.5 shrink-0 rounded-full border-2 border-on-brand bg-footer-mint'
+      : 'size-2.5 shrink-0 rounded-full border-2 border-on-brand bg-on-brand/55';
+  const title = paragraph('text-sm font-extrabold text-on-brand', copy.title);
+  const detail = paragraph(
+    phase === 'error' ? 'text-sm text-on-brand' : 'min-w-0 truncate text-sm text-on-brand-muted',
+    copy.detail,
+  );
+  const row = document.createElement('div');
+  row.className = 'flex min-w-0 items-center gap-2.5';
+  row.append(dot, title, detail);
+  root.replaceChildren(row);
+}
+
 /** Same element shape as ToolStatus.astro. Replaces the children of the status root. */
 export function renderStatus(
   root: HTMLElement,
   phase: ToolPhase,
   fileNames: readonly string[],
 ): void {
+  if (root.dataset.tone === 'stage') {
+    stageStatus(root, phase, fileNames);
+    return;
+  }
   const copy = statusCopy(phase, fileNames);
   const detail = paragraph(phase === 'error' ? ERROR_DETAIL_CLASS : DETAIL_CLASS, copy.detail);
   const title = paragraph(TITLE_CLASS, copy.title);

@@ -61,6 +61,7 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'ink on ass-to-srt wash', foreground: 'text', background: 'cAss', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
+  { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
   { label: 'control on surface', foreground: 'control', background: 'surface', minimum: NON_TEXT },
   { label: 'brand-hover on bg', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
 ];
@@ -103,6 +104,8 @@ const DARK_PAIRS: readonly Pair[] = [
   { label: 'header pill', foreground: 'text', background: 'mint', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on bg', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
+  { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
+  { label: 'active pill distinct from inactive', foreground: 'navActive', background: 'surface', minimum: NON_TEXT },
   { label: 'brand-hover on bg', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
 ];
 
@@ -136,6 +139,12 @@ function checkPairs(scheme: string, palette: Palette, pairs: readonly Pair[]): v
 checkPairs('light', LIGHT, LIGHT_PAIRS);
 checkPairs('dark', DARK, DARK_PAIRS);
 checkPairs('tool tiles', LIGHT, TOOL_PAIRS);
+
+describe('dark stage outlines cannot reuse edge', () => {
+  it('dark edge on brand is below 3:1', () => {
+    expect(contrastRatio(DARK.edge, DARK.brand)).toBeLessThan(NON_TEXT);
+  });
+});
 
 describe('footer headings cannot reuse the dark mint wash', () => {
   it('dark mint on the footer is below 4.5:1', () => {

@@ -5,6 +5,8 @@ interface Props {
   type?: 'button' | 'submit' | 'reset';
   class?: string;
   disabled?: boolean;
+  /** Visual disabled state that stays in the tab order. */
+  softDisabled?: boolean;
   hint?: string;
   id?: string;
 }
@@ -15,9 +17,11 @@ const {
   type = 'button',
   class: className,
   disabled = false,
+  softDisabled = false,
   hint,
   id,
 } = Astro.props;
+const held = disabled || softDisabled;
 
 const hintId = hint ? `${id ?? 'button'}-hint` : undefined;
 
@@ -43,17 +47,18 @@ const disabledClass =
     'motion-reduce:transition-none',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
     disabled ? disabledClass : variantClass,
+    softDisabled && 'sf-soft-off',
     className,
   ]}
-  disabled={disabled}
-  aria-disabled={disabled ? 'true' : undefined}
+  disabled={disabled ? true : undefined}
+  aria-disabled={held ? 'true' : undefined}
   aria-describedby={hintId}
 >
   <slot />
 </button>
 {
   hint && (
-    <span id={hintId} class="mt-1 block text-sm text-muted">
+    <span id={hintId} class="mt-1 block text-center text-sm text-muted">
       {hint}
     </span>
   )

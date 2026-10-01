@@ -1,16 +1,41 @@
 ---
+interface FormatChip {
+  label: string;
+  tone: 'accent-soft' | 'mint' | 'lilac' | 'teal-soft';
+}
+
 interface Props {
   id: string;
   label: string;
-  state?: 'idle' | 'hover' | 'drag' | 'error';
+  state?: 'idle' | 'hover' | 'drag' | 'error' | 'loaded';
   interactive?: boolean;
   accept?: string;
+  variant?: 'plain' | 'stage';
+  formats?: readonly FormatChip[];
+  note?: string;
 }
 
-const { id, label, state = 'idle', interactive = false, accept = '.srt,.vtt,.ass,.ssa' } = Astro.props;
+const {
+  id,
+  label,
+  state = 'idle',
+  interactive = false,
+  accept = '.srt,.vtt,.ass,.ssa',
+  variant = 'plain',
+  formats = [],
+  note = '',
+} = Astro.props;
 const labelId = `${id}-label`;
 const errorId = `${id}-message`;
 const inputId = `${id}-file`;
+const stage = variant === 'stage';
+
+const chipTone = {
+  'accent-soft': 'bg-accent-soft',
+  mint: 'bg-mint',
+  lilac: 'bg-lilac',
+  'teal-soft': 'bg-teal-soft',
+} as const;
 ---
 
 <div class="relative">
@@ -18,21 +43,119 @@ const inputId = `${id}-file`;
     type="button"
     id={id}
     data-state={state}
+    data-variant={variant}
     data-dropzone-interactive={interactive ? '' : undefined}
-    aria-labelledby={labelId}
+    aria-labelledby={stage ? undefined : labelId}
     aria-describedby={state === 'error' ? errorId : undefined}
     aria-controls={interactive ? inputId : undefined}
     class:list={[
-      'min-h-28 w-full rounded-sf border-2 border-dashed bg-bg px-4 py-10 text-center text-ink',
-      'transition-colors motion-reduce:transition-none',
-      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
-      'border-brand-hover data-[state=hover]:border-edge data-[state=hover]:bg-surface',
-      'data-[state=drag]:bg-brand-soft',
-      'data-[state=error]:border-danger',
-      'hover:data-[state=idle]:border-edge hover:data-[state=idle]:bg-surface',
+      stage
+        ? [
+            'flex min-h-[262px] w-full flex-col items-center justify-center gap-2.5 rounded-sf-lg border-2.5 border-dashed border-on-brand/85 bg-dropzone px-4 py-6 text-center text-on-brand',
+            'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-on-brand',
+            'data-[state=drag]:border-solid data-[state=drag]:border-on-brand data-[state=drag]:bg-brand',
+            'data-[state=error]:border-solid data-[state=error]:border-on-brand',
+            'data-[state=loaded]:min-h-0 data-[state=loaded]:flex-row data-[state=loaded]:items-center data-[state=loaded]:justify-start data-[state=loaded]:gap-3.5 data-[state=loaded]:px-[18px] data-[state=loaded]:py-4 data-[state=loaded]:text-left',
+          ]
+        : [
+            'min-h-28 w-full rounded-sf border-2 border-dashed bg-bg px-4 py-10 text-center text-ink',
+            'transition-colors motion-reduce:transition-none',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
+            'border-brand-hover data-[state=hover]:border-edge data-[state=hover]:bg-surface',
+            'data-[state=drag]:bg-brand-soft',
+            'data-[state=error]:border-danger',
+            'hover:data-[state=idle]:border-edge hover:data-[state=idle]:bg-surface',
+          ],
     ]}
   >
-    <span id={labelId} class="block whitespace-normal break-words">{label}</span>
+    {
+      stage ? (
+        <>
+          <span class="sf-drop-idle flex flex-col items-center gap-2.5">
+            <svg class="h-[84px] w-24" viewBox="0 0 96 84" fill="none" aria-hidden="true">
+              <rect
+                x="14"
+                y="8"
+                width="58"
+                height="70"
+                rx="12"
+                fill="var(--sf-on-brand)"
+                stroke="var(--sf-on-accent)"
+                stroke-width="3"
+                transform="rotate(-8 43 43)"></rect>
+              <rect
+                x="26"
+                y="4"
+                width="58"
+                height="70"
+                rx="12"
+                fill="var(--sf-footer-mint)"
+                stroke="var(--sf-on-accent)"
+                stroke-width="3"></rect>
+              <rect x="36" y="44" width="26" height="6" rx="3" fill="var(--sf-on-accent)"></rect>
+              <rect x="36" y="56" width="38" height="6" rx="3" fill="var(--sf-on-accent)"></rect>
+              <circle cx="68" cy="24" r="11" fill="var(--sf-accent)" stroke="var(--sf-on-accent)" stroke-width="3"
+              ></circle>
+              <path
+                d="M68 18v6l4 3"
+                stroke="var(--sf-on-accent)"
+                stroke-width="3"
+                stroke-linecap="round"></path>
+            </svg>
+            <span id={labelId} class="font-display text-[21px] font-extrabold tracking-tight md:text-[26px]">
+              <span class="sf-drop-fine">Drop .srt, .vtt or .ass file here</span>
+              <span class="sf-drop-coarse">Choose .srt, .vtt or .ass file</span>
+            </span>
+            <span
+              class="rounded-full border-2 border-stage-line bg-surface px-5 py-2.5 text-[15px] font-extrabold text-ink shadow-hard-sm"
+            >
+              Choose files
+            </span>
+            {note && <span class="text-sm font-medium text-on-brand-muted">{note}</span>}
+            {
+              formats.length > 0 && (
+                <span class="mt-0.5 flex flex-wrap justify-center gap-1.5">
+                  {formats.map((format) => (
+                    <span
+                      class:list={[
+                        'rounded-full border-2 border-stage-line px-2.5 py-0.5 font-mono text-[12.5px] text-ink',
+                        chipTone[format.tone],
+                      ]}
+                    >
+                      {format.label}
+                    </span>
+                  ))}
+                </span>
+              )
+            }
+          </span>
+          <span class="sf-drop-loaded w-full min-w-0 items-center gap-3.5">
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-[14px] border-2 border-stage-line bg-footer-mint text-on-accent"
+              aria-hidden="true"
+            >
+              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path>
+                <path d="M14 3v5h5M9 13h6M9 17h4"></path>
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span data-file-name class="block truncate text-base font-extrabold"></span>
+              <span data-file-meta class="mt-0.5 block truncate font-mono text-[12.5px] text-on-brand-muted"></span>
+            </span>
+            <span
+              class="shrink-0 rounded-full border-2 border-stage-line bg-surface px-4 py-2 text-sm font-extrabold text-ink shadow-hard-sm"
+            >
+              Choose other files
+            </span>
+          </span>
+        </>
+      ) : (
+        <span id={labelId} class="block whitespace-normal break-words">
+          {label}
+        </span>
+      )
+    }
   </button>
   {
     interactive && (
@@ -43,11 +166,12 @@ const inputId = `${id}-file`;
         multiple
         accept={accept}
         tabindex="-1"
-        aria-labelledby={labelId}
+        aria-label={stage ? label : undefined}
+        aria-labelledby={stage ? undefined : labelId}
       />
     )
   }
-  <p id={errorId} class="mt-2 text-sm text-danger" hidden={state !== 'error'}>
+  <p id={errorId} class:list={['mt-2 text-sm font-bold', stage ? 'text-on-brand' : 'text-danger']} hidden={state !== 'error'}>
     Use an SRT, VTT, or ASS file.
   </p>
 </div>
@@ -58,12 +182,17 @@ const inputId = `${id}-file`;
   const zones = document.querySelectorAll('[data-dropzone-interactive]');
   const bound = new WeakSet<HTMLElement>();
 
-  function setZoneState(zone: HTMLElement, state: 'idle' | 'drag' | 'error') {
-    zone.dataset.state = state;
+  function resting(zone: HTMLElement): 'idle' | 'loaded' {
+    return zone.dataset.variant === 'stage' && zone.dataset.hasfile === '1' ? 'loaded' : 'idle';
+  }
+
+  function setZoneState(zone: HTMLElement, state: 'idle' | 'drag' | 'error' | 'loaded') {
+    const next = state === 'idle' ? resting(zone) : state;
+    zone.dataset.state = next;
     const errorId = `${zone.id}-message`;
     const error = document.getElementById(errorId);
-    if (error instanceof HTMLElement) error.hidden = state !== 'error';
-    if (state === 'error') zone.setAttribute('aria-describedby', errorId);
+    if (error instanceof HTMLElement) error.hidden = next !== 'error';
+    if (next === 'error') zone.setAttribute('aria-describedby', errorId);
     else zone.removeAttribute('aria-describedby');
   }
 
@@ -86,7 +215,13 @@ const inputId = `${id}-file`;
         failZone(zone);
         return;
       }
-      setZoneState(zone, 'idle');
+      const name = zone.querySelector('[data-file-name]');
+      if (name) {
+        const first = decoded[0]?.name ?? '';
+        name.textContent = decoded.length === 1 ? first : `${first} + ${decoded.length - 1} more`;
+      }
+      if (zone.dataset.variant === 'stage') zone.dataset.hasfile = '1';
+      setZoneState(zone, resting(zone));
       zone.dispatchEvent(
         new CustomEvent('subtitlefiles', {
           bubbles: true,

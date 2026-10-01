@@ -5,39 +5,64 @@ interface Props {
   id: string;
   phase?: ToolPhase;
   fileNames?: readonly string[];
+  tone?: 'page' | 'stage';
 }
 
-const { id, phase = 'empty', fileNames = [] } = Astro.props;
+const { id, phase = 'empty', fileNames = [], tone = 'page' } = Astro.props;
 const copy = statusCopy(phase, fileNames);
 const detailClass = phase === 'error' ? 'text-sm text-danger' : 'text-sm text-muted';
+const stage = tone === 'stage';
 ---
 
-<div id={id} role="status" class="flex flex-col gap-1">
+<div
+  id={id}
+  role="status"
+  data-tone={stage ? 'stage' : undefined}
+  class:list={[stage ? 'text-on-brand' : 'flex flex-col gap-1']}
+>
   {
-    phase === 'ready' ? (
-      <div class="flex items-center gap-2">
-        <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-sf bg-mint">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-            class="size-4 text-success"
-          >
-            <path
-              d="M5 13l4 4L19 7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </span>
-        <p class="text-sm font-medium text-ink">{copy.title}</p>
+    stage ? (
+      <div class="flex min-w-0 items-center gap-2.5">
+        <span
+          class:list={[
+            'size-2.5 shrink-0 rounded-full border-2 border-on-brand',
+            phase === 'loaded' || phase === 'ready' ? 'bg-footer-mint' : 'bg-on-brand/55',
+          ]}
+        />
+        <p class="text-sm font-extrabold text-on-brand">{copy.title}</p>
+        <p class:list={['min-w-0 truncate text-sm', phase === 'error' ? 'text-on-brand' : 'text-on-brand-muted']}>
+          {copy.detail}
+        </p>
       </div>
+    ) : phase === 'ready' ? (
+      <>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-sf bg-mint">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+              class="size-4 text-success"
+            >
+              <path
+                d="M5 13l4 4L19 7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <p class="text-sm font-medium text-ink">{copy.title}</p>
+        </div>
+        <p class={detailClass}>{copy.detail}</p>
+      </>
     ) : (
-      <p class="text-sm font-medium text-ink">{copy.title}</p>
+      <>
+        <p class="text-sm font-medium text-ink">{copy.title}</p>
+        <p class={detailClass}>{copy.detail}</p>
+      </>
     )
   }
-  <p class={detailClass}>{copy.detail}</p>
 </div>

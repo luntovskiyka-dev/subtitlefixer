@@ -8,23 +8,30 @@ interface Props {
   suffix?: string;
   hint?: string;
   value?: string;
+  placeholder?: string;
+  aside?: string;
+  full?: boolean;
 }
 
-const { id, label, kind, name = id, variant = 'default', suffix, hint, value } = Astro.props;
+const { id, label, kind, name = id, variant = 'default', suffix, hint, value, placeholder, aside, full = false } =
+  Astro.props;
 const hintId = hint ? `${id}-hint` : undefined;
 
 const fieldClass = [
   'w-full rounded-sf border-2.5 border-control text-ink',
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover',
   variant === 'hero'
-    ? 'h-[62px] bg-lilac px-4 font-display text-[30px] font-extrabold'
-    : 'min-h-11 bg-bg px-3 py-2',
+    ? 'h-[62px] bg-lilac px-4 font-display text-[30px] font-extrabold placeholder:font-sans placeholder:text-base placeholder:font-semibold placeholder:text-muted'
+    : 'min-h-12 bg-surface px-3 py-2',
   suffix ? 'pr-14' : '',
 ];
 ---
 
-<div class="flex max-w-sm flex-col gap-2">
-  <label for={id} class="text-sm font-extrabold text-ink">{label}</label>
+<div class:list={['flex flex-col gap-2', full ? 'w-full' : 'max-w-sm']}>
+  <div class="flex items-baseline justify-between gap-3">
+    <label for={id} class="text-sm font-extrabold text-ink">{label}</label>
+    {aside && <span class="text-[12.5px] font-semibold text-muted">{aside}</span>}
+  </div>
   {
     kind === 'milliseconds' ? (
       <div class="relative">
@@ -37,6 +44,7 @@ const fieldClass = [
           class:list={fieldClass}
           aria-describedby={hintId}
           value={value}
+          placeholder={placeholder}
         />
         {
           suffix && (

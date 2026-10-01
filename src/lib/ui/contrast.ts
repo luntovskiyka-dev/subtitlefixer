@@ -33,6 +33,7 @@ export type Palette = {
   footerMint: string;
   navActive: string;
   onNav: string;
+  stageLine: string;
   tShift: string;
   tShiftBg: string;
   cShift: string;
@@ -87,6 +88,7 @@ export const LIGHT: Palette = {
   footerMint: '#B8F2DC',
   navActive: '#1B1A3A',
   onNav: '#FFFFFF',
+  stageLine: '#1B1A3A',
   tShift: '#FFFFFF',
   tShiftBg: '#5B4BFF',
   cShift: '#E6E1FF',
@@ -139,8 +141,9 @@ export const DARK: Palette = {
   footerText: '#FFF8EF',
   footerMuted: '#C9C5E3',
   footerMint: '#B8F2DC',
-  navActive: '#1B1A3A',
-  onNav: '#FFFFFF',
+  navActive: '#FFF8EF',
+  onNav: '#1B1A3A',
+  stageLine: '#FFFFFF',
   tShift: '#FFFFFF',
   tShiftBg: '#5B4BFF',
   cShift: '#E6E1FF',

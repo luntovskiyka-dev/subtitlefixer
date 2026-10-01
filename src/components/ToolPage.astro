@@ -1,6 +1,8 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import FaqList from './FaqList.astro';
+import Mark from './Mark.astro';
+import { toolMeta } from '../data/tools';
 
 interface Props {
   entry: CollectionEntry<'tools'>;
@@ -9,13 +11,45 @@ interface Props {
 const { entry } = Astro.props;
 const { h1, answer, faq } = entry.data;
 const { Content } = await render(entry);
+const mark = toolMeta.find((tool) => tool.slug === entry.id)?.mark;
+const markAt = h1 && mark ? h1.indexOf(mark) : -1;
+const stageTool = entry.id === 'shift-subtitles';
 ---
 
 <div class="flex flex-col">
-  <h1 class="text-3xl font-display font-extrabold tracking-tight">{h1}</h1>
-  <p class="mt-6 text-lg leading-relaxed">{answer}</p>
-  <section id="tool" class="mt-10">
-    <slot />
+  <section
+    id="tool"
+    class="relative mt-1 overflow-hidden rounded-[26px] bg-brand px-4 pb-[18px] pt-[22px] text-on-brand md:rounded-sf-xl md:px-[34px] md:pb-[34px] md:pt-8"
+  >
+    <div class="pointer-events-none absolute -right-28 -top-36 size-[360px] rounded-full bg-[var(--sf-blob-a)]" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-16 size-[200px] rounded-full bg-[var(--sf-blob-b)]" aria-hidden="true"></div>
+    <div class="relative z-10">
+      <h1 class="font-display text-[38px] font-extrabold leading-[1.02] tracking-[-0.035em] text-on-brand md:text-[56px]">
+        {
+          h1 && mark && markAt >= 0 ? (
+            <>
+              {h1.slice(0, markAt)}
+              <Mark>{mark}</Mark>
+              {h1.slice(markAt + mark.length)}
+            </>
+          ) : (
+            h1
+          )
+        }
+      </h1>
+      <p class="mb-4 mt-3 max-w-[930px] text-[15px] font-medium leading-[1.55] text-on-brand-muted md:mb-6 md:mt-3.5 md:text-[17px]">
+        {answer}
+      </p>
+      {
+        stageTool ? (
+          <slot />
+        ) : (
+          <div class="rounded-[26px] border-2.5 border-stage-line bg-surface p-5 text-ink shadow-hard">
+            <slot />
+          </div>
+        )
+      }
+    </div>
   </section>
   <div class="sf-copy mt-16">
     <Content />

@@ -16,11 +16,21 @@ interface Props {
   schemaName?: string;
   faq?: readonly FaqItem[];
   width?: 'wide' | 'prose';
+  spacing?: 'default' | 'tight';
 }
 
-const { title, description, noindex = false, schema = 'none', schemaName, faq, width = 'prose' } =
-  Astro.props;
+const {
+  title,
+  description,
+  noindex = false,
+  schema = 'none',
+  schemaName,
+  faq,
+  width = 'prose',
+  spacing = 'default',
+} = Astro.props;
 const widthClass = width === 'wide' ? 'max-w-[1180px]' : 'max-w-[740px]';
+const padClass = spacing === 'tight' ? 'px-3 pb-16 pt-4 sm:px-6 sm:pb-24 sm:pt-6' : 'px-3 py-16 sm:px-6 sm:py-24';
 ---
 
 <!doctype html>
@@ -58,7 +68,7 @@ const widthClass = width === 'wide' ? 'max-w-[1180px]' : 'max-w-[740px]';
   </head>
   <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
     <Header />
-    <main class:list={['mx-auto w-full min-w-0 flex-1 px-3 py-16 sm:px-6 sm:py-24', widthClass]}>
+    <main class:list={['mx-auto w-full min-w-0 flex-1', padClass, widthClass]}>
       <slot />
     </main>
     <Footer />

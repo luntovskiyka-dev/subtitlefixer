@@ -78,9 +78,10 @@ Outlines can't be black on a dark page, so `edge` becomes a light violet line an
 | edge + control (outlines) | `#8E88C8` | 5.0 surface · 5.6 bg |
 | hard-shadow colour | `#07061A` | — |
 | footer bg / text / meta / headings | `#0E0D20` / `#FFF8EF` / `#C9C5E3` / `#B8F2DC` | 18.2 · 11.5 · 15.3 |
-| nav-active / on-nav | `#1B1A3A` / `#FFFFFF` | 16.7 |
+| nav-active / on-nav | `#FFF8EF` / `#1B1A3A` | 15.9 on the pill · 15.3 against the inactive surface `#1F1D3F` |
+| stage line | `#FFFFFF` | 6.85 on brand. Dark edge on brand is 2.12, so stage borders and the H1 pill use this instead of edge |
 
-`--sf-mint` in dark is the wash `#123C3A` (1.6 on the footer), so column headings use `--sf-footer-mint` and stay `#B8F2DC`. `--sf-edge` in dark is the light outline `#8E88C8` (white text on it is 3.2), so the active pill uses `--sf-nav-active` and stays ink.
+`--sf-mint` in dark is the wash `#123C3A` (1.6 on the footer), so column headings use `--sf-footer-mint` and stay `#B8F2DC`. `--sf-edge` in dark is the light outline `#8E88C8` (white text on it is 3.2, and the line on brand is 2.12). The active pill is a light fill with ink text so it does not blend into the inactive surface. Stage borders and focus rings use white.
 
 ## 3. Typography (all SIL OFL, self-hosted via @fontsource, **latin subset only**)
 

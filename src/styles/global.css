@@ -221,6 +221,116 @@
   border-top: 1px solid var(--sf-line);
 }
 
+.sf-drop-coarse {
+  display: none;
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+  .sf-drop-fine {
+    display: none;
+  }
+
+  .sf-drop-coarse {
+    display: inline;
+  }
+}
+
+.sf-drop-loaded {
+  display: none;
+}
+
+[data-state='loaded'] > .sf-drop-idle {
+  display: none;
+}
+
+[data-state='loaded'] > .sf-drop-loaded {
+  display: flex;
+}
+
+.sf-preview-list > .sf-preview-row + .sf-preview-row {
+  border-top: 2px dashed var(--sf-line);
+}
+
+.sf-preview-row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 14.5px;
+}
+
+.sf-preview-row > :first-child {
+  font-family: var(--sf-mono);
+  font-size: 0.75rem;
+  color: var(--sf-muted);
+}
+
+.sf-preview-row .sf-tc {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--sf-mono);
+  font-size: 12.5px;
+}
+
+.sf-preview-row .sf-tc s {
+  color: var(--sf-muted);
+}
+
+.sf-preview-row .sf-tc em {
+  border-radius: 0.5rem;
+  background: var(--sf-footer-mint);
+  padding: 1px 0.375rem;
+  font-style: normal;
+  font-weight: 500;
+  color: var(--sf-on-accent);
+}
+
+.sf-preview-row .sf-tx {
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .sf-preview-row {
+    grid-template-columns: 1.75rem minmax(0, 17rem) minmax(0, 1fr);
+  }
+
+  .sf-preview-row .sf-tx {
+    grid-column: auto;
+  }
+}
+
+.sf-soft-off[aria-disabled='true'] {
+  border-style: dashed;
+  border-color: var(--sf-muted);
+  background: var(--sf-subtle);
+  color: var(--sf-muted);
+  box-shadow: none;
+}
+
+.sf-soft-off[aria-disabled='true'] svg {
+  display: none;
+}
+
+.sf-soft-off[aria-disabled='true']:active {
+  transform: none;
+}
+
+#shift-result p {
+  font-size: 0.875rem;
+  color: var(--sf-danger);
+}
+
+#shift-result .sf-warn {
+  color: var(--sf-warning);
+}
+
 .sf-faq-item + .sf-faq-item {
   margin-top: 2rem;
 }

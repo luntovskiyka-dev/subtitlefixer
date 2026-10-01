@@ -33,9 +33,13 @@
   --sf-footer-muted: #C9C5E3;
   /* Headings on the ink footer. Stays light in both themes; --sf-mint flips to a dark wash. */
   --sf-footer-mint: #B8F2DC;
-  /* Active nav pill. Stays ink; dark --sf-edge is a light outline and fails as white text. */
+  /* Active nav pill. Light theme is ink on white text. Dark flips to a light fill. */
   --sf-nav-active: #1B1A3A;
   --sf-on-nav: #FFFFFF;
+  /* Outlines on the indigo stage. Dark edge on brand is 2.12, so this stays white there. */
+  --sf-stage-line: #1B1A3A;
+  --sf-blob-a: #6C5DFF;
+  --sf-blob-b: #5344F0;
 
   --sf-border: 2px;
   --sf-border-strong: 2.5px;
@@ -107,7 +111,10 @@
     --sf-footer-text: #FFF8EF;
     --sf-footer-muted: #C9C5E3;
     --sf-footer-mint: #B8F2DC;
-    --sf-nav-active: #1B1A3A;
-    --sf-on-nav: #FFFFFF;
+    --sf-nav-active: #FFF8EF;
+    --sf-on-nav: #1B1A3A;
+    --sf-stage-line: #FFFFFF;
+    --sf-blob-a: #6C5DFF;
+    --sf-blob-b: #5344F0;
   }
 }

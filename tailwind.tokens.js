@@ -41,6 +41,7 @@ module.exports = {
     },
     'nav-active': 'var(--sf-nav-active)',
     'on-nav': 'var(--sf-on-nav)',
+    'stage-line': 'var(--sf-stage-line)',
     tool: {
       shift: 'var(--t-shift)',
       'shift-bg': 'var(--t-shift-bg)',

@@ -1,0 +1,14 @@
+<div class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px] lg:gap-[26px]">
+  <div class="flex min-w-0 flex-col gap-3">
+    <slot name="input" />
+    <slot name="preview" />
+  </div>
+  <div
+    class="min-w-0 rounded-[26px] border-2.5 border-stage-line bg-surface p-4 text-ink shadow-hard lg:p-[22px] lg:shadow-hard-lg"
+  >
+    <slot name="settings" />
+    <div class="mt-5">
+      <slot name="action" />
+    </div>
+  </div>
+</div>
