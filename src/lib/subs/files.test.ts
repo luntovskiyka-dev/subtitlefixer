@@ -70,6 +70,21 @@ describe('zipTexts', () => {
       expect(new TextDecoder().decode(bytes)).toBe(file.text);
     }
   });
+
+  it('adds the BOM to every zip entry only when asked', () => {
+    const files = [
+      { name: 'a.srt', text: 'alpha' },
+      { name: 'b.vtt', text: 'beta' },
+    ];
+    for (const bom of [true, false]) {
+      const unzipped = unzipSync(zipTexts(files, bom));
+      for (const file of files) {
+        const head = [...(unzipped[file.name] ?? new Uint8Array()).slice(0, 3)];
+        if (bom) expect(head).toEqual([0xef, 0xbb, 0xbf]);
+        else expect(head).not.toEqual([0xef, 0xbb, 0xbf]);
+      }
+    }
+  });
 });
 
 describe('download helper', () => {
@@ -165,6 +180,14 @@ describe('download helper', () => {
     const bytes = blobs[0] ? await blobBytes(blobs[0]) : new Uint8Array();
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     expect([...bytes.slice(0, 4)]).not.toEqual(ZIP_MAGIC);
+    expect(new TextDecoder().decode(bytes)).toBe('solo');
+  });
+
+  it('adds no BOM to a single file when the box is not ticked', async () => {
+    const { blobs } = stubDownload();
+    downloadSubtitleFiles([{ name: 'plain.srt', text: 'solo' }], false);
+    const bytes = blobs[0] ? await blobBytes(blobs[0]) : new Uint8Array();
+    expect([...bytes.slice(0, 3)]).not.toEqual([0xef, 0xbb, 0xbf]);
     expect(new TextDecoder().decode(bytes)).toBe('solo');
   });
 });

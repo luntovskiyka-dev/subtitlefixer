@@ -53,6 +53,10 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
     </div>
     <div slot="settings">
       <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">{pill}</p>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="convert-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="convert-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
     </div>
     <div slot="action">
       <Button id="convert-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
@@ -78,6 +82,7 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
   const download = document.getElementById('convert-download');
   const hint = document.getElementById('convert-download-hint');
   const meta = document.querySelector('#convert-dropzone [data-file-meta]');
+  const bomInput = document.getElementById('convert-bom');
 
   let files: DecodedSubtitleFile[] = [];
 
@@ -127,6 +132,7 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
 
   if (
     form instanceof HTMLFormElement &&
+    bomInput instanceof HTMLInputElement &&
     result instanceof HTMLElement &&
     status instanceof HTMLElement &&
     download instanceof HTMLButtonElement
@@ -203,7 +209,7 @@ const chip = source === 'srt' ? 'SRT' : 'VTT';
       const { messages, ready, preview } = converted();
       showResult(messages, preview);
       if (ready.length > 0) {
-        downloadSubtitleFiles(ready, false);
+        downloadSubtitleFiles(ready, bomInput.checked);
         renderStatus(status, 'ready', chosen);
         return;
       }

@@ -122,6 +122,10 @@ const later = ['+100', '+500', '+1000'] as const;
           full
         />
       </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="shift-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="shift-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
     </div>
     <div slot="action">
       <Button
@@ -177,6 +181,7 @@ const later = ['+100', '+500', '+1000'] as const;
   const rows = byId('shift-preview-rows');
   const meta = document.querySelector('#shift-dropzone [data-file-meta]');
   const sample = rows?.querySelector('.sf-preview-row') ?? null;
+  const bomInput = byId('shift-bom');
 
   let files: DecodedSubtitleFile[] = [];
   let timer = 0;
@@ -210,6 +215,7 @@ const later = ['+100', '+500', '+1000'] as const;
 
   if (
     form instanceof HTMLFormElement &&
+    bomInput instanceof HTMLInputElement &&
     offsetInput instanceof HTMLInputElement &&
     steps instanceof HTMLElement &&
     fromInput instanceof HTMLInputElement &&
@@ -361,7 +367,7 @@ const later = ['+100', '+500', '+1000'] as const;
 
       showResult(messages, ready.length > 0 ? warnings : []);
       if (ready.length > 0) {
-        downloadSubtitleFiles(ready, false);
+        downloadSubtitleFiles(ready, bomInput.checked);
         renderStatus(status, 'ready', names());
         return;
       }

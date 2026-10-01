@@ -41,6 +41,10 @@ const formats = [
     </div>
     <div slot="settings">
       <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.ass/.ssa → .srt</p>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="ass-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="ass-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
     </div>
     <div slot="action">
       <Button id="ass-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
@@ -66,6 +70,7 @@ const formats = [
   const download = document.getElementById('ass-download');
   const hint = document.getElementById('ass-download-hint');
   const meta = document.querySelector('#ass-dropzone [data-file-meta]');
+  const bomInput = document.getElementById('ass-bom');
 
   let files: DecodedSubtitleFile[] = [];
 
@@ -116,6 +121,7 @@ const formats = [
 
   if (
     form instanceof HTMLFormElement &&
+    bomInput instanceof HTMLInputElement &&
     result instanceof HTMLElement &&
     status instanceof HTMLElement &&
     download instanceof HTMLButtonElement
@@ -186,7 +192,7 @@ const formats = [
       const { messages, ready, preview } = converted();
       showResult(messages, preview);
       if (ready.length > 0) {
-        downloadSubtitleFiles(ready, false);
+        downloadSubtitleFiles(ready, bomInput.checked);
         renderStatus(status, 'ready', chosen);
         return;
       }
