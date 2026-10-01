@@ -1,27 +1,16 @@
 ---
-import { tools } from '../data/tools';
+import ToolGrid from '../components/ToolGrid.astro';
 import Base from '../layouts/Base.astro';
-
-const linkClass =
-  'rounded-sf text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover';
 ---
 
 <Base
   title="Page not found | SubtitleFixer"
   description="That page is not on SubtitleFixer."
   noindex
+  width="wide"
 >
+
   <h1 class="text-3xl font-display font-extrabold tracking-tight">Page not found</h1>
   <p class="mt-6 max-w-2xl text-lg leading-relaxed">That page is not on SubtitleFixer.</p>
-  <ul class="mt-8 flex flex-col gap-3">
-    {
-      Object.entries(tools).map(([slug, name]) => (
-        <li>
-          <a href={`/${slug}`} class={linkClass}>
-            {name}
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <ToolGrid />
 </Base>

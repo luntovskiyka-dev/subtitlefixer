@@ -50,3 +50,16 @@ describe('home hero', () => {
     expect([...homeTrust]).toEqual(['No upload', 'No sign-up', 'Free, 6 tools', 'Many files → one zip']);
   });
 });
+
+describe('404 page', () => {
+  const page = read('src/pages/404.astro');
+
+  it('stays noindex and shows the tool grid instead of the plain list', () => {
+    expect(page).toMatch(/\bnoindex\b/);
+    expect(page).toContain('<ToolGrid />');
+    expect(page).not.toContain('<ul');
+    expect(page).toContain('>Page not found</h1>');
+    expect(page).toContain('>That page is not on SubtitleFixer.</p>');
+    expect(page).not.toMatch(HEX);
+  });
+});
