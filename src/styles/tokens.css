@@ -116,5 +116,13 @@
     --sf-stage-line: #FFFFFF;
     --sf-blob-a: #6C5DFF;
     --sf-blob-b: #5344F0;
+
+    /* Home tool-card washes. Text on them is --sf-text, outlines are --sf-edge. */
+    --c-shift: #2B2760;
+    --c-drift: #123C3A;
+    --c-enc: #1A3D24;
+    --c-s2v: #4A2A22;
+    --c-v2s: #48213C;
+    --c-ass: #15334D;
   }
 }

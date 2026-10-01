@@ -175,6 +175,35 @@ checkPairs('tool tiles', LIGHT, TOOL_PAIRS);
 checkPairs('below-fold light', LIGHT, BELOW_FOLD_PAIRS);
 checkPairs('below-fold dark', DARK, BELOW_FOLD_PAIRS);
 
+/** Home hero pills and tool cards (R6). Checked in both themes. */
+const HOME_PAIRS: readonly Pair[] = [
+  { label: 'hero H1 on stage', foreground: 'onBrand', background: 'brand', minimum: TEXT },
+  { label: 'hero lead on stage', foreground: 'onBrandMuted', background: 'brand', minimum: TEXT },
+  { label: 'trust pill on mint', foreground: 'text', background: 'mint', minimum: TEXT },
+  { label: 'trust pill on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'trust pill on accent-soft', foreground: 'text', background: 'accentSoft', minimum: TEXT },
+  { label: 'trust pill on teal-soft', foreground: 'text', background: 'tealSoft', minimum: TEXT },
+  { label: 'trust pill outline on stage', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
+  { label: 'card chip text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'card outline on page', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
+  { label: 'card focus ring on page', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
+  { label: 'text on shift card', foreground: 'text', background: 'cShift', minimum: TEXT },
+  { label: 'text on drift card', foreground: 'text', background: 'cDrift', minimum: TEXT },
+  { label: 'text on encoding card', foreground: 'text', background: 'cEnc', minimum: TEXT },
+  { label: 'text on srt-to-vtt card', foreground: 'text', background: 'cS2v', minimum: TEXT },
+  { label: 'text on vtt-to-srt card', foreground: 'text', background: 'cV2s', minimum: TEXT },
+  { label: 'text on ass-to-srt card', foreground: 'text', background: 'cAss', minimum: TEXT },
+  { label: 'outline on shift card', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
+  { label: 'outline on drift card', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
+  { label: 'outline on encoding card', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
+  { label: 'outline on srt-to-vtt card', foreground: 'edge', background: 'cS2v', minimum: NON_TEXT },
+  { label: 'outline on vtt-to-srt card', foreground: 'edge', background: 'cV2s', minimum: NON_TEXT },
+  { label: 'outline on ass-to-srt card', foreground: 'edge', background: 'cAss', minimum: NON_TEXT },
+];
+
+checkPairs('home light', LIGHT, HOME_PAIRS);
+checkPairs('home dark', DARK, HOME_PAIRS);
+
 describe('dark stage outlines cannot reuse edge', () => {
   it('dark edge on brand is below 3:1', () => {
     expect(contrastRatio(DARK.edge, DARK.brand)).toBeLessThan(NON_TEXT);
