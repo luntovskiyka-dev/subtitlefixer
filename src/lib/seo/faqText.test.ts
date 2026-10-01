@@ -13,6 +13,11 @@ describe('stripMarkdown', () => {
   it('drops heading marks', () => {
     expect(stripMarkdown('## Why\n\nBecause.')).toBe('Why\n\nBecause.');
   });
+
+  it('keeps characters that are not inline markup, like the * in *.srt', () => {
+    expect(stripMarkdown('choose SubRip (*.srt) as the file type')).toBe('choose SubRip (*.srt) as the file type');
+    expect(stripMarkdown('a **bold** word, `my_file.srt` and [a link](/x)')).toBe('a bold word, my_file.srt and a link');
+  });
 });
 
 describe('renderInlineMarkdown', () => {

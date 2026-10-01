@@ -11,13 +11,14 @@ function escapeHtml(value: string): string {
     .replaceAll('"', '&quot;');
 }
 
-/** Plain text for FAQPage JSON-LD: keep link labels, drop Markdown markers. */
+/** Plain text for FAQPage JSON-LD: the inline syntax renderInlineMarkdown renders (code, links, bold) without its markers. Other characters, like the * in "*.srt", stay. */
 export function stripMarkdown(source: string): string {
   return source
-    .replace(/\[([^\]]+)\]\([^)\s]+\)/g, '$1')
-    .replace(/`([^`]*)`/g, '$1')
+    .replace(
+      /`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g,
+      (_match: string, code?: string, label?: string, _href?: string, bold?: string) => code ?? label ?? bold ?? '',
+    )
     .replace(/^#{1,6}\s+/gm, '')
-    .replace(/[*_]/g, '')
     .replace(/[ \t]+\n/g, '\n')
     .trim();
 }

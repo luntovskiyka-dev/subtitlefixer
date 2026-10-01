@@ -54,10 +54,10 @@ const faqJsonLd = faq && faq.length > 0 ? faqPageJsonLd(faq) : null;
 <title>{title}</title>
 <meta name="description" content={description} />
 {noindex && <meta name="robots" content="noindex" />}
-<link rel="canonical" href={canonical} />
+{!noindex && <link rel="canonical" href={canonical} />}
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:url" content={canonical} />
+{!noindex && <meta property="og:url" content={canonical} />}
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content={BRAND} />
 <meta property="og:locale" content="en_US" />
@@ -65,7 +65,7 @@ const faqJsonLd = faq && faq.length > 0 ? faqPageJsonLd(faq) : null;
 {!noindex && <meta property="og:image:width" content="1200" />}
 {!noindex && <meta property="og:image:height" content="630" />}
 {!noindex && <meta property="og:image:alt" content={title} />}
-<link rel="alternate" hreflang="en" href={canonical} />
-<link rel="alternate" hreflang="x-default" href={canonical} />
+{!noindex && <link rel="alternate" hreflang="en" href={canonical} />}
+{!noindex && <link rel="alternate" hreflang="x-default" href={canonical} />}
 {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 {faqJsonLd && <script type="application/ld+json" set:html={faqJsonLd} />}
