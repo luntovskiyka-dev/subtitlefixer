@@ -344,7 +344,7 @@ export const sectionize = defineHastPlugin({
       next.push({
         type: 'element',
         tagName: 'section',
-        properties: { className: ['sf-section'], id },
+        properties: { className: ['sf-section'] },
         children: group as ElementContent[],
       });
     }

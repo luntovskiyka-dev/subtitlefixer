@@ -92,13 +92,14 @@ describe('hast plugins keep the text', () => {
 });
 
 describe('sectionize', () => {
-  it('wraps each h2 in a section and gives the heading the same id', async () => {
+  it('wraps each h2 in a section and keeps the id on the heading only', async () => {
     const html = await render(bodyOf(shiftFile), [sectionize]);
     const toc = toolPageToc(bodyOf(shiftFile)).filter((item) => item.id !== 'faq-heading');
     expect(toc.length).toBeGreaterThan(3);
     for (const item of toc) {
-      expect(html).toContain(`<section class="sf-section" id="${item.id}"><h2 id="${item.id}">`);
+      expect(html).toContain(`<section class="sf-section"><h2 id="${item.id}">`);
     }
+    expect(html).not.toMatch(/<section[^>]*\sid=/);
     expect(html).not.toContain('<h2>');
   });
 });
@@ -118,8 +119,8 @@ describe('decorateSections', () => {
     expect(html.match(/class="sf-dd"/g)?.length).toBe(1);
     expect(html).toContain('<div class="sf-dd"><div class="sf-does">');
     expect(html.match(/sf-callout/g)?.length).toBe(1);
-    expect(html).toContain('<section class="sf-section sf-callout" id="constant-shift-vs-drift">');
-    expect(html).toContain('<section class="sf-section" id="player-delay-vs-fixing-the-file">');
+    expect(html).toContain('<section class="sf-section sf-callout"><h2 id="constant-shift-vs-drift">');
+    expect(html).toContain('<section class="sf-section"><h2 id="player-delay-vs-fixing-the-file">');
     expect(html).toContain('data-tool="fix-subtitle-drift"');
     expect(html).toContain('data-tool="ass-to-srt"');
     expect(html).not.toContain('data-tool="guides/');
