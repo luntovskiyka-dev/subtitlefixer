@@ -145,7 +145,7 @@
 .sf-copy h2 {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   font-size: 31px;
 }
@@ -156,7 +156,8 @@
   height: 14px;
   flex: none;
   margin-top: 0.32em;
-  border-radius: 3px;
+  border: 2px solid var(--sf-edge);
+  border-radius: 4px;
   background: var(--sf-accent);
   rotate: -8deg;
 }
@@ -233,6 +234,11 @@
   font-variant-ligatures: none;
   font-feature-settings: "calt" 0;
   line-height: 1.55;
+  font-weight: 400;
+}
+
+.sf-copy pre code {
+  font-weight: inherit;
 }
 
 .sf-copy .sf-tc {
@@ -323,8 +329,9 @@
   font-family: var(--sf-display);
   font-size: 16px;
   font-weight: 800;
-  line-height: 32px;
+  line-height: 28px;
   text-align: center;
+  border: 2px solid var(--sf-edge);
 }
 
 .sf-copy ol.sf-steps > li:nth-child(2)::before {
@@ -421,21 +428,27 @@
   content: "✓";
   position: absolute;
   left: 0;
-  top: 0.2em;
-  width: 22px;
-  height: 22px;
+  top: 0.25em;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--sf-edge);
   border-radius: 999px;
-  background: var(--sf-footer-mint);
-  color: var(--sf-on-accent);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 22px;
+  background: var(--sf-surface);
+  color: var(--sf-text);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 17px;
   text-align: center;
 }
 
 .sf-doesnt li::before {
   content: "✕";
-  background: var(--sf-accent);
+  background: var(--sf-accent-soft);
+}
+
+.sf-dd {
+  display: grid;
+  gap: 14px;
 }
 
 .sf-callout {
@@ -445,7 +458,7 @@
   padding: 18px 20px 20px;
 }
 
-.sf-related {
+.sf-copy ul.sf-related {
   display: grid;
   gap: 12px;
   list-style: none;
@@ -543,7 +556,7 @@
 @media (min-width: 768px) {
   .sf-ba {
     grid-template-columns: 1fr 1fr;
-    align-items: start;
+    align-items: stretch;
   }
 }
 
@@ -570,6 +583,29 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .sf-copy ol.sf-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .sf-copy ol.sf-steps > li {
+    padding: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .sf-copy ol.sf-steps > li::before {
+    position: static;
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    font-size: 19px;
+    line-height: 36px;
+  }
+}
+
 .sf-toc p {
   margin: 0 0 10px;
   font-family: var(--sf-display);
@@ -584,35 +620,42 @@
 }
 
 .sf-toc li + li {
-  margin-top: 8px;
+  margin-top: 2px;
 }
 
 .sf-toc nav a {
-  color: var(--sf-brand-hover);
+  display: block;
+  border-radius: 10px;
+  padding: 6px 10px;
+  color: var(--sf-text);
   font-size: 14px;
+  font-weight: 600;
   line-height: 1.4;
-  text-decoration-line: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: color-mix(in srgb, var(--sf-brand-hover) 35%, transparent);
-  text-underline-offset: 0.15em;
+  text-decoration: none;
+}
+
+.sf-toc nav a:hover {
+  background: var(--sf-subtle);
+}
+
+.sf-toc nav li:first-child a {
+  background: var(--sf-lilac);
+  font-weight: 800;
 }
 
 .sf-toc-back {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  width: 100%;
   margin-top: 14px;
   border-radius: 999px;
   background: var(--sf-text);
   color: var(--sf-bg);
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 12px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
   text-decoration: none;
-}
-
-.sf-toc a:focus-visible {
-  outline: 2px solid var(--sf-brand-hover);
-  outline-offset: 3px;
 }
 
 .sf-drop-coarse {
@@ -901,6 +944,7 @@ input[type='number']::-webkit-outer-spin-button {
 .sf-faq {
   display: grid;
   gap: 12px;
+  margin-top: 16px;
 }
 
 .sf-faq-item {
@@ -920,9 +964,10 @@ input[type='number']::-webkit-outer-spin-button {
 
 .sf-faq-item summary {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
   cursor: pointer;
   list-style: none;
 }
@@ -935,21 +980,22 @@ input[type='number']::-webkit-outer-spin-button {
   content: "";
 }
 
-.sf-faq-item summary::before {
+.sf-faq-item summary::after {
   content: "+";
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--sf-edge);
   border-radius: 999px;
   background: var(--sf-lilac);
   color: var(--sf-text);
   font-size: 18px;
   font-weight: 800;
-  line-height: 28px;
+  line-height: 26px;
   text-align: center;
 }
 
-.sf-faq-item[open] summary::before {
+.sf-faq-item[open] summary::after {
   content: "–";
   background: var(--sf-accent);
   color: var(--sf-on-accent);
@@ -968,7 +1014,7 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 .sf-faq-item > div {
-  padding: 0 16px 16px 56px;
+  padding: 0 18px 18px;
 }
 
 .sf-faq-item summary:focus-visible {

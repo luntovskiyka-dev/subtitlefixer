@@ -115,6 +115,8 @@ describe('decorateSections', () => {
     expect(html.match(/class="sf-ba-after"/g)?.length).toBe(3);
     expect(html).toContain('class="sf-does"');
     expect(html).toContain('class="sf-doesnt"');
+    expect(html.match(/class="sf-dd"/g)?.length).toBe(1);
+    expect(html).toContain('<div class="sf-dd"><div class="sf-does">');
     expect(html.match(/sf-callout/g)?.length).toBe(1);
     expect(html).toContain('<section class="sf-section sf-callout" id="constant-shift-vs-drift">');
     expect(html).toContain('<section class="sf-section" id="player-delay-vs-fixing-the-file">');

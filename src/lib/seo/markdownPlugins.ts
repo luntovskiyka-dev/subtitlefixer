@@ -283,6 +283,34 @@ function decorateFlow(
   return next;
 }
 
+function hasClass(node: ElementContent | undefined, name: string): node is Element {
+  return node?.type === 'element' && classNames(node.properties).includes(name);
+}
+
+/** Put "What it does" and "What it doesn't do" side by side in one wrapper. Text is untouched. */
+function pairDoesDoesnt(children: readonly ElementContent[]): ElementContent[] {
+  const next: ElementContent[] = [];
+  for (let index = 0; index < children.length; index += 1) {
+    const current = children[index];
+    if (!current) continue;
+    if (hasClass(current, 'sf-does')) {
+      const partner = blockAt(children, index + 1);
+      if (partner && hasClass(partner.node, 'sf-doesnt')) {
+        next.push({
+          type: 'element',
+          tagName: 'div',
+          properties: { className: ['sf-dd'] },
+          children: children.slice(index, partner.index + 1),
+        });
+        index = partner.index;
+        continue;
+      }
+    }
+    next.push(current);
+  }
+  return next;
+}
+
 /** Wrap each h2 and the nodes that follow it, up to the next h2, in a section. */
 export const sectionize = defineHastPlugin({
   name: 'sectionize',
@@ -343,6 +371,7 @@ export const decorateSections = defineHastPlugin({
           : child,
       );
       children = decorateFlow(children, textOf);
+      children = pairDoesDoesnt(children);
       if (title === 'Related tools') {
         children = children.map((child) =>
           child.type === 'element' && child.tagName === 'ul' ? markRelated(child) : child,
