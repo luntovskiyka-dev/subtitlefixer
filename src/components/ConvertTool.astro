@@ -1,6 +1,7 @@
 ---
 import Button from './Button.astro';
 import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
 
 interface Props {
@@ -12,21 +13,48 @@ const source = direction === 'srt-to-vtt' ? 'srt' : 'vtt';
 const target = source === 'srt' ? 'vtt' : 'srt';
 const sourceLabel = source === 'srt' ? 'SRT' : 'VTT';
 const label = `Add one or more ${sourceLabel} files`;
+const pill = `.${source} → .${target}`;
+const chip = source === 'srt' ? 'SRT' : 'VTT';
 ---
 
 <form
   id="convert-form"
-  class="flex flex-col gap-6"
   data-source={source}
   data-target={target}
   data-source-label={sourceLabel}
 >
-  <Dropzone id="convert-dropzone" label={label} interactive />
-  <ToolStatus id="convert-status" />
-  <div class="w-full sm:w-auto">
-    <Button type="submit" variant="primary" class="w-full sm:w-auto">Download converted file</Button>
-  </div>
-  <div id="convert-result" class="flex flex-col gap-3" aria-live="polite"></div>
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="convert-dropzone"
+        variant="stage"
+        label={label}
+        stageTitle={label}
+        formats={[{ label: chip, tone: source === 'srt' ? 'accent-soft' : 'mint' }]}
+        interactive
+      />
+      <ToolStatus id="convert-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="convert-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div id="convert-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <p class="mb-2 font-display text-lg font-extrabold">Preview</p>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">{pill}</p>
+    </div>
+    <div slot="action">
+      <Button id="convert-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download converted file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="convert-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
 </form>
 
 <script>
@@ -37,6 +65,9 @@ const label = `Add one or more ${sourceLabel} files`;
   const form = document.getElementById('convert-form');
   const result = document.getElementById('convert-result');
   const status = document.getElementById('convert-status');
+  const download = document.getElementById('convert-download');
+  const hint = document.getElementById('convert-download-hint');
+  const meta = document.querySelector('#convert-dropzone [data-file-meta]');
 
   let files: DecodedSubtitleFile[] = [];
 
@@ -63,22 +94,62 @@ const label = `Add one or more ${sourceLabel} files`;
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger sf-rise';
+      paragraph.className = 'sf-msg sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
-    if (preview === null) return;
-    const block = document.createElement('pre');
-    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
-    block.textContent = preview;
-    result.append(block);
+    const card = document.getElementById('convert-preview');
+    const empty = document.getElementById('convert-preview-empty');
+    const pre = card?.querySelector('pre');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    pre.textContent = preview;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
   }
 
-  if (form instanceof HTMLFormElement && result instanceof HTMLElement && status instanceof HTMLElement) {
+  if (
+    form instanceof HTMLFormElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
     const source = isFormat(form.dataset.source) ? form.dataset.source : null;
     const target = isFormat(form.dataset.target) ? form.dataset.target : null;
     const sourceLabel = form.dataset.sourceLabel === 'VTT' ? 'VTT' : 'SRT';
     const names = () => files.map((file) => file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      const article = source === 'srt' ? 'an' : 'a';
+      if (!source || !target) return { messages, ready, preview };
+      for (const file of files) {
+        if (!file.name.toLowerCase().endsWith(`.${source}`)) {
+          messages.push(`${file.name}: Use ${article} ${sourceLabel} file.`);
+          continue;
+        }
+        const output = convertSubtitle(file.text, source, target);
+        for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
+        if (preview === null) preview = output.text;
+        ready.push({
+          name: replaceExtension(file.name, source, target),
+          text: output.text,
+        });
+      }
+      return { messages, ready, preview };
+    };
 
     form.addEventListener('subtitlereading', () => {
       renderStatus(status, 'working', names());
@@ -94,11 +165,20 @@ const label = `Add one or more ${sourceLabel} files`;
       if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
-      renderStatus(status, 'loaded', names());
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null);
+        return;
+      }
+      const { messages, preview } = converted();
+      showResult(messages, preview);
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
       if (!source || !target) return;
       const chosen = names();
       renderStatus(status, 'working', chosen);
@@ -107,26 +187,7 @@ const label = `Add one or more ${sourceLabel} files`;
         renderStatus(status, 'error', chosen);
         return;
       }
-
-      const messages: string[] = [];
-      const ready: { name: string; text: string }[] = [];
-      let preview: string | null = null;
-      const article = source === 'srt' ? 'an' : 'a';
-
-      for (const file of files) {
-        if (!file.name.toLowerCase().endsWith(`.${source}`)) {
-          messages.push(`${file.name}: Use ${article} ${sourceLabel} file.`);
-          continue;
-        }
-        const converted = convertSubtitle(file.text, source, target);
-        for (const error of converted.errors) messages.push(`${file.name}: ${error.message}`);
-        if (preview === null) preview = converted.text;
-        ready.push({
-          name: replaceExtension(file.name, source, target),
-          text: converted.text,
-        });
-      }
-
+      const { messages, ready, preview } = converted();
       showResult(messages, preview);
       if (ready.length > 0) {
         downloadSubtitleFiles(ready, false);

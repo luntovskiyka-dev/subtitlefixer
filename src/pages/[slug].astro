@@ -2,6 +2,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import AssToSrtTool from '../components/AssToSrtTool.astro';
 import ConvertTool from '../components/ConvertTool.astro';
+import DriftFps from '../components/DriftFps.astro';
 import DriftTool from '../components/DriftTool.astro';
 import EncodingTool from '../components/EncodingTool.astro';
 import ShiftTool from '../components/ShiftTool.astro';
@@ -43,5 +44,6 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
     {entry.id === 'vtt-to-srt' && <ConvertTool direction="vtt-to-srt" />}
     {entry.id === 'ass-to-srt' && <AssToSrtTool />}
     {entry.id === 'fix-subtitle-drift' && <DriftTool />}
+    {entry.id === 'fix-subtitle-drift' && <DriftFps slot="below" />}
   </ToolPage>
 </Base>

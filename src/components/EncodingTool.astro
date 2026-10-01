@@ -1,49 +1,69 @@
 ---
 import Button from './Button.astro';
 import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+  { label: 'SUB', tone: 'accent-soft' },
+  { label: 'TXT', tone: 'mint' },
+] as const;
 ---
 
-<form id="encoding-form" class="flex flex-col gap-6">
-  <Dropzone
-    id="encoding-dropzone"
-    label="Add a subtitle file"
-    interactive
-    accept=".srt,.vtt,.ass,.ssa,.sub,.txt"
-  />
-  <ToolStatus id="encoding-status" />
-  <div id="encoding-candidates" class="flex flex-col gap-4"></div>
-  <div class="flex max-w-sm flex-col gap-2">
-    <label for="encoding-label" class="text-sm font-medium text-ink">Encoding</label>
-    <select
-      id="encoding-label"
-      name="language"
-      class="min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
-    >
-      <option value="utf-8">UTF-8</option>
-      <option value="windows-1251">Windows-1251</option>
-      <option value="windows-1252">Windows-1252</option>
-      <option value="windows-1256">Windows-1256</option>
-      <option value="iso-8859-7">ISO-8859-7</option>
-      <option value="iso-8859-8">ISO-8859-8</option>
-      <option value="iso-8859-9">ISO-8859-9</option>
-      <option value="shift_jis">Shift_JIS</option>
-      <option value="gb18030">GB18030</option>
-    </select>
-  </div>
-  <div class="flex min-h-11 items-center gap-3">
-    <input
-      id="encoding-bom"
-      name="bom"
-      type="checkbox"
-      class="size-6 border-line text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
-    />
-    <label for="encoding-bom" class="text-sm font-medium text-ink">Include UTF-8 BOM</label>
-  </div>
-  <div class="w-full sm:w-auto">
-    <Button type="submit" class="w-full sm:w-auto">Download UTF-8 file</Button>
-  </div>
-  <div id="encoding-result" class="flex flex-col gap-3" aria-live="polite"></div>
+<form id="encoding-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="encoding-dropzone"
+        variant="stage"
+        label="Add a subtitle file"
+        stageTitle="Add a subtitle file"
+        formats={formats}
+        accept=".srt,.vtt,.ass,.ssa,.sub,.txt"
+        interactive
+      />
+      <ToolStatus id="encoding-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <div id="encoding-candidates" class="flex flex-col gap-3">
+        <p class="text-sm font-medium text-on-brand-muted">Add a subtitle file to compare readings.</p>
+      </div>
+    </div>
+    <div slot="settings">
+      <h2 class="font-display text-[22px] font-extrabold">Settings</h2>
+      <div class="mt-3.5 flex flex-col gap-2">
+        <label for="encoding-label" class="text-sm font-extrabold">Encoding</label>
+        <select id="encoding-label" name="language" class="sf-field">
+          <option value="utf-8">UTF-8</option>
+          <option value="windows-1251">Windows-1251</option>
+          <option value="windows-1252">Windows-1252</option>
+          <option value="windows-1256">Windows-1256</option>
+          <option value="iso-8859-7">ISO-8859-7</option>
+          <option value="iso-8859-8">ISO-8859-8</option>
+          <option value="iso-8859-9">ISO-8859-9</option>
+          <option value="shift_jis">Shift_JIS</option>
+          <option value="gb18030">GB18030</option>
+        </select>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="encoding-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="encoding-bom" class="text-sm font-extrabold">Include UTF-8 BOM</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="encoding-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download UTF-8 file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="encoding-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
 </form>
 
 <script>
@@ -77,6 +97,9 @@ import ToolStatus from './ToolStatus.astro';
   const candidates = document.getElementById('encoding-candidates');
   const result = document.getElementById('encoding-result');
   const status = document.getElementById('encoding-status');
+  const download = document.getElementById('encoding-download');
+  const hint = document.getElementById('encoding-download-hint');
+  const meta = document.querySelector('#encoding-dropzone [data-file-meta]');
 
   let files: DecodedSubtitleFile[] = [];
   let encodingLabel: (typeof LANGUAGE_LABELS)[number] = 'utf-8';
@@ -117,7 +140,7 @@ import ToolStatus from './ToolStatus.astro';
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     const paragraph = document.createElement('p');
-    paragraph.className = 'text-sm text-danger sf-rise';
+    paragraph.className = 'sf-msg sf-rise';
     paragraph.textContent = message;
     result.append(paragraph);
   }
@@ -126,31 +149,39 @@ import ToolStatus from './ToolStatus.astro';
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     const preview = document.createElement('pre');
-    preview.className =
-      'overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
+    preview.className = 'sf-preview-text sf-rise';
     preview.textContent = text;
     result.append(preview);
   }
 
-  function appendPreview(headingText: string, text: string, detected: boolean): void {
+  function appendPreview(value: string, headingText: string, text: string, detected: boolean): void {
     if (!(candidates instanceof HTMLElement)) return;
-    const block = document.createElement('div');
+    const block = document.createElement('button');
+    block.type = 'button';
+    block.className = 'sf-candidate';
+    block.dataset.label = value;
+    block.setAttribute('aria-pressed', 'false');
     const heading = document.createElement('p');
-    heading.className = 'flex flex-wrap items-center gap-2 text-sm font-medium text-ink';
+    heading.className = 'flex flex-wrap items-center gap-2 text-sm font-extrabold';
     heading.append(document.createTextNode(headingText));
     if (detected) {
       const mark = document.createElement('span');
-      mark.className =
-        'inline-flex items-center rounded-sf bg-lilac px-2.5 py-1 text-sm font-medium text-ink';
+      mark.className = 'sf-pill';
       mark.textContent = 'Detected';
       heading.append(mark);
     }
     const preview = document.createElement('pre');
-    preview.className =
-      'mt-2 overflow-x-auto whitespace-pre-wrap rounded-sf border border-line bg-surface p-4 font-mono text-sm leading-relaxed text-ink';
     preview.textContent = previewLines(text);
     block.append(heading, preview);
     candidates.append(block);
+  }
+
+  function markSelected(): void {
+    if (!(candidates instanceof HTMLElement) || !(labelSelect instanceof HTMLSelectElement)) return;
+    for (const card of candidates.querySelectorAll('[data-label]')) {
+      if (!(card instanceof HTMLElement)) continue;
+      card.setAttribute('aria-pressed', card.dataset.label === labelSelect.value ? 'true' : 'false');
+    }
   }
 
   function syncMojibakeOption(via: MojibakeVia | null): void {
@@ -179,11 +210,11 @@ import ToolStatus from './ToolStatus.astro';
     const readings = (await candidateDecodings(bytes)).slice(0, 4);
     candidates.replaceChildren();
     readings.forEach((reading, index) => {
-      appendPreview(reading.encoding, reading.text, index === 0);
+      appendPreview(reading.encoding, reading.encoding, reading.text, index === 0);
     });
     const repair = repairMojibake(decodedText);
     syncMojibakeOption(repair?.via ?? null);
-    if (repair) appendPreview(mojibakeHeading(repair.via), repair.text, false);
+    if (repair) appendPreview(MOJIBAKE_VALUE, mojibakeHeading(repair.via), repair.text, false);
     const detected = readings[0]?.encoding ?? 'utf-8';
     return isLanguageLabel(detected) ? detected : 'utf-8';
   }
@@ -211,9 +242,16 @@ import ToolStatus from './ToolStatus.astro';
     bomInput instanceof HTMLInputElement &&
     candidates instanceof HTMLElement &&
     result instanceof HTMLElement &&
-    status instanceof HTMLElement
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
   ) {
     const names = () => files.map((file) => file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
 
     form.addEventListener('subtitlereading', () => {
       renderStatus(status, 'working', names());
@@ -230,6 +268,8 @@ import ToolStatus from './ToolStatus.astro';
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
       const first = files[0];
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && first) meta.textContent = first.encoding.replace(/^utf-8$/i, 'UTF-8');
       if (!first) {
         candidates.replaceChildren();
         syncMojibakeOption(null);
@@ -243,6 +283,7 @@ import ToolStatus from './ToolStatus.astro';
           encodingLabel = label;
           labelSelect.value = encodingLabel;
           showSelectedText();
+          markSelected();
         })
         .catch(() => {
           showError('Could not read that subtitle file.');
@@ -250,14 +291,27 @@ import ToolStatus from './ToolStatus.astro';
         });
     });
 
+    candidates.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const card = target.closest('[data-label]');
+      if (!(card instanceof HTMLElement) || !candidates.contains(card)) return;
+      labelSelect.value = card.dataset.label ?? '';
+      if (isLanguageLabel(labelSelect.value)) encodingLabel = labelSelect.value;
+      showSelectedText();
+      markSelected();
+    });
+
     labelSelect.addEventListener('change', () => {
       if (files.length === 0) return;
       if (isLanguageLabel(labelSelect.value)) encodingLabel = labelSelect.value;
       showSelectedText();
+      markSelected();
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
       const chosen = names();
       renderStatus(status, 'working', chosen);
       if (files.length === 0) {

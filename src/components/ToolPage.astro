@@ -13,7 +13,6 @@ const { h1, answer, faq } = entry.data;
 const { Content } = await render(entry);
 const mark = toolMeta.find((tool) => tool.slug === entry.id)?.mark;
 const markAt = h1 && mark ? h1.indexOf(mark) : -1;
-const stageTool = entry.id === 'shift-subtitles';
 ---
 
 <div class="flex flex-col">
@@ -40,17 +39,16 @@ const stageTool = entry.id === 'shift-subtitles';
       <p class="mb-4 mt-3 max-w-[930px] text-[15px] font-medium leading-[1.55] text-on-brand-muted md:mb-6 md:mt-3.5 md:text-[17px]">
         {answer}
       </p>
-      {
-        stageTool ? (
-          <slot />
-        ) : (
-          <div class="rounded-[26px] border-2.5 border-stage-line bg-surface p-5 text-ink shadow-hard">
-            <slot />
-          </div>
-        )
-      }
+      <slot />
     </div>
   </section>
+  {
+    Astro.slots.has('below') && (
+      <div class="mt-4">
+        <slot name="below" />
+      </div>
+    )
+  }
   <div class="sf-copy mt-16">
     <Content />
     <FaqList items={faq} />

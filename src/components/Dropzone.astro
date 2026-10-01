@@ -13,6 +13,8 @@ interface Props {
   variant?: 'plain' | 'stage';
   formats?: readonly FormatChip[];
   note?: string;
+  /** Visible stage title. Shift keeps the default desktop/mobile pair. */
+  stageTitle?: string;
 }
 
 const {
@@ -24,7 +26,10 @@ const {
   variant = 'plain',
   formats = [],
   note = '',
+  stageTitle,
 } = Astro.props;
+const fineTitle = stageTitle ?? 'Drop .srt, .vtt or .ass file here';
+const coarseTitle = stageTitle ?? 'Choose .srt, .vtt or .ass file';
 const labelId = `${id}-label`;
 const errorId = `${id}-message`;
 const inputId = `${id}-file`;
@@ -103,8 +108,8 @@ const chipTone = {
                 stroke-linecap="round"></path>
             </svg>
             <span id={labelId} class="font-display text-[21px] font-extrabold tracking-tight md:text-[26px]">
-              <span class="sf-drop-fine">Drop .srt, .vtt or .ass file here</span>
-              <span class="sf-drop-coarse">Choose .srt, .vtt or .ass file</span>
+              <span class="sf-drop-fine">{fineTitle}</span>
+              <span class="sf-drop-coarse">{coarseTitle}</span>
             </span>
             <span
               class="rounded-full border-2 border-stage-line bg-surface px-5 py-2.5 text-[15px] font-extrabold text-ink shadow-hard-sm"

@@ -1,86 +1,104 @@
 ---
 import Button from './Button.astro';
 import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
 
-const fieldClass =
-  'min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover';
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+] as const;
 ---
 
-<form id="drift-form" class="flex flex-col gap-6">
-  <Dropzone id="drift-dropzone" label="Add an SRT, VTT, ASS, or SSA file" interactive />
-  <ToolStatus id="drift-status" />
-
-  <fieldset class="flex flex-col gap-4 border-0 p-0">
-    <legend class="text-sm font-medium text-ink">Two-point sync</legend>
-    <div class="flex max-w-xl flex-col gap-2">
-      <label for="drift-cue-a" class="text-sm font-medium text-ink">First cue</label>
-      <select id="drift-cue-a" name="cue-a" class={fieldClass}></select>
-    </div>
-    <div class="flex max-w-sm flex-col gap-2">
-      <label for="drift-time-a" class="text-sm font-medium text-ink">Correct time for the first cue</label>
-      <input
-        id="drift-time-a"
-        name="time-a"
-        type="text"
-        inputmode="text"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="hh:mm:ss,mmm"
-        aria-describedby="drift-time-hint"
-        class={fieldClass}
+<form id="drift-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="drift-dropzone"
+        variant="stage"
+        label="Add an SRT, VTT, ASS, or SSA file"
+        stageTitle="Add an SRT, VTT, ASS, or SSA file"
+        formats={formats}
+        interactive
       />
+      <ToolStatus id="drift-status" tone="stage" />
     </div>
-    <div class="flex max-w-xl flex-col gap-2">
-      <label for="drift-cue-b" class="text-sm font-medium text-ink">Second cue</label>
-      <select id="drift-cue-b" name="cue-b" class={fieldClass}></select>
+    <div slot="preview">
+      <p id="drift-preview-empty" class="text-sm font-medium text-on-brand-muted">
+        Sync two cues or pick a frame rate to preview the first lines.
+      </p>
+      <div id="drift-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="drift-preview-tag" class="rounded-full border-2 border-stage-line bg-lilac px-2.5 py-0.5 text-[12.5px] font-extrabold"></p>
+        </div>
+        <div id="drift-preview-rows" class="sf-cue-list"></div>
+      </div>
+      <template id="drift-row">
+        <div class="sf-cue-row">
+          <p class="sf-cue-time"></p>
+          <p class="sf-cue-text"></p>
+        </div>
+      </template>
     </div>
-    <div class="flex max-w-sm flex-col gap-2">
-      <label for="drift-time-b" class="text-sm font-medium text-ink">Correct time for the second cue</label>
-      <input
-        id="drift-time-b"
-        name="time-b"
-        type="text"
-        inputmode="text"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="hh:mm:ss,mmm"
-        aria-describedby="drift-time-hint"
-        class={fieldClass}
-      />
-      <p id="drift-time-hint" class="text-sm text-muted">Use hh:mm:ss,mmm, for example 00:01:05,480.</p>
-    </div>
-    <div class="w-full sm:w-auto">
-      <Button type="submit" class="w-full sm:w-auto">Download synced file</Button>
-    </div>
-  </fieldset>
-
-  <section class="flex flex-col gap-4" aria-labelledby="drift-fps-heading">
-    <h2 id="drift-fps-heading" class="text-xl font-semibold tracking-tight">Subtitle frame rate converter</h2>
-    <div role="group" aria-labelledby="drift-fps-label" class="flex flex-col gap-3">
-      <p id="drift-fps-label" class="text-sm font-medium text-ink">subtitle fps → video fps</p>
-      <div id="drift-fps" class="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary">23.976 → 25</Button>
-        <Button type="button" variant="secondary">25 → 23.976</Button>
-        <Button type="button" variant="secondary">24 → 25</Button>
-        <Button type="button" variant="secondary">25 → 24</Button>
-        <Button type="button" variant="secondary">23.976 → 24</Button>
-        <Button type="button" variant="secondary">24 → 23.976</Button>
+    <div slot="settings">
+      <fieldset class="flex flex-col gap-3 border-0 p-0">
+        <legend class="font-display text-[22px] font-extrabold">Two-point sync</legend>
+        <div class="mt-3 flex flex-col gap-2">
+          <label for="drift-cue-a" class="text-sm font-extrabold">First cue</label>
+          <select id="drift-cue-a" name="cue-a" class="sf-field"></select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="drift-time-a" class="text-sm font-extrabold">Correct time for the first cue</label>
+          <input
+            id="drift-time-a"
+            name="time-a"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="hh:mm:ss,mmm"
+            aria-describedby="drift-time-hint"
+            class="sf-field"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="drift-cue-b" class="text-sm font-extrabold">Second cue</label>
+          <select id="drift-cue-b" name="cue-b" class="sf-field"></select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="drift-time-b" class="text-sm font-extrabold">Correct time for the second cue</label>
+          <input
+            id="drift-time-b"
+            name="time-b"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="hh:mm:ss,mmm"
+            aria-describedby="drift-time-hint"
+            class="sf-field"
+          />
+          <p id="drift-time-hint" class="text-sm text-muted">Use hh:mm:ss,mmm, for example 00:01:05,480.</p>
+        </div>
+      </fieldset>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="drift-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="drift-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
       </div>
     </div>
-  </section>
-
-  <div class="flex min-h-11 items-center gap-3">
-    <input
-      id="drift-bom"
-      name="bom"
-      type="checkbox"
-      class="size-6 border-line text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
-    />
-    <label for="drift-bom" class="text-sm font-medium text-ink">Add BOM (old players)</label>
-  </div>
-
-  <div id="drift-result" class="flex flex-col gap-3" aria-live="polite"></div>
+    <div slot="action">
+      <Button id="drift-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download synced file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="drift-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
 </form>
 
 <script>
@@ -100,6 +118,9 @@ const fieldClass =
   const bomInput = document.getElementById('drift-bom');
   const result = document.getElementById('drift-result');
   const status = document.getElementById('drift-status');
+  const download = document.getElementById('drift-download');
+  const hint = document.getElementById('drift-download-hint');
+  const meta = document.querySelector('#drift-dropzone [data-file-meta]');
 
   const fpsPresets: Record<string, { subtitle: number; video: number }> = {
     '23.976 → 25': { subtitle: FPS_23_976, video: 25 },
@@ -147,34 +168,52 @@ const fieldClass =
     });
   }
 
-  function showResult(messages: readonly string[], warnings: readonly string[], preview: string | null): void {
+  function showResult(messages: readonly string[], warnings: readonly string[]): void {
     if (!(result instanceof HTMLElement)) return;
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger sf-rise';
+      paragraph.className = 'sf-msg sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
     for (const message of warnings) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-warning sf-rise';
+      paragraph.className = 'sf-msg sf-warn sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
-    if (preview === null) return;
-    const block = document.createElement('pre');
-    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
-    block.textContent = preview;
-    result.append(block);
   }
 
-  function previewOf(output: DriftFileResult): string | null {
-    if (output.cues.length === 0) return null;
+  function paintPreview(output: DriftFileResult | null): void {
+    const live = document.getElementById('drift-preview');
+    const empty = document.getElementById('drift-preview-empty');
+    const rows = document.getElementById('drift-preview-rows');
+    const tag = document.getElementById('drift-preview-tag');
+    const tpl = document.getElementById('drift-row');
+    if (!(live instanceof HTMLElement) || !(rows instanceof HTMLElement) || !(tag instanceof HTMLElement)) return;
+    const root = tpl instanceof HTMLTemplateElement ? tpl.content.firstElementChild : null;
+    if (!(root instanceof HTMLElement) || !output || output.cues.length === 0) {
+      live.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
     const shown = output.cues.slice(0, 5);
-    const body = shown.map((cue) => `${formatSrtTimestamp(cue.start)} --> ${formatSrtTimestamp(cue.end)}\n${cue.text}`).join('\n\n');
-    if (output.cues.length <= shown.length) return body;
-    return `${body}\n\nShowing the first ${shown.length} of ${output.cues.length} cues.`;
+    const frag = document.createDocumentFragment();
+    for (const cue of shown) {
+      const line = root.cloneNode(true) as HTMLElement;
+      const cells = line.children;
+      cells[0].textContent = `${formatSrtTimestamp(cue.start)} --> ${formatSrtTimestamp(cue.end)}`;
+      cells[1].textContent = cue.text;
+      frag.append(line);
+    }
+    rows.replaceChildren(frag);
+    tag.textContent =
+      output.cues.length > shown.length
+        ? `Showing the first ${shown.length} of ${output.cues.length} cues.`
+        : `${shown.length} ${shown.length === 1 ? 'cue' : 'cues'}`;
+    live.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
   }
 
   function adjustmentLine(output: DriftFileResult, fileName: string, several: boolean): string | null {
@@ -192,12 +231,20 @@ const fieldClass =
     fps instanceof HTMLElement &&
     bomInput instanceof HTMLInputElement &&
     result instanceof HTMLElement &&
-    status instanceof HTMLElement
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
   ) {
     const names = () => files.map((file) => file.name);
 
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
     const fail = (message: string): void => {
-      showResult([message], [], null);
+      showResult([message], []);
+      paintPreview(null);
       renderStatus(status, 'error', names());
     };
 
@@ -223,9 +270,10 @@ const fieldClass =
       ready: { name: string; text: string }[],
       messages: string[],
       warnings: string[],
-      preview: string | null,
+      output: DriftFileResult | null,
     ): void => {
-      showResult(messages, ready.length > 0 ? warnings : [], ready.length > 0 ? preview : null);
+      showResult(messages, ready.length > 0 ? warnings : []);
+      paintPreview(ready.length > 0 ? output : null);
       if (ready.length === 0) {
         renderStatus(status, 'error', names());
         return;
@@ -249,11 +297,16 @@ const fieldClass =
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
       loadCues();
-      renderStatus(status, 'loaded', names());
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) {
+        meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      }
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
       renderStatus(status, 'working', names());
       if (files.length === 0) {
         fail('Add an SRT, VTT, or ASS file.');
@@ -313,7 +366,7 @@ const fieldClass =
         return;
       }
       const warning = adjustmentLine(output, file.name, false);
-      deliver([{ name: file.name, text: output.text }], messages, warning ? [warning] : [], previewOf(output));
+      deliver([{ name: file.name, text: output.text }], messages, warning ? [warning] : [], output);
     });
 
     fps.addEventListener('click', (event) => {
@@ -323,6 +376,7 @@ const fieldClass =
       if (!(button instanceof HTMLButtonElement) || !fps.contains(button)) return;
       const rates = fpsPresets[(button.textContent ?? '').trim()];
       if (!rates) return;
+      for (const preset of fps.querySelectorAll('button')) preset.setAttribute('aria-pressed', preset === button ? 'true' : 'false');
 
       renderStatus(status, 'working', names());
       if (files.length === 0) {
@@ -333,7 +387,7 @@ const fieldClass =
       const messages: string[] = [];
       const warnings: string[] = [];
       const ready: { name: string; text: string }[] = [];
-      let preview: string | null = null;
+      let firstOutput: DriftFileResult | null = null;
 
       for (const file of files) {
         const format = formatOf(file.name);
@@ -353,13 +407,13 @@ const fieldClass =
           if (output.errors.length === 0) messages.push(`${file.name}: This file has no cues.`);
           continue;
         }
-        if (preview === null) preview = previewOf(output);
+        if (!firstOutput) firstOutput = output;
         const warning = adjustmentLine(output, file.name, files.length > 1);
         if (warning) warnings.push(warning);
         ready.push({ name: file.name, text: output.text });
       }
 
-      deliver(ready, messages, warnings, preview);
+      deliver(ready, messages, warnings, firstOutput);
     });
   }
 </script>

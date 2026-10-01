@@ -1,16 +1,48 @@
 ---
 import Button from './Button.astro';
 import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+] as const;
 ---
 
-<form id="ass-form" class="flex flex-col gap-6">
-  <Dropzone id="ass-dropzone" label="Add one or more ASS or SSA files" interactive />
-  <ToolStatus id="ass-status" />
-  <div class="w-full sm:w-auto">
-    <Button type="submit" variant="primary" class="w-full sm:w-auto">Download SRT file</Button>
-  </div>
-  <div id="ass-result" class="flex flex-col gap-3" aria-live="polite"></div>
+<form id="ass-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="ass-dropzone"
+        variant="stage"
+        label="Add one or more ASS or SSA files"
+        stageTitle="Add one or more ASS or SSA files"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="ass-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="ass-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div id="ass-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <p class="mb-2 font-display text-lg font-extrabold">Preview</p>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.ass/.ssa → .srt</p>
+    </div>
+    <div slot="action">
+      <Button id="ass-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download SRT file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="ass-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
 </form>
 
 <script>
@@ -21,6 +53,9 @@ import ToolStatus from './ToolStatus.astro';
   const form = document.getElementById('ass-form');
   const result = document.getElementById('ass-result');
   const status = document.getElementById('ass-status');
+  const download = document.getElementById('ass-download');
+  const hint = document.getElementById('ass-download-hint');
+  const meta = document.querySelector('#ass-dropzone [data-file-meta]');
 
   let files: DecodedSubtitleFile[] = [];
 
@@ -48,19 +83,57 @@ import ToolStatus from './ToolStatus.astro';
     result.replaceChildren();
     for (const message of messages) {
       const paragraph = document.createElement('p');
-      paragraph.className = 'text-sm text-danger sf-rise';
+      paragraph.className = 'sf-msg sf-rise';
       paragraph.textContent = message;
       result.append(paragraph);
     }
-    if (preview === null) return;
-    const block = document.createElement('pre');
-    block.className = 'whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink sf-rise';
-    block.textContent = preview;
-    result.append(block);
+    const card = document.getElementById('ass-preview');
+    const empty = document.getElementById('ass-preview-empty');
+    const pre = card?.querySelector('pre');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    pre.textContent = preview;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
   }
 
-  if (form instanceof HTMLFormElement && result instanceof HTMLElement && status instanceof HTMLElement) {
+  if (
+    form instanceof HTMLFormElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
     const names = () => files.map((file) => file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      for (const file of files) {
+        if (!isAssName(file.name)) {
+          messages.push(`${file.name}: Use an ASS or SSA file.`);
+          continue;
+        }
+        const output = assToSrt(file.text);
+        for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
+        if (preview === null) preview = output.text;
+        ready.push({
+          name: srtName(file.name),
+          text: output.text,
+        });
+      }
+      return { messages, ready, preview };
+    };
 
     form.addEventListener('subtitlereading', () => {
       renderStatus(status, 'working', names());
@@ -76,11 +149,20 @@ import ToolStatus from './ToolStatus.astro';
       if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
       if (!Array.isArray(detail.files)) return;
       files = detail.files.filter(isDecodedFile);
-      renderStatus(status, 'loaded', names());
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null);
+        return;
+      }
+      const { messages, preview } = converted();
+      showResult(messages, preview);
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
       const chosen = names();
       renderStatus(status, 'working', chosen);
       if (files.length === 0) {
@@ -88,25 +170,7 @@ import ToolStatus from './ToolStatus.astro';
         renderStatus(status, 'error', chosen);
         return;
       }
-
-      const messages: string[] = [];
-      const ready: { name: string; text: string }[] = [];
-      let preview: string | null = null;
-
-      for (const file of files) {
-        if (!isAssName(file.name)) {
-          messages.push(`${file.name}: Use an ASS or SSA file.`);
-          continue;
-        }
-        const converted = assToSrt(file.text);
-        for (const error of converted.errors) messages.push(`${file.name}: ${error.message}`);
-        if (preview === null) preview = converted.text;
-        ready.push({
-          name: srtName(file.name),
-          text: converted.text,
-        });
-      }
-
+      const { messages, ready, preview } = converted();
       showResult(messages, preview);
       if (ready.length > 0) {
         downloadSubtitleFiles(ready, false);
