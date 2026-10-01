@@ -4,7 +4,10 @@ import { toolGridCopy, toolMeta } from '../data/tools';
 ---
 
 <section class="sf-tools" aria-labelledby="pick-a-tool">
-  <h2 id="pick-a-tool" class="sf-tools-title">{toolGridCopy.heading}</h2>
+  <div class="sf-tools-head">
+    <h2 id="pick-a-tool" class="sf-tools-title">{toolGridCopy.heading}</h2>
+    <p class="sf-tools-groups">{toolGridCopy.groups}</p>
+  </div>
   <ul class="sf-tool-grid">
     {
       toolMeta.map((tool) => (

@@ -30,6 +30,12 @@ describe('tool card and tool grid components', () => {
     expect(toolGridCopy.open).toBe('Open tool →');
     expect(toolMeta).toHaveLength(6);
   });
+
+  it('shows the group caption beside the heading', () => {
+    expect(toolGridCopy.groups).toBe('Timing · Text and encoding · Format conversion');
+    expect(grid).toContain('<div class="sf-tools-head">');
+    expect(grid).toContain('{toolGridCopy.groups}');
+  });
 });
 
 describe('home hero', () => {
@@ -63,5 +69,14 @@ describe('404 page', () => {
     expect(page).toContain('>Page not found</h1>');
     expect(page).toContain('>That page is not on SubtitleFixer.</p>');
     expect(page).not.toMatch(HEX);
+  });
+});
+
+describe('styleguide', () => {
+  const page = read('src/views/Styleguide.astro');
+
+  it('imports ToolCard and renders an example', () => {
+    expect(page).toContain("import ToolCard from '../components/ToolCard.astro';");
+    expect(page).toContain('<ToolCard tool={tool} />');
   });
 });

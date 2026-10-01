@@ -95,4 +95,5 @@ export const homeTrust = ['No upload', 'No sign-up', 'Free, 6 tools', 'Many file
 export const toolGridCopy = {
   heading: 'Pick a tool',
   open: 'Open tool →',
+  groups: 'Timing · Text and encoding · Format conversion',
 } as const;

@@ -8,6 +8,7 @@ import Input from '../components/Input.astro';
 import Mark from '../components/Mark.astro';
 import SubtitlePreview from '../components/SubtitlePreview.astro';
 import ToolIcon from '../components/ToolIcon.astro';
+import ToolCard from '../components/ToolCard.astro';
 import ToolStatus from '../components/ToolStatus.astro';
 import { toolMeta } from '../data/tools';
 
@@ -60,6 +61,19 @@ const cues = [
         <ToolIcon name="shift" size="s" />
         <ToolIcon name="shift" size="l" />
       </div>
+    </section>
+
+    <section aria-labelledby="toolcard-heading">
+      <h2 id="toolcard-heading" class="text-xl font-semibold tracking-tight">Tool card</h2>
+      <ul class="sf-tool-grid mt-6">
+        {
+          toolMeta.slice(0, 3).map((tool) => (
+            <li>
+              <ToolCard tool={tool} />
+            </li>
+          ))
+        }
+      </ul>
     </section>
 
     <section aria-labelledby="dropzone-heading">

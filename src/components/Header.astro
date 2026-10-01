@@ -22,7 +22,7 @@ const linkClass =
   <div class="mx-auto flex min-h-[60px] w-full max-w-[1180px] items-center gap-6 px-3 sm:px-6 md:min-h-[76px]">
     <Logo current={current === '/'} />
     <nav
-      class="sf-nav-scroll sf-nav-center hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
+      class="sf-nav-scroll sf-nav-center hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto min-[1120px]:flex"
       aria-label="Tools"
     >
       {
@@ -52,13 +52,13 @@ const linkClass =
       }
     </nav>
     <p
-      class="hidden shrink-0 items-center rounded-full border-2 border-edge bg-mint px-3.5 py-1.5 text-[13px] font-extrabold text-ink md:inline-flex"
+      class="ml-auto hidden shrink-0 items-center rounded-full border-2 border-edge bg-mint px-3.5 py-1.5 text-[13px] font-extrabold text-ink md:inline-flex"
     >
       No upload · Free
     </p>
   </div>
   <nav
-    class="sf-nav-scroll flex w-full min-w-0 gap-1.5 overflow-x-auto px-3 pb-3 md:hidden"
+    class="sf-nav-scroll flex w-full min-w-0 gap-1.5 overflow-x-auto px-3 pb-3 sm:px-6 min-[1120px]:hidden"
     aria-label="Tools"
   >
     {
