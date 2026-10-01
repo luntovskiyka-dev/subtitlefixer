@@ -52,4 +52,65 @@ describe('handleAssetRequest', () => {
     expect(response.status).toBe(404);
     expect(await response.text()).toBe('missing');
   });
+
+  it('answers GET /404 with 404 and keeps content-type, etag and body', async () => {
+    const response = await handleAssetRequest(new Request('https://subtitlefixer.com/404'), {
+      fetch() {
+        return Promise.resolve(
+          new Response('<html>missing</html>', {
+            status: 200,
+            headers: {
+              'content-type': 'text/html; charset=utf-8',
+              etag: '"page"',
+            },
+          }),
+        );
+      },
+    });
+    expect(response.status).toBe(404);
+    expect(response.headers.get('content-type')).toBe('text/html; charset=utf-8');
+    expect(response.headers.get('etag')).toBe('"page"');
+    expect(await response.text()).toBe('<html>missing</html>');
+  });
+
+  it('answers HEAD /404 with 404 and an empty body', async () => {
+    const response = await handleAssetRequest(new Request('https://subtitlefixer.com/404', { method: 'HEAD' }), {
+      fetch() {
+        return Promise.resolve(
+          new Response(null, {
+            status: 200,
+            headers: {
+              'content-type': 'text/html; charset=utf-8',
+              etag: '"page"',
+            },
+          }),
+        );
+      },
+    });
+    expect(response.status).toBe(404);
+    expect(response.body).toBeNull();
+    expect(response.headers.get('content-type')).toBe('text/html; charset=utf-8');
+    expect(response.headers.get('etag')).toBe('"page"');
+  });
+
+  it('301s /404/ and /404.html to /404 without fetching the asset', async () => {
+    const slash = assets();
+    const slashResponse = await handleAssetRequest(new Request('https://subtitlefixer.com/404/'), slash);
+    expect(slashResponse.status).toBe(301);
+    expect(slashResponse.headers.get('Location')).toBe('/404');
+    expect(slash.requests).toEqual([]);
+
+    const html = assets();
+    const htmlResponse = await handleAssetRequest(new Request('https://subtitlefixer.com/404.html'), html);
+    expect(htmlResponse.status).toBe(301);
+    expect(htmlResponse.headers.get('Location')).toBe('/404');
+    expect(html.requests).toEqual([]);
+  });
+
+  it('passes a 503 for /404 through with its body', async () => {
+    const binding = assets(503, 'busy');
+    const response = await handleAssetRequest(new Request('https://subtitlefixer.com/404'), binding);
+    expect(response.status).toBe(503);
+    expect(await response.text()).toBe('busy');
+  });
 });
