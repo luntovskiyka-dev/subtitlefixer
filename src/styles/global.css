@@ -558,6 +558,14 @@
     grid-template-columns: 1fr 1fr;
     align-items: stretch;
   }
+  .sf-dd {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .sf-dd li {
+    font-size: 15.5px;
+    line-height: 1.6;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -656,6 +664,11 @@
   font-weight: 800;
   line-height: 1.2;
   text-decoration: none;
+}
+
+.sf-toc a:focus-visible {
+  outline: 2px solid var(--sf-brand-hover);
+  outline-offset: 3px;
 }
 
 .sf-drop-coarse {
