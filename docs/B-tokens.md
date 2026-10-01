@@ -39,7 +39,8 @@ Variable names keep the existing `--sf-*` scheme where it exists, so today's cla
 | `--sf-control` | `border-control` | `#1B1A3A` | input borders (2–2.5px) | 16.7 |
 | `--sf-danger` | `text-danger` | `#C81E1E` | errors | 5.4 bg · 5.7 surface (`#DC2626` would be 4.58 on cream, too tight) |
 | `--sf-warning` | `text-warning` | `#B45309` | "N lines removed / trimmed" | 4.76 bg · 5.0 surface |
-| Footer | — | bg `#1B1A3A`, text `#FFF8EF`, meta `#C9C5E3`, headings mint `#B8F2DC` | ink block footer | 15.9 · 10.0 · 13.4 |
+| `--sf-footer` / `--sf-footer-text` / `--sf-footer-muted` / `--sf-footer-mint` | `bg-footer` `text-footer-text` `text-footer-muted` `text-footer-mint` | `#1B1A3A` / `#FFF8EF` / `#C9C5E3` / `#B8F2DC` | ink block footer; headings use footer-mint, not mint | 15.9 · 10.0 · 13.4 |
+| `--sf-nav-active` / `--sf-on-nav` | `bg-nav-active` `text-on-nav` | `#1B1A3A` / `#FFFFFF` | active tool pill | 16.7 |
 
 Disabled CTA: bg `subtle`, text `muted` (5.8), 2.5px **dashed `muted`** border, no shadow, `aria-disabled`.
 Focus ring: `outline: 3px solid var(--sf-brand-hover); outline-offset: 3px` on light surfaces; on the stage use `outline-color: #FFFFFF` (6.85 on brand-hover).
@@ -76,7 +77,10 @@ Outlines can't be black on a dark page, so `edge` becomes a light violet line an
 | line | `#34315C` | decorative hairline |
 | edge + control (outlines) | `#8E88C8` | 5.0 surface · 5.6 bg |
 | hard-shadow colour | `#07061A` | — |
-| footer | bg `#0E0D20`, text as light | — |
+| footer bg / text / meta / headings | `#0E0D20` / `#FFF8EF` / `#C9C5E3` / `#B8F2DC` | 18.2 · 11.5 · 15.3 |
+| nav-active / on-nav | `#1B1A3A` / `#FFFFFF` | 16.7 |
+
+`--sf-mint` in dark is the wash `#123C3A` (1.6 on the footer), so column headings use `--sf-footer-mint` and stay `#B8F2DC`. `--sf-edge` in dark is the light outline `#8E88C8` (white text on it is 3.2), so the active pill uses `--sf-nav-active` and stays ink.
 
 ## 3. Typography (all SIL OFL, self-hosted via @fontsource, **latin subset only**)
 

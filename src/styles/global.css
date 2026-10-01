@@ -81,6 +81,18 @@
   animation: sf-rise 160ms ease-out 1;
 }
 
+.sf-nav-scroll {
+  scrollbar-width: none;
+}
+
+.sf-nav-center {
+  justify-content: safe center;
+}
+
+.sf-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

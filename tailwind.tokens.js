@@ -33,6 +33,14 @@ module.exports = {
     control: 'var(--sf-control)',
     danger: 'var(--sf-danger)',
     warning: 'var(--sf-warning)',
+    footer: {
+      DEFAULT: 'var(--sf-footer)',
+      text: 'var(--sf-footer-text)',
+      muted: 'var(--sf-footer-muted)',
+      mint: 'var(--sf-footer-mint)',
+    },
+    'nav-active': 'var(--sf-nav-active)',
+    'on-nav': 'var(--sf-on-nav)',
     tool: {
       shift: 'var(--t-shift)',
       'shift-bg': 'var(--t-shift-bg)',

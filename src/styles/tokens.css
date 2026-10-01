@@ -29,7 +29,13 @@
   --sf-shadow-color: #1B1A3A;
   --sf-dropzone: #4B3BE6;
   --sf-footer: #1B1A3A;
+  --sf-footer-text: #FFF8EF;
   --sf-footer-muted: #C9C5E3;
+  /* Headings on the ink footer. Stays light in both themes; --sf-mint flips to a dark wash. */
+  --sf-footer-mint: #B8F2DC;
+  /* Active nav pill. Stays ink; dark --sf-edge is a light outline and fails as white text. */
+  --sf-nav-active: #1B1A3A;
+  --sf-on-nav: #FFFFFF;
 
   --sf-border: 2px;
   --sf-border-strong: 2.5px;
@@ -98,5 +104,10 @@
     --sf-shadow-color: #07061A;
     --sf-dropzone: #3B2FC9;
     --sf-footer: #0E0D20;
+    --sf-footer-text: #FFF8EF;
+    --sf-footer-muted: #C9C5E3;
+    --sf-footer-mint: #B8F2DC;
+    --sf-nav-active: #1B1A3A;
+    --sf-on-nav: #FFFFFF;
   }
 }

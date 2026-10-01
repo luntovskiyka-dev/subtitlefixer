@@ -44,9 +44,15 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'danger on surface', foreground: 'danger', background: 'surface', minimum: TEXT },
   { label: 'warning on bg', foreground: 'warning', background: 'bg', minimum: TEXT },
   { label: 'warning on surface', foreground: 'warning', background: 'surface', minimum: TEXT },
-  { label: 'footer text on footer', foreground: 'bg', background: 'footer', minimum: TEXT },
+  { label: 'footer text on footer', foreground: 'footerText', background: 'footer', minimum: TEXT },
   { label: 'footer meta on footer', foreground: 'footerMuted', background: 'footer', minimum: TEXT },
-  { label: 'footer heading on footer', foreground: 'mint', background: 'footer', minimum: TEXT },
+  { label: 'footer heading on footer', foreground: 'footerMint', background: 'footer', minimum: TEXT },
+  { label: 'active nav label', foreground: 'onNav', background: 'navActive', minimum: TEXT },
+  { label: 'primary button', foreground: 'onAccent', background: 'accent', minimum: TEXT },
+  { label: 'secondary button', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'ghost button', foreground: 'brandHover', background: 'bg', minimum: TEXT },
+  { label: 'disabled button', foreground: 'muted', background: 'subtle', minimum: TEXT },
+  { label: 'header pill', foreground: 'text', background: 'mint', minimum: TEXT },
   { label: 'ink on shift wash', foreground: 'text', background: 'cShift', minimum: TEXT },
   { label: 'ink on drift wash', foreground: 'text', background: 'cDrift', minimum: TEXT },
   { label: 'ink on encoding wash', foreground: 'text', background: 'cEnc', minimum: TEXT },
@@ -86,7 +92,15 @@ const DARK_PAIRS: readonly Pair[] = [
   { label: 'danger on surface', foreground: 'danger', background: 'surface', minimum: TEXT },
   { label: 'warning on bg', foreground: 'warning', background: 'bg', minimum: TEXT },
   { label: 'warning on surface', foreground: 'warning', background: 'surface', minimum: TEXT },
-  { label: 'footer text on footer', foreground: 'text', background: 'footer', minimum: TEXT },
+  { label: 'footer text on footer', foreground: 'footerText', background: 'footer', minimum: TEXT },
+  { label: 'footer meta on footer', foreground: 'footerMuted', background: 'footer', minimum: TEXT },
+  { label: 'footer heading on footer', foreground: 'footerMint', background: 'footer', minimum: TEXT },
+  { label: 'active nav label', foreground: 'onNav', background: 'navActive', minimum: TEXT },
+  { label: 'primary button', foreground: 'onAccent', background: 'accent', minimum: TEXT },
+  { label: 'secondary button', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'ghost button', foreground: 'brandHover', background: 'bg', minimum: TEXT },
+  { label: 'disabled button', foreground: 'muted', background: 'subtle', minimum: TEXT },
+  { label: 'header pill', foreground: 'text', background: 'mint', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on bg', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
   { label: 'brand-hover on bg', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
@@ -122,6 +136,12 @@ function checkPairs(scheme: string, palette: Palette, pairs: readonly Pair[]): v
 checkPairs('light', LIGHT, LIGHT_PAIRS);
 checkPairs('dark', DARK, DARK_PAIRS);
 checkPairs('tool tiles', LIGHT, TOOL_PAIRS);
+
+describe('footer headings cannot reuse the dark mint wash', () => {
+  it('dark mint on the footer is below 4.5:1', () => {
+    expect(contrastRatio(DARK.mint, DARK.footer)).toBeLessThan(TEXT);
+  });
+});
 
 describe('ink is required on coral and teal', () => {
   for (const [scheme, palette] of [

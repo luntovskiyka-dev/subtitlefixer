@@ -7,7 +7,9 @@ import Dropzone from '../components/Dropzone.astro';
 import Input from '../components/Input.astro';
 import Mark from '../components/Mark.astro';
 import SubtitlePreview from '../components/SubtitlePreview.astro';
+import ToolIcon from '../components/ToolIcon.astro';
 import ToolStatus from '../components/ToolStatus.astro';
+import { toolMeta } from '../data/tools';
 
 const cues = [
   { start: 12400, end: 15120, text: 'We should have left an hour ago.' },
@@ -19,6 +21,7 @@ const cues = [
   title="Internal component set | SubtitleFixer"
   description="Internal component set for SubtitleFixer controls. This page is not a public tool."
   noindex
+  width="wide"
 >
   <h1 class="text-3xl font-display font-extrabold leading-snug tracking-tight">
     Internal <Mark>component</Mark> set
@@ -30,10 +33,32 @@ const cues = [
   <div class="mt-16 flex flex-col gap-16">
     <section aria-labelledby="buttons-heading">
       <h2 id="buttons-heading" class="text-xl font-semibold tracking-tight">Buttons</h2>
-      <div class="mt-6 flex flex-wrap gap-3">
+      <div class="mt-6 flex flex-wrap items-center gap-3">
         <Button variant="primary">Shift</Button>
         <Button variant="secondary">Copy offset</Button>
         <Button variant="ghost">Clear</Button>
+        <Button variant="primary" size="lg">Download shifted file</Button>
+      </div>
+      <div class="mt-6 rounded-sf-lg bg-brand p-6">
+        <Button variant="on-stage">Choose files</Button>
+      </div>
+      <div class="mt-6">
+        <Button id="download-disabled" variant="primary" disabled hint="Add a file to enable the download.">
+          Download shifted file
+        </Button>
+      </div>
+    </section>
+
+    <section aria-labelledby="icons-heading">
+      <h2 id="icons-heading" class="text-xl font-semibold tracking-tight">Tool icons</h2>
+      <div class="mt-6 flex flex-wrap items-end gap-4">
+        {
+          toolMeta.map((tool) => (
+            <ToolIcon name={tool.key} size="m" />
+          ))
+        }
+        <ToolIcon name="shift" size="s" />
+        <ToolIcon name="shift" size="l" />
       </div>
     </section>
 
@@ -113,9 +138,12 @@ const cues = [
 
     <section aria-labelledby="card-heading">
       <h2 id="card-heading" class="text-xl font-semibold tracking-tight">Card</h2>
-      <div class="mt-6">
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
           <p class="leading-relaxed">A cue list sits on a surface with a quiet border.</p>
+        </Card>
+        <Card variant="pop">
+          <p class="leading-relaxed">A popped card keeps an ink outline and a hard shadow.</p>
         </Card>
       </div>
     </section>
@@ -125,6 +153,15 @@ const cues = [
       <div class="mt-6 flex flex-col gap-6">
         <Input id="offset-ms" label="Offset in milliseconds" kind="milliseconds" />
         <Input id="encoding" label="Encoding" kind="encoding" />
+        <Input
+          id="hero-offset"
+          label="Offset (ms)"
+          kind="milliseconds"
+          variant="hero"
+          suffix="ms"
+          hint="1 s = 1000 ms"
+          value="-2500"
+        />
       </div>
     </section>
 

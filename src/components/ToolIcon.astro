@@ -1,0 +1,53 @@
+---
+import { toolMeta, type ToolKey } from '../data/tools';
+
+interface Props {
+  name: ToolKey;
+  size?: 's' | 'm' | 'l';
+}
+
+const { name, size = 'm' } = Astro.props;
+const tool = toolMeta.find((item) => item.key === name);
+if (!tool) throw new Error(`Unknown tool icon: ${name}`);
+
+const box = {
+  s: 'size-9 rounded-[11px]',
+  m: 'size-11 rounded-[14px]',
+  l: 'size-14 rounded-sf-sm',
+}[size];
+
+const icon = {
+  s: 'size-3.5',
+  m: 'size-4',
+  l: 'size-6',
+}[size];
+
+const fill = {
+  shift: 'bg-tool-shift-bg text-tool-shift',
+  drift: 'bg-tool-drift-bg text-tool-drift',
+  enc: 'bg-tool-enc-bg text-tool-enc',
+  s2v: 'bg-tool-s2v-bg text-tool-s2v',
+  v2s: 'bg-tool-v2s-bg text-tool-v2s',
+  ass: 'bg-tool-ass-bg text-tool-ass',
+}[name];
+---
+
+<span
+  class:list={[
+    'inline-grid shrink-0 -rotate-[4deg] place-items-center border-2 border-edge shadow-hard-sm',
+    box,
+    fill,
+  ]}
+>
+  <svg
+    class={icon}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    set:html={tool.icon}
+  />
+</span>

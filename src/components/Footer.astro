@@ -1,21 +1,37 @@
 ---
 import { getCollection } from 'astro:content';
+import Logo from './Logo.astro';
 import { tools } from '../data/tools';
+import { pagePath } from '../lib/ui/pagePath';
 
-const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = pagePath(Astro.url.pathname);
 const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare(b.id));
+
+const linkClass =
+  'block break-words rounded-sf py-1 text-[14.5px] font-semibold text-footer-text hover:text-footer-mint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-on-nav';
+const headingClass = 'mb-2.5 font-display text-[15px] font-extrabold text-footer-mint';
 ---
 
-<footer class="border-t border-line">
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 sm:px-6">
-    <nav aria-label="Tools">
-      <ul class="flex flex-wrap gap-x-6 gap-y-2">
+<footer class="mt-10 min-w-0 rounded-t-sf-xl bg-footer text-footer-text">
+  <div
+    class="mx-auto grid w-full max-w-[1180px] grid-cols-2 gap-x-6 gap-y-8 px-3 py-11 sm:px-6 lg:grid-cols-[1.3fr_1fr_1fr_1fr]"
+  >
+    <div class="col-span-2 min-w-0 lg:col-span-1">
+      <Logo tone="cream" current={current === '/'} />
+      <p class="mt-3 max-w-[290px] text-sm text-footer-muted">
+        Free subtitle tools that run entirely in your browser: no upload, no sign-up.
+      </p>
+      <p class="mt-3.5 text-sm text-footer-muted">Support this project</p>
+    </div>
+    <nav class="min-w-0" aria-label="Tools">
+      <h2 class={headingClass}>Tools</h2>
+      <ul>
         {
           Object.entries(tools).map(([slug, title]) => (
             <li>
               <a
                 href={`/${slug}`}
-                class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
+                class={linkClass}
                 aria-current={current === `/${slug}` ? 'page' : undefined}
               >
                 {title}
@@ -25,32 +41,15 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
         }
       </ul>
     </nav>
-    <nav aria-label="Site">
-      <ul class="flex flex-wrap gap-x-6 gap-y-2">
-        <li>
-          <a
-            href="/about"
-            class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
-            aria-current={current === '/about' ? 'page' : undefined}
-          >
-            About
-          </a>
-        </li>
-        <li>
-          <a
-            href="/privacy"
-            class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
-            aria-current={current === '/privacy' ? 'page' : undefined}
-          >
-            Privacy
-          </a>
-        </li>
+    <nav class="min-w-0" aria-label="Guides">
+      <h2 class={headingClass}>Guides</h2>
+      <ul>
         {
           guides.map((guide) => (
             <li>
               <a
                 href={`/guides/${guide.id}`}
-                class="rounded-sf text-sm text-brand-hover hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover"
+                class={linkClass}
                 aria-current={current === `/guides/${guide.id}` ? 'page' : undefined}
               >
                 {guide.data.h1}
@@ -60,6 +59,24 @@ const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare
         }
       </ul>
     </nav>
-    <p class="text-sm text-muted">Support this project</p>
+    <nav class="min-w-0" aria-label="Site">
+      <h2 class={headingClass}>Site</h2>
+      <ul>
+        <li>
+          <a href="/about" class={linkClass} aria-current={current === '/about' ? 'page' : undefined}>
+            About
+          </a>
+        </li>
+        <li>
+          <a
+            href="/privacy"
+            class={linkClass}
+            aria-current={current === '/privacy' ? 'page' : undefined}
+          >
+            Privacy
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </footer>

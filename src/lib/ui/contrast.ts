@@ -28,7 +28,11 @@ export type Palette = {
   shadowColor: string;
   dropzone: string;
   footer: string;
+  footerText: string;
   footerMuted: string;
+  footerMint: string;
+  navActive: string;
+  onNav: string;
   tShift: string;
   tShiftBg: string;
   cShift: string;
@@ -78,7 +82,11 @@ export const LIGHT: Palette = {
   shadowColor: '#1B1A3A',
   dropzone: '#4B3BE6',
   footer: '#1B1A3A',
+  footerText: '#FFF8EF',
   footerMuted: '#C9C5E3',
+  footerMint: '#B8F2DC',
+  navActive: '#1B1A3A',
+  onNav: '#FFFFFF',
   tShift: '#FFFFFF',
   tShiftBg: '#5B4BFF',
   cShift: '#E6E1FF',
@@ -128,7 +136,11 @@ export const DARK: Palette = {
   shadowColor: '#07061A',
   dropzone: '#3B2FC9',
   footer: '#0E0D20',
+  footerText: '#FFF8EF',
   footerMuted: '#C9C5E3',
+  footerMint: '#B8F2DC',
+  navActive: '#1B1A3A',
+  onNav: '#FFFFFF',
   tShift: '#FFFFFF',
   tShiftBg: '#5B4BFF',
   cShift: '#E6E1FF',

@@ -1,28 +1,60 @@
 ---
 interface Props {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'on-stage';
+  size?: 'md' | 'lg';
   type?: 'button' | 'submit' | 'reset';
   class?: string;
+  disabled?: boolean;
+  hint?: string;
+  id?: string;
 }
 
-const { variant = 'primary', type = 'button', class: className } = Astro.props;
+const {
+  variant = 'primary',
+  size = 'md',
+  type = 'button',
+  class: className,
+  disabled = false,
+  hint,
+  id,
+} = Astro.props;
+
+const hintId = hint ? `${id ?? 'button'}-hint` : undefined;
 
 const variantClass = {
-  primary: 'bg-brand text-on-brand hover:bg-[var(--sf-dropzone)]',
-  secondary: 'bg-lilac text-ink hover:text-brand-hover',
-  ghost: 'bg-transparent text-brand-hover hover:text-ink',
+  primary:
+    'border-2.5 border-edge bg-accent text-on-accent shadow-[4px_4px_0_var(--sf-edge)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--sf-edge)] motion-reduce:active:translate-none',
+  secondary: 'border-2.5 border-edge bg-surface text-ink shadow-hard-sm',
+  'on-stage': 'rounded-full border-2 border-edge bg-surface text-ink shadow-hard-sm',
+  ghost: 'border-2 border-transparent bg-transparent text-brand-hover hover:text-ink',
 }[variant];
+
+const disabledClass =
+  'border-2.5 border-dashed border-muted bg-subtle text-muted shadow-none';
 ---
 
 <button
+  id={id}
   type={type}
   class:list={[
-    'inline-flex min-h-11 items-center justify-center rounded-sf px-4 py-2 text-sm font-medium',
-    'transition-colors motion-reduce:transition-none',
+    'inline-flex items-center justify-center px-4 py-2 font-extrabold',
+    variant === 'on-stage' ? 'rounded-full' : 'rounded-sf',
+    size === 'lg' ? 'h-14 font-display text-[19px]' : 'min-h-11 text-sm',
+    'motion-reduce:transition-none',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
-    variantClass,
+    disabled ? disabledClass : variantClass,
     className,
   ]}
+  disabled={disabled}
+  aria-disabled={disabled ? 'true' : undefined}
+  aria-describedby={hintId}
 >
   <slot />
 </button>
+{
+  hint && (
+    <span id={hintId} class="mt-1 block text-sm text-muted">
+      {hint}
+    </span>
+  )
+}

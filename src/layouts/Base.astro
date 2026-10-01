@@ -15,9 +15,12 @@ interface Props {
   schema?: JsonLdInput['kind'];
   schemaName?: string;
   faq?: readonly FaqItem[];
+  width?: 'wide' | 'prose';
 }
 
-const { title, description, noindex = false, schema = 'none', schemaName, faq } = Astro.props;
+const { title, description, noindex = false, schema = 'none', schemaName, faq, width = 'prose' } =
+  Astro.props;
+const widthClass = width === 'wide' ? 'max-w-[1180px]' : 'max-w-[740px]';
 ---
 
 <!doctype html>
@@ -55,7 +58,7 @@ const { title, description, noindex = false, schema = 'none', schemaName, faq } 
   </head>
   <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
     <Header />
-    <main class="mx-auto w-full min-w-0 max-w-3xl flex-1 px-4 py-16 sm:px-6 sm:py-24">
+    <main class:list={['mx-auto w-full min-w-0 flex-1 px-3 py-16 sm:px-6 sm:py-24', widthClass]}>
       <slot />
     </main>
     <Footer />

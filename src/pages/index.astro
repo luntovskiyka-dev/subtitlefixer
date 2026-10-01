@@ -9,7 +9,7 @@ if (!h1 || !answer || !faq) throw new Error('Home page is missing h1, answer, or
 const { Content } = await render(entry);
 ---
 
-<Base title={title} description={description} schema="home" faq={faq}>
+<Base title={title} description={description} schema="home" faq={faq} width="wide">
   <h1 class="text-3xl font-display font-extrabold tracking-tight">{h1}</h1>
   <p class="mt-6 text-lg leading-relaxed">{answer}</p>
   <div class="sf-copy mt-10">

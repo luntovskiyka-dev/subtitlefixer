@@ -1,3 +1,16 @@
-<div class="rounded-sf border border-line bg-surface p-6">
+---
+interface Props {
+  variant?: 'calm' | 'pop';
+}
+
+const { variant = 'calm' } = Astro.props;
+
+const variantClass = {
+  calm: 'rounded-sf border border-line bg-surface',
+  pop: 'rounded-sf-lg border-2.5 border-edge bg-surface shadow-hard',
+}[variant];
+---
+
+<div class:list={[variantClass, 'p-6']}>
   <slot />
 </div>

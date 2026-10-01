@@ -4,25 +4,58 @@ interface Props {
   label: string;
   kind: 'milliseconds' | 'encoding';
   name?: string;
+  variant?: 'default' | 'hero';
+  suffix?: string;
+  hint?: string;
+  value?: string;
 }
 
-const { id, label, kind, name = id } = Astro.props;
+const { id, label, kind, name = id, variant = 'default', suffix, hint, value } = Astro.props;
+const hintId = hint ? `${id}-hint` : undefined;
 
-const fieldClass =
-  'min-h-11 w-full rounded-sf border border-control bg-bg px-3 py-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover';
+const fieldClass = [
+  'w-full rounded-sf border-2.5 border-control text-ink',
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover',
+  variant === 'hero'
+    ? 'h-[62px] bg-lilac px-4 font-display text-[30px] font-extrabold'
+    : 'min-h-11 bg-bg px-3 py-2',
+  suffix ? 'pr-14' : '',
+];
 ---
 
 <div class="flex max-w-sm flex-col gap-2">
-  <label for={id} class="text-sm font-medium text-ink">{label}</label>
+  <label for={id} class="text-sm font-extrabold text-ink">{label}</label>
   {
     kind === 'milliseconds' ? (
-      <input id={id} name={name} type="number" inputmode="numeric" step="1" class={fieldClass} />
+      <div class="relative">
+        <input
+          id={id}
+          name={name}
+          type="number"
+          inputmode="numeric"
+          step="1"
+          class:list={fieldClass}
+          aria-describedby={hintId}
+          value={value}
+        />
+        {
+          suffix && (
+            <span
+              class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-bold text-muted"
+              aria-hidden="true"
+            >
+              {suffix}
+            </span>
+          )
+        }
+      </div>
     ) : (
-      <select id={id} name={name} class={fieldClass}>
+      <select id={id} name={name} class:list={fieldClass} aria-describedby={hintId}>
         <option value="utf-8">UTF-8</option>
         <option value="windows-1251">Windows-1251</option>
         <option value="windows-1252">Windows-1252</option>
       </select>
     )
   }
+  {hint && <p id={hintId} class="text-sm text-muted">{hint}</p>}
 </div>
