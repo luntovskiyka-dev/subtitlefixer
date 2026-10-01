@@ -1,0 +1,117 @@
+---
+import type { ToolKey } from '../data/tools';
+
+interface Props {
+  name: ToolKey;
+}
+
+const { name } = Astro.props;
+---
+
+<span class={`sf-ill sf-ill-${name}`} aria-hidden="true">
+  {
+    name === 'shift' && (
+      <span class="sf-ill-head"></span>
+      <span class="sf-ill-wave">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="sf-ill-chip">Hello?</span>
+    )
+  }
+  {
+    name === 'drift' && (
+      <>
+        <span class="sf-ill-col sf-ill-col-1">
+          <span class="sf-ill-head"></span>
+          <span class="sf-ill-wave">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="sf-ill-chip"></span>
+        </span>
+        <span class="sf-ill-col sf-ill-col-2">
+          <span class="sf-ill-head"></span>
+          <span class="sf-ill-wave">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="sf-ill-chip"></span>
+        </span>
+        <span class="sf-ill-col sf-ill-col-3">
+          <span class="sf-ill-head"></span>
+          <span class="sf-ill-wave">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="sf-ill-chip"></span>
+        </span>
+      </>
+    )
+  }
+  {
+    name === 'enc' && (
+      <>
+        <span class="sf-ill-chip">
+          <span class="sf-swap">
+            <span class="sf-ill-bad">cafÃ© dÃ©jÃ</span>
+            <span>café déjà</span>
+          </span>
+        </span>
+        <span class="sf-ill-file">
+          <span class="sf-swap">
+            <span class="sf-ill-bad">???</span>
+            <span>UTF-8</span>
+          </span>
+        </span>
+      </>
+    )
+  }
+  {
+    name === 's2v' && (
+      <>
+        <span class="sf-ill-file">
+          <span class="sf-swap">
+            <span>.srt</span>
+            <span>.vtt</span>
+          </span>
+        </span>
+        <span class="sf-ill-code sf-ill-code-1">
+          <span class="sf-ill-hdr">WEBVTT</span>
+        </span>
+        <span class="sf-ill-code sf-ill-code-2">
+          00:00:01<span class="sf-swap sf-ill-sep"><span class="sf-ill-bad">,</span><span class="sf-ill-good">.</span></span>500
+        </span>
+      </>
+    )
+  }
+  {
+    name === 'v2s' && (
+      <>
+        <span class="sf-ill-file">
+          <span class="sf-swap">
+            <span>.vtt</span>
+            <span>.srt</span>
+          </span>
+        </span>
+        <span class="sf-ill-code sf-ill-code-1">
+          <span class="sf-ill-hdr">WEBVTT</span>
+        </span>
+        <span class="sf-ill-code sf-ill-code-2">
+          00:00:01<span class="sf-swap sf-ill-sep"><span class="sf-ill-bad">.</span><span class="sf-ill-good">,</span></span>500
+        </span>
+      </>
+    )
+  }
+  {
+    name === 'ass' && (
+      <>
+        <span class="sf-ill-file">
+          <span class="sf-swap">
+            <span>.ass</span>
+            <span>.srt</span>
+          </span>
+        </span>
+        <span class="sf-ill-chip">
+          <span class="sf-ill-tag">{'{\\an8}'}</span>Run!
+        </span>
+      </>
+    )
+  }
+</span>

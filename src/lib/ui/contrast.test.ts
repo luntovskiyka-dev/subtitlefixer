@@ -172,6 +172,7 @@ const BELOW_FOLD_PAIRS: readonly Pair[] = [
 checkPairs('light', LIGHT, LIGHT_PAIRS);
 checkPairs('dark', DARK, DARK_PAIRS);
 checkPairs('tool tiles', LIGHT, TOOL_PAIRS);
+checkPairs('tool tiles dark', DARK, TOOL_PAIRS);
 checkPairs('below-fold light', LIGHT, BELOW_FOLD_PAIRS);
 checkPairs('below-fold dark', DARK, BELOW_FOLD_PAIRS);
 
@@ -203,6 +204,37 @@ const HOME_PAIRS: readonly Pair[] = [
 
 checkPairs('home light', LIGHT, HOME_PAIRS);
 checkPairs('home dark', DARK, HOME_PAIRS);
+
+/** Problem-card illustrations (R8). Checked in both themes. */
+const PROBLEM_PAIRS: readonly Pair[] = [
+  { label: 'text on surface', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'accent ink on surface', foreground: 'accentInk', background: 'surface', minimum: TEXT },
+  { label: 'text on mint', foreground: 'text', background: 'mint', minimum: TEXT },
+  { label: 'text on shift wash', foreground: 'text', background: 'cShift', minimum: TEXT },
+  { label: 'text on drift wash', foreground: 'text', background: 'cDrift', minimum: TEXT },
+  { label: 'text on encoding wash', foreground: 'text', background: 'cEnc', minimum: TEXT },
+  { label: 'text on srt-to-vtt wash', foreground: 'text', background: 'cS2v', minimum: TEXT },
+  { label: 'text on vtt-to-srt wash', foreground: 'text', background: 'cV2s', minimum: TEXT },
+  { label: 'text on ass-to-srt wash', foreground: 'text', background: 'cAss', minimum: TEXT },
+  { label: 'accent ink on srt-to-vtt wash', foreground: 'accentInk', background: 'cS2v', minimum: TEXT },
+  { label: 'accent ink on vtt-to-srt wash', foreground: 'accentInk', background: 'cV2s', minimum: TEXT },
+  { label: 'success on srt-to-vtt wash', foreground: 'success', background: 'cS2v', minimum: TEXT },
+  { label: 'success on vtt-to-srt wash', foreground: 'success', background: 'cV2s', minimum: TEXT },
+  { label: 'muted on vtt-to-srt wash', foreground: 'muted', background: 'cV2s', minimum: TEXT },
+  { label: 'edge on shift wash', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
+  { label: 'edge on drift wash', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
+  { label: 'edge on encoding wash', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
+  { label: 'edge on srt-to-vtt wash', foreground: 'edge', background: 'cS2v', minimum: NON_TEXT },
+  { label: 'edge on vtt-to-srt wash', foreground: 'edge', background: 'cV2s', minimum: NON_TEXT },
+  { label: 'edge on ass-to-srt wash', foreground: 'edge', background: 'cAss', minimum: NON_TEXT },
+  { label: 'playhead on shift wash', foreground: 'accentInk', background: 'cShift', minimum: NON_TEXT },
+  { label: 'playhead on drift wash', foreground: 'accentInk', background: 'cDrift', minimum: NON_TEXT },
+  { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
+  { label: 'focus ring on page', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
+];
+
+checkPairs('problem cards light', LIGHT, PROBLEM_PAIRS);
+checkPairs('problem cards dark', DARK, PROBLEM_PAIRS);
 
 describe('dark stage outlines cannot reuse edge', () => {
   it('dark edge on brand is below 3:1', () => {

@@ -97,3 +97,15 @@ export const toolGridCopy = {
   open: 'Open tool →',
   groups: 'Timing · Text and encoding · Format conversion',
 } as const;
+
+/** Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge. */
+export const homeProblems = [
+  { key: 'shift', label: 'Always early or late' },
+  { key: 'drift', label: 'Gets worse over time' },
+  { key: 'enc', label: 'Weird characters like Ã©' },
+  { key: 's2v', label: 'Need VTT for the web' },
+  { key: 'v2s', label: 'Need SRT for my TV' },
+  { key: 'ass', label: "Styled .ass won't play" },
+] as const satisfies readonly { key: ToolKey; label: string }[];
+
+export const problemCopy = { heading: 'What’s wrong with your subtitles?' } as const;

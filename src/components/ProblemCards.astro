@@ -1,0 +1,29 @@
+---
+import ProblemIllustration from './ProblemIllustration.astro';
+import { homeProblems, problemCopy, toolMeta, tools } from '../data/tools';
+---
+
+<section class="sf-problems" aria-labelledby="whats-wrong">
+  <h2 id="whats-wrong" class="sf-tools-title">{problemCopy.heading}</h2>
+  <ul class="sf-problem-grid">
+    {
+      homeProblems.map((problem) => {
+        const tool = toolMeta.find((item) => item.key === problem.key);
+        if (!tool) throw new Error(`Missing tool for problem ${problem.key}`);
+        return (
+          <li>
+            <a href={`/${tool.slug}`} class={`sf-problem sf-problem-${problem.key}`}>
+              <ProblemIllustration name={problem.key} />
+              <span class="sf-problem-body">
+                <span class="sf-problem-label">{problem.label}</span>
+                <span class="sf-problem-tool">
+                  {tools[tool.slug]} <span class="sf-problem-go" aria-hidden="true">→</span>
+                </span>
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

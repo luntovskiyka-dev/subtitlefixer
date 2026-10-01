@@ -1,6 +1,7 @@
 ---
 import { getEntry, render } from 'astro:content';
 import Mark from '../components/Mark.astro';
+import ProblemCards from '../components/ProblemCards.astro';
 import ToolGrid from '../components/ToolGrid.astro';
 import { homeTrust } from '../data/tools';
 import Base from '../layouts/Base.astro';
@@ -54,6 +55,7 @@ const markAt = h1.indexOf(mark);
       </ul>
     </div>
   </section>
+  <ProblemCards />
   <ToolGrid />
   <div class="sf-copy mt-16">
     <Content />

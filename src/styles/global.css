@@ -1360,3 +1360,408 @@ input[type='number']::-webkit-outer-spin-button {
     box-shadow: var(--sf-shadow-sm);
   }
 }
+
+/* R8: home problem cards ("What's wrong with your subtitles?") + tool-card icon nudge.
+   Tokens only (no hex). Goes at the end of src/styles/global.css, after the R6 block.
+   0 JS: every state change is :hover / :focus-visible on the card link. */
+.sf-problems {
+  margin-top: 28px;
+}
+
+.sf-problem-grid {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-problem-grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.sf-problem {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  border: 2.5px solid var(--sf-edge);
+  border-radius: var(--sf-radius-lg);
+  background: var(--sf-surface);
+  padding: 10px 14px 10px 10px;
+  color: var(--sf-text);
+  text-decoration: none;
+  box-shadow: var(--sf-shadow-sm);
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.sf-problem:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sf-shadow);
+}
+
+.sf-problem:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--sf-shadow-color);
+}
+
+.sf-problem:focus-visible {
+  outline: 3px solid var(--sf-brand-hover);
+  outline-offset: 3px;
+}
+
+.sf-problem-shift { --sf-pw: var(--c-shift); --sf-pd: var(--t-shift-bg); }
+.sf-problem-drift { --sf-pw: var(--c-drift); --sf-pd: var(--t-drift-bg); }
+.sf-problem-enc { --sf-pw: var(--c-enc); --sf-pd: var(--t-enc-bg); }
+.sf-problem-s2v { --sf-pw: var(--c-s2v); --sf-pd: var(--t-s2v-bg); }
+.sf-problem-v2s { --sf-pw: var(--c-v2s); --sf-pd: var(--t-v2s-bg); }
+.sf-problem-ass { --sf-pw: var(--c-ass); --sf-pd: var(--t-ass-bg); }
+
+.sf-problem-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sf-problem-label {
+  font-family: var(--sf-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.sf-problem-tool {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.sf-problem-tool::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 7px;
+  border: 1.5px solid var(--sf-edge);
+  border-radius: 999px;
+  background: var(--sf-pd);
+  vertical-align: -0.5px;
+}
+
+.sf-problem-go {
+  display: inline-block;
+  transition: transform 160ms ease-out;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-problem-go {
+  transform: translateX(3px);
+}
+
+/* Illustration: a 120x80 "screen" in the tool wash. Decorative, aria-hidden. */
+.sf-ill {
+  position: relative;
+  flex: none;
+  width: 120px;
+  height: 80px;
+  overflow: hidden;
+  border: 2px solid var(--sf-edge);
+  border-radius: 14px;
+  background: var(--sf-pw);
+  color: var(--sf-text);
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sf-ill * {
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 300ms ease-out,
+    max-width 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Pieces shared by several illustrations */
+.sf-ill-chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--sf-edge);
+  border-radius: 6px;
+  background: var(--sf-surface);
+  padding: 3px 6px;
+  white-space: nowrap;
+}
+
+.sf-ill-head {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--sf-accent-ink);
+}
+
+.sf-ill-wave {
+  position: absolute;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 26px;
+}
+
+.sf-ill-wave > i {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--sf-edge);
+}
+
+.sf-ill-wave > i:nth-child(5n + 1) { height: 10px; }
+.sf-ill-wave > i:nth-child(5n + 2) { height: 22px; }
+.sf-ill-wave > i:nth-child(5n + 3) { height: 14px; }
+.sf-ill-wave > i:nth-child(5n + 4) { height: 26px; }
+.sf-ill-wave > i:nth-child(5n + 5) { height: 8px; }
+
+.sf-swap {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: 1.35; /* room for the tilde on Ã inside the clipped window */
+}
+
+.sf-swap > span {
+  grid-area: 1 / 1;
+}
+
+.sf-swap > span + span {
+  transform: translateY(110%);
+  opacity: 0;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-swap > span:first-child {
+  transform: translateY(-110%);
+  opacity: 0;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-swap > span + span {
+  transform: none;
+  opacity: 1;
+}
+
+.sf-ill-file {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  border: 1.5px solid var(--sf-edge);
+  border-radius: 999px;
+  background: var(--sf-surface);
+  padding: 3px 7px;
+  font-size: 10.5px;
+}
+
+.sf-ill-bad {
+  color: var(--sf-accent-ink);
+}
+
+.sf-ill-good {
+  color: var(--sf-success);
+}
+
+.sf-ill-enc .sf-ill-file {
+  left: auto;
+  right: 8px;
+  transition: background-color 300ms ease-out;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-enc .sf-ill-file {
+  background: var(--sf-mint);
+}
+
+/* 1. Shift: the subtitle sits late, then slides under the speech. */
+.sf-ill-shift .sf-ill-head { left: 18px; }
+.sf-ill-shift .sf-ill-wave { left: 22px; }
+.sf-ill-shift .sf-ill-chip {
+  left: 18px;
+  top: 46px;
+  transform: translateX(40px);
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-shift .sf-ill-chip {
+  transform: none;
+}
+
+/* 2. Drift: each later line is further off; all snap back. */
+.sf-ill-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+}
+
+.sf-ill-col-1 { left: 8px; --sf-off: 3px; }
+.sf-ill-col-2 { left: 42px; --sf-off: 9px; }
+.sf-ill-col-3 { left: 76px; --sf-off: 12px; }
+
+.sf-ill-col .sf-ill-head { left: 0; }
+.sf-ill-col .sf-ill-wave { left: 4px; }
+
+.sf-ill-col .sf-ill-chip {
+  left: 0;
+  top: 50px;
+  width: 26px;
+  height: 14px;
+  padding: 0;
+  transform: translateX(var(--sf-off));
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-col .sf-ill-chip {
+  transform: none;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-col-2 .sf-ill-chip {
+  transition-delay: 60ms;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-col-3 .sf-ill-chip {
+  transition-delay: 120ms;
+}
+
+/* 3. Encoding: mojibake rolls up, clean UTF-8 text rolls in. */
+.sf-ill-enc .sf-ill-chip {
+  left: 50%;
+  bottom: 10px;
+  translate: -50% 0;
+  font-size: 11.5px;
+}
+
+/* 4 + 5. SRT <-> VTT: file type, WEBVTT header and the ms separator change. */
+.sf-ill-code {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+}
+
+.sf-ill-code-1 { top: 34px; }
+.sf-ill-code-2 { top: 54px; }
+
+.sf-ill-sep {
+  border-radius: 3px;
+  padding: 1px 1px;
+}
+
+.sf-ill-hdr {
+  position: relative;
+}
+
+.sf-ill-s2v .sf-ill-hdr {
+  transform: translateY(-6px);
+  opacity: 0;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-s2v .sf-ill-hdr {
+  transform: none;
+  opacity: 1;
+}
+
+.sf-ill-v2s .sf-ill-hdr::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 50%;
+  height: 2px;
+  background: var(--sf-accent-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 300ms ease-out;
+}
+
+.sf-ill-v2s .sf-ill-hdr {
+  transition: color 300ms ease-out;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-v2s .sf-ill-hdr {
+  color: var(--sf-muted);
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-v2s .sf-ill-hdr::after {
+  transform: scaleX(1);
+}
+
+/* 6. ASS: override tags collapse, the plain line stays. */
+.sf-ill-ass .sf-ill-chip {
+  left: 8px;
+  bottom: 10px;
+  font-size: 11.5px;
+}
+
+.sf-ill-tag {
+  display: inline-block;
+  max-width: 7ch;
+  overflow: hidden;
+  color: var(--sf-accent-ink);
+  white-space: nowrap;
+}
+
+.sf-problem:is(:hover, :focus-visible) .sf-ill-tag {
+  max-width: 0;
+  opacity: 0;
+}
+
+/* Tool cards (R6): the tilted icon straightens on hover/focus. */
+.sf-card > .sf-card-top > :first-child {
+  transition: rotate 160ms ease-out;
+}
+
+.sf-card:is(:hover, :focus-visible) > .sf-card-top > :first-child {
+  rotate: 0deg;
+}
+
+@media (min-width: 640px) {
+  .sf-problem-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .sf-problems {
+    margin-top: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sf-problem-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .sf-problem {
+    padding: 12px 16px 12px 12px;
+  }
+
+  .sf-problem-label {
+    font-size: 19px;
+  }
+}
+
+/* Reduced motion: the global rule in global.css already sets transition: none and
+   animation: none, so the cards jump straight to the fixed state. Nothing to add. */
+
+/* R8: the problem heading reuses .sf-tools-title, whose 14px gap now lives on .sf-tools-head. */
+.sf-problems > .sf-tools-title {
+  margin-bottom: 14px;
+}
