@@ -392,7 +392,7 @@
 }
 
 .sf-does {
-  background: var(--sf-mint);
+  background: var(--c-enc);
 }
 
 .sf-doesnt {
@@ -444,6 +444,14 @@
 .sf-doesnt li::before {
   content: "✕";
   background: var(--sf-accent-soft);
+}
+.sf-does li::before {
+  background: var(--sf-mint);
+}
+.sf-related a,
+.sf-does a,
+.sf-doesnt a {
+  font-weight: 700;
 }
 
 .sf-dd {
