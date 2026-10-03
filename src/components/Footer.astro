@@ -9,7 +9,7 @@ const current = pagePath(Astro.url.pathname);
 const guides = (await getCollection('guides')).sort((a, b) => a.id.localeCompare(b.id));
 
 const linkClass =
-  'block break-words rounded-sf py-1 text-[14.5px] font-semibold text-footer-text hover:text-footer-mint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-on-nav';
+  'block w-fit break-words rounded-sf py-1 text-[14.5px] font-semibold text-footer-text hover:text-footer-mint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-footer-text';
 const headingClass = 'mb-2.5 font-display text-[15px] font-extrabold text-footer-mint';
 ---
 
@@ -23,7 +23,7 @@ const headingClass = 'mb-2.5 font-display text-[15px] font-extrabold text-footer
         Free subtitle tools that run entirely in your browser: no upload, no sign-up.
       </p>
       <a href={KOFI_URL} target="_blank" rel="noopener" class:list={[linkClass, 'mt-3.5']}>
-        Support on Ko-fi
+        Support on Ko-fi<span class="sr-only"> (opens in a new tab)</span>
       </a>
     </div>
     <nav class="min-w-0" aria-label="Tools">

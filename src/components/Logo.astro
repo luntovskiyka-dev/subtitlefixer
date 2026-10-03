@@ -13,7 +13,7 @@ const { current = false, tone = 'ink' } = Astro.props;
     'inline-flex shrink-0 items-center gap-2.5 rounded-full font-display text-[22px] font-extrabold tracking-tight',
     tone === 'cream' ? 'text-footer-text' : 'text-ink',
     tone === 'cream'
-      ? 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-on-nav'
+      ? 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-footer-text'
       : 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-hover',
   ]}
   aria-current={current ? 'page' : undefined}
