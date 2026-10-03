@@ -1,11 +1,22 @@
-# subtitlefixer.com
+# SubtitleFixer
 
-> Free subtitle tools that run entirely in the browser. Files are never uploaded.
+> Free subtitle tools that run entirely in your browser: shift timings, fix gradual drift and frame rate, repair garbled characters, and convert between SRT, VTT and ASS. Files are never uploaded and there is no sign-up.
 
 ## Tools
-- [Shift subtitles](https://subtitlefixer.com/shift-subtitles): move all SRT/VTT/ASS timings forward or back by milliseconds.
-- [Fix subtitle encoding](https://subtitlefixer.com/fix-subtitle-encoding): repair garbled characters and convert subtitles to UTF-8.
-- [SRT to VTT](https://subtitlefixer.com/srt-to-vtt): convert SubRip to WebVTT for HTML5 video.
-- [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT to SubRip.
-- [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert Advanced SubStation Alpha to SRT, stripping styles.
-- [Fix subtitle drift](https://subtitlefixer.com/fix-subtitle-drift): retime SRT, VTT, and ASS from two cues, or scale between 23.976, 24, and 25 fps.
+
+- [Shift subtitles](https://subtitlefixer.com/shift-subtitles): move every SRT, VTT or ASS line earlier or later by a number of milliseconds, optionally from a chosen line; several files at once.
+- [Fix subtitle drift](https://subtitlefixer.com/fix-subtitle-drift): re-time subtitles that slowly go out of sync by setting the correct time for two lines, or convert frame rate (23.976, 24, 25 fps).
+- [Fix subtitle encoding](https://subtitlefixer.com/fix-subtitle-encoding): detect the encoding of SRT, VTT, ASS, SSA, text SUB or TXT files, compare previews and pick the one that reads correctly, repair double-encoded text (mojibake) and save as UTF-8.
+- [SRT to VTT](https://subtitlefixer.com/srt-to-vtt): convert SubRip (.srt) to WebVTT (.vtt) for HTML5 video; batch, timings kept exactly.
+- [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT, including YouTube, Zoom and Teams files, to numbered SRT; keeps italics and bold, strips other tags.
+- [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert ASS/SSA to clean SRT; removes style tags and duplicate layers, keeps dialogue, timing, italics and bold.
+
+## Guides
+
+- [Subtitles out of sync: shift vs drift](https://subtitlefixer.com/guides/subtitles-out-of-sync): how to tell a constant offset from gradual drift or a local error, and how to fix each in the player or in the file.
+- [SRT vs VTT vs ASS](https://subtitlefixer.com/guides/srt-vs-vtt-vs-ass): what each subtitle format is, a comparison table, which to use for YouTube, websites, Plex, Jellyfin and VLC, and what each conversion loses.
+
+## Optional
+
+- [About](https://subtitlefixer.com/about): who makes SubtitleFixer, why everything runs in the browser, and how it is funded.
+- [Privacy](https://subtitlefixer.com/privacy): subtitle files are processed on your device and never uploaded; no account, no cookies set by us, Cloudflare Web Analytics.
