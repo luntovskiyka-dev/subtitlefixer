@@ -37,7 +37,7 @@ describe('buildJsonLd', () => {
     });
   });
 
-  it('describes the home page as Organization and WebSite', () => {
+  it('describes the home page as Organization and WebSite, with alternate names', () => {
     expect(
       buildJsonLd({
         kind: 'home',
@@ -49,6 +49,7 @@ describe('buildJsonLd', () => {
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: BRAND,
+        alternateName: ['subtitlefixer.com', 'Subtitle Fixer'],
         url: 'https://subtitlefixer.com',
         logo: 'https://subtitlefixer.com/apple-touch-icon.png',
         founder: { '@type': 'Person', name: 'Kirill Luntovskii' },
@@ -57,12 +58,33 @@ describe('buildJsonLd', () => {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: BRAND,
+        alternateName: ['subtitlefixer.com', 'Subtitle Fixer'],
         url: 'https://subtitlefixer.com',
       },
     ]);
+  });
+
+  it('keeps alternate names off tool and guide pages', () => {
+    for (const data of [
+      buildJsonLd({
+        kind: 'webapp',
+        name: 'Shift subtitles',
+        description: 'Shift timings in the browser.',
+        url: 'https://subtitlefixer.com/shift-subtitles',
+      }),
+      buildJsonLd({
+        kind: 'article',
+        headline: 'SRT vs VTT vs ASS',
+        description: 'How the three formats differ.',
+        url: 'https://subtitlefixer.com/guides/srt-vs-vtt-vs-ass',
+      }),
+    ]) {
+      expect(JSON.stringify(data)).not.toContain('alternateName');
+    }
   });
 
   it('emits nothing for pages that are not a tool, guide, or the home page', () => {
     expect(buildJsonLd({ kind: 'none' })).toBeNull();
   });
 });
+

@@ -2,6 +2,9 @@ import { BRAND } from './urls';
 
 const FOUNDER = 'Kirill Luntovskii';
 
+/** Other names for the site, so it is not confused with other tools called SubtitleFixer. */
+export const ALTERNATE_NAMES = ['subtitlefixer.com', 'Subtitle Fixer'];
+
 export type JsonLdInput =
   | { kind: 'none' }
   | { kind: 'home'; origin: string; logo: string }
@@ -18,6 +21,7 @@ export function buildJsonLd(input: JsonLdInput): unknown {
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: BRAND,
+          alternateName: ALTERNATE_NAMES,
           url: input.origin,
           logo: input.logo,
           founder: {
@@ -29,6 +33,7 @@ export function buildJsonLd(input: JsonLdInput): unknown {
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           name: BRAND,
+          alternateName: ALTERNATE_NAMES,
           url: input.origin,
         },
       ];
