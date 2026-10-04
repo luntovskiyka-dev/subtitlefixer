@@ -30,7 +30,7 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 
 ## The tools
 
-**SubtitleFixer has six free tools, grouped by the problem they solve.**
+**SubtitleFixer has eight free tools, grouped by the problem they solve.**
 
 ### Timing
 
@@ -46,6 +46,8 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 - [**SRT to VTT**](/srt-to-vtt): convert one or many SubRip (.srt) files to WebVTT (.vtt), the format used by HTML5 video.
 - [**VTT to SRT**](/vtt-to-srt): convert one or many WebVTT (.vtt) files to SubRip (.srt) files.
 - [**ASS to SRT**](/ass-to-srt): turn styled Advanced SubStation Alpha (.ass) and SubStation Alpha (.ssa) files into SRT subtitles by removing styling tags (italics and bold are kept), turning `\N` into real line breaks and merging duplicate lines from multiple layers.
+- [**SRT to TXT**](/srt-to-txt): turn SRT, VTT or ASS subtitles into plain text, with or without timestamps.
+- [**TXT to SRT**](/txt-to-srt): turn a script or transcript into an SRT file, timed by reading speed or by the timestamps already in your text.
 
 ## Which tool do I need?
 
@@ -60,6 +62,8 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 | Your website or player needs a VTT file, but you have an SRT file | [SRT to VTT](/srt-to-vtt) |
 | You need an SRT file, but you have a VTT file | [VTT to SRT](/vtt-to-srt) |
 | You have an ASS file, but your player or platform only takes SRT files | [ASS to SRT](/ass-to-srt) |
+| You need the words from a subtitle file as plain text | [SRT to TXT](/srt-to-txt) |
+| You have a script or transcript and need a subtitle file | [TXT to SRT](/txt-to-srt) |
 
 Not sure what kind of timing problem you have? Read [Subtitles out of sync: shift vs drift](/guides/subtitles-out-of-sync).
 

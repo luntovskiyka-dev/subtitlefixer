@@ -10,6 +10,8 @@
 - [SRT to VTT](https://subtitlefixer.com/srt-to-vtt): convert SubRip (.srt) to WebVTT (.vtt) for HTML5 video; batch, timings kept exactly.
 - [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT, including YouTube, Zoom and Teams files, to numbered SRT; keeps italics and bold, strips other tags.
 - [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert ASS/SSA to clean SRT; removes style tags and duplicate layers, keeps dialogue, timing, italics and bold.
+- [SRT to TXT](https://subtitlefixer.com/srt-to-txt): turn SRT, VTT, ASS or SSA subtitles into plain text, one line per subtitle, with timestamps, or as paragraphs; removes cue numbers and tags, can drop repeated YouTube caption lines; batch.
+- [TXT to SRT](https://subtitlefixer.com/txt-to-srt): turn a script or transcript into SRT or VTT, timed by reading speed or by timestamps already in the text (such as a YouTube transcript); timings are estimated from the text, not from audio.
 
 ## Guides
 
