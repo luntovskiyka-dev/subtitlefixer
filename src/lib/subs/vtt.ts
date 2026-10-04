@@ -153,3 +153,46 @@ export function serializeVtt(cues: readonly Cue[]): string {
   });
   return `WEBVTT\n\n${blocks.join('\n\n')}\n`;
 }
+
+const VTT_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: '\u00a0',
+  lrm: '',
+  rlm: '',
+};
+
+/** Decode `&amp;`, `&lt;`, `&#233;`, `&#xE9;` and the other character references VTT uses. */
+export function decodeVttEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.startsWith('#')) {
+      const code = lower.startsWith('#x') ? Number.parseInt(lower.slice(2), 16) : Number.parseInt(lower.slice(1), 10);
+      return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+    }
+    return VTT_ENTITIES[lower] ?? whole;
+  });
+}
+
+/**
+ * One VTT cue's text for an SRT file. `<i>`, `<b>` and `<u>` are kept (classes dropped),
+ * `<v Anna>` becomes "Anna: ", every other tag is removed (`<c>`, YouTube word timestamps
+ * such as `<00:00:02.639>`, `<ruby>`, `<lang>`), character references are decoded, and
+ * lines are trimmed; lines left empty are dropped.
+ */
+export function vttCueTextToSrt(text: string): string {
+  const withoutTags = normalizeNewlines(text)
+    .replace(/<v(?:\.[^\s>]*)?\s+([^>]+)>/gi, (_whole, speaker: string) => `${speaker.trim()}: `)
+    .replace(/<(\/?)([a-z][^\s.<>]*)[^<>]*>|<\d[\d:.]*>/gi, (_whole, slash?: string, name?: string) => {
+      const tag = (name ?? '').toLowerCase();
+      return tag === 'i' || tag === 'b' || tag === 'u' ? `<${slash ?? ''}${tag}>` : '';
+    });
+  return decodeVttEntities(withoutTags)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '')
+    .join('\n');
+}

@@ -75,6 +75,7 @@ The converter changes the file format from VTT to SRT. It does not change the te
 - Keeps italic, bold and underline tags (`<i>`, `<b>`, `<u>`) and removes all other tags.
 - Turns speaker tags like `<v Anna>` into "Anna: " in front of the text.
 - Removes YouTube `<c>` tags and the word-by-word timestamps inside auto-generated captions.
+- Turns codes like `&amp;` back into normal characters (`&`) and drops cues that have no text left.
 - Keeps every start and end time exactly, to the millisecond.
 - Detects the file's encoding and saves the SRT file as UTF-8. Tick "Add BOM (old players)" if your device needs a BOM.
 - Converts many VTT files at once, with one zip to download.
