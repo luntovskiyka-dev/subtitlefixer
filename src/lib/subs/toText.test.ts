@@ -140,6 +140,10 @@ describe('subtitlesToText: cleaning', () => {
     expect(cleanCueLines('a < b and <3 you', 'srt')).toEqual(['a < b and <3 you']);
   });
 
+  it('decodes VTT character references and keeps one that is out of range', () => {
+    expect(cleanCueLines('Tom &amp; Jerry&nbsp;&#233; &#99999999;', 'vtt')).toEqual(['Tom & Jerry é &#99999999;']);
+  });
+
   it('drops subtitles that are empty after cleaning', () => {
     const srt = '1\n00:00:01,000 --> 00:00:02,000\n<i></i>\n\n2\n00:00:03,000 --> 00:00:04,000\nText\n';
     const result = subtitlesToText(srt, 'srt');

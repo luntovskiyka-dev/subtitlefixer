@@ -2,7 +2,7 @@ import { assToCues } from './assToSrt';
 import { parseSrt } from './srt';
 import { normalizeNewlines } from './text';
 import type { Cue, ParseError, SubtitleFormat } from './types';
-import { parseVtt } from './vtt';
+import { decodeVttEntities, parseVtt } from './vtt';
 
 /** "Text only", "With timestamps" or "Paragraphs". */
 export type TextLayout = 'text' | 'timestamps' | 'paragraphs';
@@ -63,8 +63,9 @@ const ARROW = '-->';
 
 /**
  * YouTube automatic captions put a line holding only spaces inside a cue.
- * The shared parser treats that line as the end of the block, so remove it
- * when a text line follows and that text line is not a cue identifier.
+ * The shared parser joins that text back itself (one such line, see `vtt.ts`);
+ * this step stays so that /srt-to-txt reads looser files exactly as before:
+ * it removes the line when a text line follows that is not a cue identifier.
  */
 export function dropInnerSpaceLines(input: string): string {
   const lines = normalizeNewlines(input).split('\n');
@@ -88,26 +89,6 @@ export function dropInnerSpaceLines(input: string): string {
   return kept.join('\n');
 }
 
-const ENTITIES: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-  lrm: '',
-  rlm: '',
-};
-
-function decodeEntities(text: string): string {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.startsWith('#x')) return String.fromCodePoint(Number.parseInt(lower.slice(2), 16));
-    if (lower.startsWith('#')) return String.fromCodePoint(Number.parseInt(lower.slice(1), 10));
-    return ENTITIES[lower] ?? whole;
-  });
-}
-
 /** One cue's text as clean lines: tags removed, speakers kept, empty lines dropped. */
 export function cleanCueLines(text: string, format: SubtitleFormat): string[] {
   let body = normalizeNewlines(text);
@@ -118,7 +99,7 @@ export function cleanCueLines(text: string, format: SubtitleFormat): string[] {
     .replace(/<v(?:\.[^\s>]*)?\s+([^>]+)>/gi, (_whole, speaker: string) => `${speaker.trim()}: `)
     .replace(/<\/?(?:[a-z][^<>]*|\d[\d:.]*)>/gi, '')
     .replace(/\{\\[^}]*\}/g, '');
-  if (format === 'vtt') body = decodeEntities(body);
+  if (format === 'vtt') body = decodeVttEntities(body);
   return body
     .split('\n')
     .map((line) => line.replace(/\s+/g, ' ').trim())
