@@ -1,4 +1,4 @@
-import { isBlankInput, normalizeCueText, splitBlocks } from './text';
+import { isBlankInput, normalizeCueText, normalizeNewlines } from './text';
 import { formatVttTimestamp, parseVttTimestamp } from './time';
 import type { Cue, ParseError, ParseResult } from './types';
 
@@ -12,6 +12,47 @@ function parseVttTimeLine(line: string): { start: number; end: number } | null {
   const end = parseVttTimestamp(match[2]);
   if (start === null || end === null) return null;
   return { start, end };
+}
+
+type VttBlock = {
+  text: string;
+  /** Exactly one line of only spaces or tabs, and no empty line, came before this block. */
+  afterSpaceLine: boolean;
+};
+
+/**
+ * Split a VTT file into blocks. An empty line ends a block, and so does a line of only
+ * spaces or tabs. A single line of that second kind is remembered: YouTube automatic
+ * captions put one inside a cue, between the timing line and the text, and `parseVtt`
+ * joins that text back to its cue.
+ */
+function splitVttBlocks(input: string): VttBlock[] {
+  const blocks: VttBlock[] = [];
+  let current: string[] = [];
+  let afterSpaceLine = false;
+  let spaceLines = 0;
+  let emptyLines = 0;
+  const flush = () => {
+    if (current.length === 0) return;
+    blocks.push({ text: current.join('\n'), afterSpaceLine });
+    current = [];
+  };
+  for (const line of normalizeNewlines(input).split('\n')) {
+    if (line.trim() === '') {
+      flush();
+      if (line === '') emptyLines += 1;
+      else spaceLines += 1;
+      continue;
+    }
+    if (current.length === 0) {
+      afterSpaceLine = blocks.length > 0 && spaceLines === 1 && emptyLines === 0;
+      spaceLines = 0;
+      emptyLines = 0;
+    }
+    current.push(line);
+  }
+  flush();
+  return blocks;
 }
 
 function firstLine(block: string): string {
@@ -69,21 +110,32 @@ function parseVttBlock(block: string, blockNumber: number): { cue?: Cue; error?:
 export function parseVtt(input: string): ParseResult {
   if (isBlankInput(input)) return { cues: [], errors: [] };
 
-  const blocks = splitBlocks(input);
+  const blocks = splitVttBlocks(input);
   const cues: Cue[] = [];
   const errors: ParseError[] = [];
   let index = 0;
+  /** The cue made from the block right before this one, if that block was a cue. */
+  let previousCue: Cue | null = null;
 
-  if (blocks.length > 0 && isWebVttHeader(blocks[0])) {
+  if (blocks.length > 0 && isWebVttHeader(blocks[0].text)) {
     index = 1;
   } else if (blocks.length > 0) {
     errors.push({ block: 1, message: 'Missing WEBVTT header.' });
   }
 
   for (; index < blocks.length; index++) {
-    const block = blocks[index];
-    if (isSkippableVttBlock(block)) continue;
+    const { text: block, afterSpaceLine } = blocks[index];
+    if (isSkippableVttBlock(block)) {
+      previousCue = null;
+      continue;
+    }
+    if (previousCue && afterSpaceLine && !block.includes('-->')) {
+      // Text after a line of spaces inside a cue (YouTube automatic captions).
+      previousCue.text = previousCue.text === '' ? block : `${previousCue.text}\n${block}`;
+      continue;
+    }
     const parsed = parseVttBlock(block, index + 1);
+    previousCue = parsed.cue ?? null;
     if (parsed.cue) cues.push(parsed.cue);
     if (parsed.error) errors.push(parsed.error);
   }
