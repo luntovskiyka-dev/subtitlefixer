@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { toolMeta, tools } from '../../data/tools';
 
-const NAV_ORDER = ['Shift', 'Fix drift', 'Fix encoding', 'SRT→VTT', 'VTT→SRT', 'ASS→SRT'] as const;
+const NAV_ORDER = [
+  'Shift',
+  'Fix drift',
+  'Fix encoding',
+  'SRT→VTT',
+  'VTT→SRT',
+  'ASS→SRT',
+  'SRT→TXT',
+  'TXT→SRT',
+] as const;
 
 describe('toolMeta', () => {
   it('lists every tool once, in the header order', () => {

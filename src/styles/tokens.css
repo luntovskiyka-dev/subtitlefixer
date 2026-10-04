@@ -75,6 +75,12 @@
   --t-ass: #1B1A3A;
   --t-ass-bg: #7CC8FF;
   --c-ass: #DDF0FF;
+  --t-s2t: #1B1A3A;
+  --t-s2t-bg: #FFC94D;
+  --c-s2t: #FFF1C9;
+  --t-t2s: #1B1A3A;
+  --t-t2s-bg: #B5E655;
+  --c-t2s: #EDF8D3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -124,5 +130,7 @@
     --c-s2v: #4A2A22;
     --c-v2s: #48213C;
     --c-ass: #15334D;
+    --c-s2t: #3D3415;
+    --c-t2s: #2B3A12;
   }
 }

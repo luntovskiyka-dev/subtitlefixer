@@ -5,15 +5,17 @@ export const tools = {
   'vtt-to-srt': 'VTT to SRT',
   'ass-to-srt': 'ASS to SRT',
   'fix-subtitle-drift': 'Fix subtitle drift',
+  'srt-to-txt': 'SRT to TXT',
+  'txt-to-srt': 'TXT to SRT',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert';
 
 export type ToolMeta = {
   slug: ToolSlug;
-  nav: 'Shift' | 'Fix drift' | 'Fix encoding' | 'SRT→VTT' | 'VTT→SRT' | 'ASS→SRT';
+  nav: 'Shift' | 'Fix drift' | 'Fix encoding' | 'SRT→VTT' | 'VTT→SRT' | 'ASS→SRT' | 'SRT→TXT' | 'TXT→SRT';
   key: ToolKey;
   group: ToolGroup;
   /** SVG path markup, drawn with the tool icon colour. */
@@ -86,10 +88,30 @@ export const toolMeta: readonly ToolMeta[] = [
     card: 'Turn styled ASS and SSA files into plain SRT subtitles.',
     mark: 'SRT',
   },
+  {
+    slug: 'srt-to-txt',
+    nav: 'SRT→TXT',
+    key: 's2t',
+    group: 'Convert',
+    icon: '<path d="M5 5h14"/><path d="M5 10h14"/><path d="M5 15h14"/><path d="M5 20h8"/>',
+    formats: '.srt/.vtt/.ass → .txt',
+    card: 'Turn SRT, VTT or ASS subtitles into plain text, with or without timestamps.',
+    mark: 'TXT',
+  },
+  {
+    slug: 'txt-to-srt',
+    nav: 'TXT→SRT',
+    key: 't2s',
+    group: 'Convert',
+    icon: '<path d="M4 6h10"/><path d="M4 11h6"/><circle cx="16.5" cy="15.5" r="4.5"/><path d="M16.5 13.5v2l1.5 1"/>',
+    formats: '.txt → .srt/.vtt',
+    card: 'Turn a script or transcript into a timed SRT or VTT file.',
+    mark: 'SRT',
+  },
 ];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 6 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 8 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {
@@ -98,7 +120,10 @@ export const toolGridCopy = {
   groups: 'Timing · Text and encoding · Format conversion',
 } as const;
 
-/** Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge. */
+/**
+ * Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge.
+ * Six cards for the six fixing and converting tools; SRT to TXT and TXT to SRT have no card yet.
+ */
 export const homeProblems = [
   { key: 'shift', label: 'Always early or late' },
   { key: 'drift', label: 'Gets worse over time' },

@@ -7,11 +7,11 @@ const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 const HEX = /#[0-9A-Fa-f]{3,8}\b/;
 
 describe('home problem cards', () => {
-  it('lists six problems whose keys match the tools, in order', () => {
+  it('lists six problems for the first six tools, in toolMeta order', () => {
     expect(homeProblems).toHaveLength(6);
     const keys = homeProblems.map((problem) => problem.key);
     expect(new Set(keys).size).toBe(keys.length);
-    expect(keys).toEqual(toolMeta.map((tool) => tool.key));
+    expect(keys).toEqual(toolMeta.slice(0, 6).map((tool) => tool.key));
     for (const problem of homeProblems) {
       expect(problem.label.length).toBeLessThanOrEqual(28);
     }

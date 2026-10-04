@@ -60,6 +60,8 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'ink on srt-to-vtt wash', foreground: 'text', background: 'cS2v', minimum: TEXT },
   { label: 'ink on vtt-to-srt wash', foreground: 'text', background: 'cV2s', minimum: TEXT },
   { label: 'ink on ass-to-srt wash', foreground: 'text', background: 'cAss', minimum: TEXT },
+  { label: 'ink on srt-to-txt wash', foreground: 'text', background: 'cS2t', minimum: TEXT },
+  { label: 'ink on txt-to-srt wash', foreground: 'text', background: 'cT2s', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
   { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
@@ -118,6 +120,8 @@ const TOOL_PAIRS: readonly Pair[] = [
   { label: 'srt-to-vtt icon on tile', foreground: 'tS2v', background: 'tS2vBg', minimum: NON_TEXT },
   { label: 'vtt-to-srt icon on tile', foreground: 'tV2s', background: 'tV2sBg', minimum: NON_TEXT },
   { label: 'ass-to-srt icon on tile', foreground: 'tAss', background: 'tAssBg', minimum: NON_TEXT },
+  { label: 'srt-to-txt icon on tile', foreground: 'tS2t', background: 'tS2tBg', minimum: NON_TEXT },
+  { label: 'txt-to-srt icon on tile', foreground: 'tT2s', background: 'tT2sBg', minimum: NON_TEXT },
 ];
 
 describe('contrastRatio', () => {
@@ -194,12 +198,16 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'text on srt-to-vtt card', foreground: 'text', background: 'cS2v', minimum: TEXT },
   { label: 'text on vtt-to-srt card', foreground: 'text', background: 'cV2s', minimum: TEXT },
   { label: 'text on ass-to-srt card', foreground: 'text', background: 'cAss', minimum: TEXT },
+  { label: 'text on srt-to-txt card', foreground: 'text', background: 'cS2t', minimum: TEXT },
+  { label: 'text on txt-to-srt card', foreground: 'text', background: 'cT2s', minimum: TEXT },
   { label: 'outline on shift card', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
   { label: 'outline on drift card', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
   { label: 'outline on encoding card', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
   { label: 'outline on srt-to-vtt card', foreground: 'edge', background: 'cS2v', minimum: NON_TEXT },
   { label: 'outline on vtt-to-srt card', foreground: 'edge', background: 'cV2s', minimum: NON_TEXT },
   { label: 'outline on ass-to-srt card', foreground: 'edge', background: 'cAss', minimum: NON_TEXT },
+  { label: 'outline on srt-to-txt card', foreground: 'edge', background: 'cS2t', minimum: NON_TEXT },
+  { label: 'outline on txt-to-srt card', foreground: 'edge', background: 'cT2s', minimum: NON_TEXT },
 ];
 
 checkPairs('home light', LIGHT, HOME_PAIRS);

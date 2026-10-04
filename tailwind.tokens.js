@@ -61,6 +61,12 @@ module.exports = {
       ass: 'var(--t-ass)',
       'ass-bg': 'var(--t-ass-bg)',
       'ass-wash': 'var(--c-ass)',
+      s2t: 'var(--t-s2t)',
+      's2t-bg': 'var(--t-s2t-bg)',
+      's2t-wash': 'var(--c-s2t)',
+      t2s: 'var(--t-t2s)',
+      't2s-bg': 'var(--t-t2s-bg)',
+      't2s-wash': 'var(--c-t2s)',
     },
   },
   borderRadius: {

@@ -52,6 +52,12 @@ export type Palette = {
   tAss: string;
   tAssBg: string;
   cAss: string;
+  tS2t: string;
+  tS2tBg: string;
+  cS2t: string;
+  tT2s: string;
+  tT2sBg: string;
+  cT2s: string;
 };
 
 export const LIGHT: Palette = {
@@ -107,6 +113,12 @@ export const LIGHT: Palette = {
   tAss: '#1B1A3A',
   tAssBg: '#7CC8FF',
   cAss: '#DDF0FF',
+  tS2t: '#1B1A3A',
+  tS2tBg: '#FFC94D',
+  cS2t: '#FFF1C9',
+  tT2s: '#1B1A3A',
+  tT2sBg: '#B5E655',
+  cT2s: '#EDF8D3',
 };
 
 export const DARK: Palette = {
@@ -162,6 +174,12 @@ export const DARK: Palette = {
   tAss: '#1B1A3A',
   tAssBg: '#7CC8FF',
   cAss: '#15334D',
+  tS2t: '#1B1A3A',
+  tS2tBg: '#FFC94D',
+  cS2t: '#3D3415',
+  tT2s: '#1B1A3A',
+  tT2sBg: '#B5E655',
+  cT2s: '#2B3A12',
 };
 
 const SRGB_THRESHOLD = 0.04045;
