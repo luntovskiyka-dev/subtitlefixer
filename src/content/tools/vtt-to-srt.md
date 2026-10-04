@@ -84,7 +84,7 @@ The converter changes the file format from VTT to SRT. It does not change the te
 **What it doesn't do:**
 
 - It doesn't keep VTT positioning, `STYLE` or `REGION` blocks, or `NOTE` comments. SRT has no place for them.
-- It doesn't merge the rolling, repeated lines in auto-generated YouTube captions. Each line stays a separate subtitle.
+- It doesn't merge the rolling, repeated lines in auto-generated YouTube captions. Each line stays a separate subtitle. If you only need the words, [convert the subtitles to text](/srt-to-txt) and tick "Remove repeated lines".
 - It doesn't repair double-encoded text like `Ã©`. Use [Fix subtitle encoding](/fix-subtitle-encoding) for that, where you can compare previews and pick the right reading.
 - It doesn't fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles) for that.
 
@@ -117,4 +117,5 @@ Once they are SRT files, you can use them in video editors, on TVs and in most d
 - [Shift subtitles](/shift-subtitles): for subtitles that appear too early or too late.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
 - [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into a plain SRT file.
+- [SRT to TXT](/srt-to-txt): turn VTT captions into plain text, with or without timestamps.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).

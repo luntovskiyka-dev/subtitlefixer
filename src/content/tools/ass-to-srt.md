@@ -106,4 +106,5 @@ For a full comparison of the formats, read [SRT vs VTT vs ASS](/guides/srt-vs-vt
 - [Shift subtitles](/shift-subtitles): for subtitles that appear too early or too late, in SRT, VTT or ASS files.
 - [SRT to VTT converter](/srt-to-vtt): turn SRT subtitles into VTT for web video players.
 - [VTT to SRT converter](/vtt-to-srt): turn VTT captions into an SRT file.
+- [SRT to TXT](/srt-to-txt): turn ASS, SRT or VTT subtitles into plain text, without styling tags.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).
