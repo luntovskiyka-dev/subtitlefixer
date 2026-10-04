@@ -10,6 +10,7 @@ describe('listOgCards', () => {
       '/fix-subtitle-drift',
       '/fix-subtitle-encoding',
       '/shift-subtitles',
+      '/srt-to-txt',
       '/srt-to-vtt',
       '/vtt-to-srt',
       '/about',
@@ -27,6 +28,7 @@ describe('listOgCards', () => {
       '/guides/subtitles-out-of-sync',
       '/privacy',
       '/shift-subtitles',
+      '/srt-to-txt',
       '/srt-to-vtt',
       '/vtt-to-srt',
     ]);

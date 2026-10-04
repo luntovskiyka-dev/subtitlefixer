@@ -1,0 +1,264 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+] as const;
+---
+
+<form id="s2t-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="s2t-dropzone"
+        variant="stage"
+        label="Add one or more SRT, VTT, ASS or SSA files"
+        stageTitle="Add one or more subtitle files"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="s2t-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="s2t-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the text.</p>
+      <div
+        id="s2t-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Text preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="s2t-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Subtitles → .txt</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="s2t-layout" class="text-sm font-extrabold">Layout</label>
+        <select id="s2t-layout" name="layout" class="sf-field">
+          <option value="text" selected>Text only</option>
+          <option value="timestamps">With timestamps</option>
+          <option value="paragraphs">Paragraphs</option>
+        </select>
+      </div>
+      <div id="s2t-pause-row" class="mt-3 flex flex-col gap-2" hidden>
+        <label for="s2t-pause" class="text-sm font-extrabold">New paragraph after a pause of</label>
+        <div class="relative">
+          <input
+            id="s2t-pause"
+            name="pause"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.5"
+            value="2"
+            aria-describedby="s2t-pause-hint"
+            class="sf-field pr-24"
+          />
+          <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-bold text-muted" aria-hidden="true">seconds</span>
+        </div>
+        <p id="s2t-pause-hint" class="text-sm text-muted">Default: 2 seconds.</p>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="s2t-repeats" name="repeats" type="checkbox" class="sf-check" />
+        <label for="s2t-repeats" class="text-sm font-extrabold">Remove repeated lines</label>
+      </div>
+      <div class="flex min-h-11 items-center gap-3">
+        <input id="s2t-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="s2t-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="s2t-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download TXT file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="s2t-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { subtitleFormatFromName, subtitlesToText, textFileNames, type TextLayout } from '../lib/subs/toText';
+  import { slicePreviewLines } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('s2t-form');
+  const result = document.getElementById('s2t-result');
+  const status = document.getElementById('s2t-status');
+  const download = document.getElementById('s2t-download');
+  const hint = document.getElementById('s2t-download-hint');
+  const meta = document.querySelector('#s2t-dropzone [data-file-meta]');
+  const layoutInput = document.getElementById('s2t-layout');
+  const pauseRow = document.getElementById('s2t-pause-row');
+  const pauseInput = document.getElementById('s2t-pause');
+  const repeatsInput = document.getElementById('s2t-repeats');
+  const bomInput = document.getElementById('s2t-bom');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string'
+    );
+  }
+
+  function isLayout(value: string): value is TextLayout {
+    return value === 'text' || value === 'timestamps' || value === 'paragraphs';
+  }
+
+  function showResult(messages: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('s2t-preview');
+    const empty = document.getElementById('s2t-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('s2t-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const sliced = slicePreviewLines(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    layoutInput instanceof HTMLSelectElement &&
+    pauseRow instanceof HTMLElement &&
+    pauseInput instanceof HTMLInputElement &&
+    repeatsInput instanceof HTMLInputElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      const layout = isLayout(layoutInput.value) ? layoutInput.value : 'text';
+      const seconds = Number(pauseInput.value.replace(',', '.'));
+      if (layout === 'paragraphs' && (pauseInput.value.trim() === '' || !Number.isFinite(seconds) || seconds < 0)) {
+        return { messages: ['Enter a pause of 0 seconds or more.'], ready, preview };
+      }
+      const options = {
+        layout,
+        pauseMs: Math.round(seconds * 1000),
+        removeRepeats: repeatsInput.checked,
+      };
+      const accepted = files.filter((file) => subtitleFormatFromName(file.name) !== null);
+      const outputNames = textFileNames(accepted.map((file) => file.name));
+      for (const file of files) {
+        const format = subtitleFormatFromName(file.name);
+        if (format === null) {
+          messages.push(`${file.name}: Use an SRT, VTT, ASS or SSA file.`);
+          continue;
+        }
+        const name = outputNames[accepted.indexOf(file)] ?? 'subtitles.txt';
+        const output = subtitlesToText(file.text, format, options);
+        for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
+        if (output.count === 0) {
+          messages.push(`${file.name}: No subtitle text was found.`);
+          continue;
+        }
+        if (preview === null) preview = output.text;
+        ready.push({ name, text: output.text });
+      }
+      return { messages, ready, preview };
+    };
+
+    const refresh = () => {
+      pauseRow.hidden = layoutInput.value !== 'paragraphs';
+      if (files.length === 0) return;
+      const { messages, preview } = converted();
+      showResult(messages, preview);
+    };
+
+    layoutInput.addEventListener('change', refresh);
+    pauseInput.addEventListener('input', refresh);
+    repeatsInput.addEventListener('change', refresh);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null);
+        return;
+      }
+      const { messages, preview } = converted();
+      showResult(messages, preview);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      if (files.length === 0) {
+        showResult(['Add one or more subtitle files.'], null);
+        renderStatus(status, 'error', chosen);
+        return;
+      }
+      const { messages, ready, preview } = converted();
+      showResult(messages, preview);
+      if (ready.length > 0) {
+        downloadSubtitleFiles(ready, bomInput.checked);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>
