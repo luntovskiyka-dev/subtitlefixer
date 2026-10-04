@@ -1,0 +1,406 @@
+---
+import Button from './Button.astro';
+import ToolLayout from './ToolLayout.astro';
+
+const placeholder = "Hi, and welcome back.\nToday we're fixing subtitles.\nFirst, open your file.";
+const labelClass = 'text-sm font-extrabold';
+const suffixClass = 'pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-bold text-muted';
+---
+
+<form id="t2s-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <div
+        id="t2s-drop"
+        data-state="idle"
+        class="rounded-sf-lg border-2.5 border-dashed border-on-brand/85 bg-dropzone p-4 text-on-brand data-[state=drag]:border-solid data-[state=drag]:border-on-brand data-[state=drag]:bg-brand"
+      >
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <label for="t2s-text" class="font-display text-[21px] font-extrabold tracking-tight md:text-[24px]">
+            Paste your text or drop a .txt file
+          </label>
+          <button
+            id="t2s-choose"
+            type="button"
+            aria-controls="t2s-file"
+            class="shrink-0 rounded-full border-2 border-stage-line bg-surface px-4 py-2 text-sm font-extrabold text-ink shadow-hard-sm focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-on-brand"
+          >
+            Choose a .txt file
+          </button>
+          <input id="t2s-file" type="file" accept=".txt,text/plain" class="sr-only" tabindex="-1" aria-label="Choose a .txt file" />
+        </div>
+        <textarea
+          id="t2s-text"
+          name="text"
+          rows="10"
+          spellcheck="false"
+          autocomplete="off"
+          aria-describedby="t2s-source"
+          placeholder={placeholder}
+          class="sf-field min-h-[220px] font-mono text-[13px] leading-[1.55]"></textarea>
+        <p id="t2s-source" class="mt-2 text-sm font-medium text-on-brand-muted">Your text stays on this device.</p>
+      </div>
+    </div>
+    <div slot="preview">
+      <p id="t2s-preview-empty" class="text-sm font-medium text-on-brand-muted">Add text to preview the subtitles.</p>
+      <div
+        id="t2s-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="t2s-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.txt → .srt</p>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-2">
+          <label for="t2s-mode" class={labelClass}>Mode</label>
+          <select id="t2s-mode" name="mode" class="sf-field">
+            <option value="plain" selected>Plain text</option>
+            <option value="timestamps">Text with timestamps</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="t2s-output" class={labelClass}>Output</label>
+          <select id="t2s-output" name="output" class="sf-field">
+            <option value="srt" selected>SRT</option>
+            <option value="vtt">VTT</option>
+          </select>
+        </div>
+      </div>
+      <div data-plain-only class="mt-3 grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-2">
+          <label for="t2s-split" class={labelClass}>Split by</label>
+          <select id="t2s-split" name="split" class="sf-field">
+            <option value="lines" selected>Lines</option>
+            <option value="sentences">Sentences</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="t2s-start" class={labelClass}>Start time</label>
+          <input
+            id="t2s-start"
+            name="start"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            value="00:00:00,000"
+            placeholder="hh:mm:ss,mmm"
+            class="sf-field"
+          />
+        </div>
+      </div>
+      <div class="mt-3 flex flex-col gap-2">
+        <label for="t2s-cps" class={labelClass}>Reading speed</label>
+        <div class="relative">
+          <input id="t2s-cps" name="cps" type="number" inputmode="decimal" min="1" step="1" value="17" class="sf-field pr-40" />
+          <span class={suffixClass} aria-hidden="true">characters per second</span>
+        </div>
+      </div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-2">
+          <label for="t2s-min" class={labelClass}>Minimum duration</label>
+          <div class="relative">
+            <input id="t2s-min" name="min" type="number" inputmode="decimal" min="0" step="0.1" value="1" class="sf-field pr-10" />
+            <span class={suffixClass} aria-hidden="true">s</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="t2s-max" class={labelClass}>Maximum duration</label>
+          <div class="relative">
+            <input id="t2s-max" name="max" type="number" inputmode="decimal" min="0" step="0.1" value="7" class="sf-field pr-10" />
+            <span class={suffixClass} aria-hidden="true">s</span>
+          </div>
+        </div>
+      </div>
+      <div data-plain-only class="mt-3 flex flex-col gap-2">
+        <label for="t2s-gap" class={labelClass}>Gap</label>
+        <div class="relative">
+          <input id="t2s-gap" name="gap" type="number" inputmode="numeric" min="0" step="10" value="0" class="sf-field pr-14" />
+          <span class={suffixClass} aria-hidden="true">ms</span>
+        </div>
+      </div>
+      <div data-plain-only class="mt-3">
+        <div class="flex min-h-11 items-center gap-3">
+          <input id="t2s-fit" name="fit" type="checkbox" class="sf-check" aria-controls="t2s-total-row" />
+          <label for="t2s-fit" class={labelClass}>Fit to total duration</label>
+        </div>
+        <div id="t2s-total-row" class="mt-1 flex flex-col gap-2" hidden>
+          <label for="t2s-total" class={labelClass}>Length of your video</label>
+          <input
+            id="t2s-total"
+            name="total"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="hh:mm:ss"
+            aria-describedby="t2s-total-hint"
+            class="sf-field"
+          />
+          <p id="t2s-total-hint" class="text-sm text-muted">The last subtitle ends here. Longer lines get more time.</p>
+        </div>
+      </div>
+      <div class="mt-2 flex min-h-11 items-center gap-3">
+        <input id="t2s-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="t2s-bom" class={labelClass}>Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="t2s-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add text to enable the download.">
+        <span id="t2s-download-label">Download SRT file</span>
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your text never leaves your device.
+      </p>
+      <div id="t2s-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import { downloadSubtitleFiles, readSubtitleFiles, serialize } from '../lib/subs/index';
+  import {
+    parseClock,
+    plainTextToCues,
+    timestampedTextToCues,
+    type FromTextResult,
+    type SplitMode,
+  } from '../lib/subs/fromText';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+
+  const form = document.getElementById('t2s-form');
+  const drop = document.getElementById('t2s-drop');
+  const textInput = document.getElementById('t2s-text');
+  const choose = document.getElementById('t2s-choose');
+  const fileInput = document.getElementById('t2s-file');
+  const source = document.getElementById('t2s-source');
+  const mode = document.getElementById('t2s-mode');
+  const output = document.getElementById('t2s-output');
+  const split = document.getElementById('t2s-split');
+  const start = document.getElementById('t2s-start');
+  const cps = document.getElementById('t2s-cps');
+  const min = document.getElementById('t2s-min');
+  const max = document.getElementById('t2s-max');
+  const gap = document.getElementById('t2s-gap');
+  const fit = document.getElementById('t2s-fit');
+  const totalRow = document.getElementById('t2s-total-row');
+  const total = document.getElementById('t2s-total');
+  const bomInput = document.getElementById('t2s-bom');
+  const download = document.getElementById('t2s-download');
+  const downloadLabel = document.getElementById('t2s-download-label');
+  const hint = document.getElementById('t2s-download-hint');
+  const result = document.getElementById('t2s-result');
+
+  const SOURCE_NOTE = 'Your text stays on this device.';
+
+  function numberFrom(input: HTMLInputElement): number {
+    const value = input.value.trim().replace(',', '.');
+    return value === '' ? Number.NaN : Number(value);
+  }
+
+  function showMessages(messages: readonly string[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+  }
+
+  function showPreview(text: string | null): void {
+    const card = document.getElementById('t2s-preview');
+    const empty = document.getElementById('t2s-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('t2s-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (text === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const sliced = slicePreviewCues(text);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    drop instanceof HTMLElement &&
+    textInput instanceof HTMLTextAreaElement &&
+    choose instanceof HTMLButtonElement &&
+    fileInput instanceof HTMLInputElement &&
+    source instanceof HTMLElement &&
+    mode instanceof HTMLSelectElement &&
+    output instanceof HTMLSelectElement &&
+    split instanceof HTMLSelectElement &&
+    start instanceof HTMLInputElement &&
+    cps instanceof HTMLInputElement &&
+    min instanceof HTMLInputElement &&
+    max instanceof HTMLInputElement &&
+    gap instanceof HTMLInputElement &&
+    fit instanceof HTMLInputElement &&
+    totalRow instanceof HTMLElement &&
+    total instanceof HTMLInputElement &&
+    bomInput instanceof HTMLInputElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    let baseName = 'subtitles';
+
+    const format = () => (output.value === 'vtt' ? 'vtt' : 'srt');
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const convert = (): { error: string | null; warnings: string[]; text: string | null } => {
+      if (textInput.value.trim() === '') return { error: null, warnings: [], text: null };
+      const reading = { cps: numberFrom(cps), minMs: numberFrom(min) * 1000, maxMs: numberFrom(max) * 1000 };
+      if (!Number.isFinite(reading.cps) || reading.cps <= 0) {
+        return { error: 'Enter a reading speed above 0.', warnings: [], text: null };
+      }
+      if (!Number.isFinite(reading.minMs) || !Number.isFinite(reading.maxMs) || reading.minMs < 0 || reading.maxMs < reading.minMs) {
+        return {
+          error: 'Enter a minimum and a maximum duration, with the maximum at least as long as the minimum.',
+          warnings: [],
+          text: null,
+        };
+      }
+      reading.minMs = Math.round(reading.minMs);
+      reading.maxMs = Math.round(reading.maxMs);
+
+      let converted: FromTextResult;
+      if (mode.value === 'timestamps') {
+        converted = timestampedTextToCues(textInput.value, reading);
+      } else {
+        const startMs = parseClock(start.value);
+        if (startMs === null) {
+          return { error: 'Enter the start time as hh:mm:ss,mmm, for example 00:00:05,000.', warnings: [], text: null };
+        }
+        const gapMs = numberFrom(gap);
+        if (!Number.isFinite(gapMs) || gapMs < 0) {
+          return { error: 'Enter a gap of 0 ms or more.', warnings: [], text: null };
+        }
+        let totalMs: number | null = null;
+        if (fit.checked) {
+          totalMs = parseClock(total.value);
+          if (totalMs === null) {
+            return { error: 'Enter the length of your video as hh:mm:ss, for example 00:12:30.', warnings: [], text: null };
+          }
+        }
+        const splitMode: SplitMode = split.value === 'sentences' ? 'sentences' : 'lines';
+        converted = plainTextToCues(textInput.value, {
+          ...reading,
+          split: splitMode,
+          startMs,
+          gapMs: Math.round(gapMs),
+          totalMs,
+        });
+      }
+      if (converted.error !== null) return { error: converted.error, warnings: converted.warnings, text: null };
+      return { error: null, warnings: converted.warnings, text: serialize(converted.cues, format()) };
+    };
+
+    const refresh = () => {
+      const plain = mode.value !== 'timestamps';
+      for (const row of form.querySelectorAll('[data-plain-only]')) {
+        if (row instanceof HTMLElement) row.hidden = !plain;
+      }
+      totalRow.hidden = !fit.checked;
+      if (downloadLabel instanceof HTMLElement) downloadLabel.textContent = `Download ${format().toUpperCase()} file`;
+      const converted = convert();
+      setDownload(converted.text !== null);
+      showMessages(converted.error === null ? converted.warnings : [converted.error, ...converted.warnings]);
+      showPreview(converted.text);
+    };
+
+    const loadFiles = async (files: File[]) => {
+      const first = files[0];
+      if (!first) return;
+      try {
+        const [decoded] = await readSubtitleFiles([first]);
+        if (!decoded) return;
+        textInput.value = decoded.text;
+        baseName = decoded.name.replace(/\.[^.]+$/, '') || 'subtitles';
+        const encoding = decoded.encoding.replace(/^utf-8$/i, 'UTF-8');
+        const extra = files.length > 1 ? ' Only the first file was used.' : '';
+        source.textContent = `${decoded.name} (${encoding}).${extra}`;
+      } catch {
+        source.textContent = 'That file could not be read. Paste the text instead.';
+      }
+      refresh();
+    };
+
+    for (const input of [textInput, start, cps, min, max, gap, total]) input.addEventListener('input', refresh);
+    for (const input of [mode, output, split, fit]) input.addEventListener('change', refresh);
+
+    choose.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const selected = fileInput.files ? Array.from(fileInput.files) : [];
+      fileInput.value = '';
+      void loadFiles(selected);
+    });
+
+    let depth = 0;
+    drop.addEventListener('dragenter', (event) => {
+      event.preventDefault();
+      depth += 1;
+      drop.dataset.state = 'drag';
+    });
+    drop.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    });
+    drop.addEventListener('dragleave', () => {
+      depth -= 1;
+      if (depth > 0) return;
+      depth = 0;
+      drop.dataset.state = 'idle';
+    });
+    drop.addEventListener('drop', (event) => {
+      depth = 0;
+      drop.dataset.state = 'idle';
+      const dropped = event.dataTransfer?.files;
+      if (!dropped || dropped.length === 0) return;
+      event.preventDefault();
+      void loadFiles(Array.from(dropped));
+    });
+
+    textInput.addEventListener('input', () => {
+      if (textInput.value.trim() === '') {
+        baseName = 'subtitles';
+        source.textContent = SOURCE_NOTE;
+      }
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const converted = convert();
+      if (converted.text === null) {
+        refresh();
+        return;
+      }
+      const name = `${baseName}.${format()}`;
+      downloadSubtitleFiles([{ name, text: converted.text }], bomInput.checked);
+      const note = form.querySelector('[data-kofi-note]');
+      if (note instanceof HTMLElement) note.hidden = false;
+    });
+
+    refresh();
+  }
+</script>

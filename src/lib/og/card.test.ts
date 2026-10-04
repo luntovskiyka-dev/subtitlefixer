@@ -12,6 +12,7 @@ describe('listOgCards', () => {
       '/shift-subtitles',
       '/srt-to-txt',
       '/srt-to-vtt',
+      '/txt-to-srt',
       '/vtt-to-srt',
       '/about',
       '/privacy',
@@ -30,6 +31,7 @@ describe('listOgCards', () => {
       '/shift-subtitles',
       '/srt-to-txt',
       '/srt-to-vtt',
+      '/txt-to-srt',
       '/vtt-to-srt',
     ]);
     for (const card of cards) {

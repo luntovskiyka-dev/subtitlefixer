@@ -8,6 +8,7 @@ import EncodingTool from '../components/EncodingTool.astro';
 import ShiftTool from '../components/ShiftTool.astro';
 import SrtToTxtTool from '../components/SrtToTxtTool.astro';
 import ToolPage from '../components/ToolPage.astro';
+import TxtToSrtTool from '../components/TxtToSrtTool.astro';
 import { tools } from '../data/tools';
 import Base from '../layouts/Base.astro';
 
@@ -45,6 +46,7 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
     {entry.id === 'vtt-to-srt' && <ConvertTool direction="vtt-to-srt" />}
     {entry.id === 'ass-to-srt' && <AssToSrtTool />}
     {entry.id === 'srt-to-txt' && <SrtToTxtTool />}
+    {entry.id === 'txt-to-srt' && <TxtToSrtTool />}
     {entry.id === 'fix-subtitle-drift' && <DriftTool />}
     {entry.id === 'fix-subtitle-drift' && <DriftFps slot="below" />}
   </ToolPage>
