@@ -22,7 +22,7 @@ export function buildJsonLd(input: JsonLdInput): unknown {
           '@type': 'Organization',
           name: BRAND,
           alternateName: ALTERNATE_NAMES,
-          url: input.origin,
+          url: `${input.origin}/`,
           logo: input.logo,
           founder: {
             '@type': 'Person',
@@ -34,7 +34,7 @@ export function buildJsonLd(input: JsonLdInput): unknown {
           '@type': 'WebSite',
           name: BRAND,
           alternateName: ALTERNATE_NAMES,
-          url: input.origin,
+          url: `${input.origin}/`,
         },
       ];
     case 'article':

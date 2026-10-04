@@ -50,7 +50,7 @@ describe('buildJsonLd', () => {
         '@type': 'Organization',
         name: BRAND,
         alternateName: ['subtitlefixer.com', 'Subtitle Fixer'],
-        url: 'https://subtitlefixer.com',
+        url: 'https://subtitlefixer.com/',
         logo: 'https://subtitlefixer.com/apple-touch-icon.png',
         founder: { '@type': 'Person', name: 'Kirill Luntovskii' },
       },
@@ -59,7 +59,7 @@ describe('buildJsonLd', () => {
         '@type': 'WebSite',
         name: BRAND,
         alternateName: ['subtitlefixer.com', 'Subtitle Fixer'],
-        url: 'https://subtitlefixer.com',
+        url: 'https://subtitlefixer.com/',
       },
     ]);
   });
