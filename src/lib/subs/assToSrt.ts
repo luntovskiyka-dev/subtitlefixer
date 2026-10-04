@@ -134,13 +134,22 @@ function collapseLayerDuplicates(cues: readonly Cue[]): Cue[] {
 }
 
 /**
+ * Parse ASS/SSA, strip overrides, drop drawings, and collapse duplicate layers.
+ * Italic and bold stay as <i> and <b>. Parser errors are returned unchanged.
+ */
+export function assToCues(text: string): { cues: Cue[]; errors: ParseError[] } {
+  const parsed = parse(text, 'ass');
+  return { cues: collapseLayerDuplicates(parsed.cues), errors: parsed.errors };
+}
+
+/**
  * Parse ASS/SSA, strip overrides, collapse duplicate layers, and write SRT.
  * Parser errors are returned unchanged. Nothing is sent over the network.
  */
 export function assToSrt(text: string): { text: string; errors: ParseError[] } {
-  const parsed = parse(text, 'ass');
+  const converted = assToCues(text);
   return {
-    text: serialize(collapseLayerDuplicates(parsed.cues), 'srt'),
-    errors: parsed.errors,
+    text: serialize(converted.cues, 'srt'),
+    errors: converted.errors,
   };
 }
