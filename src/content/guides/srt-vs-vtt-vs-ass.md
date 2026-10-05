@@ -168,6 +168,7 @@ The WebVTT standard requires UTF-8. YouTube asks for SRT files in plain UTF-8, a
 - [ASS to SRT converter](/ass-to-srt): turn styled ASS files into SRT subtitles, keeping italics and bold.
 - [SRT to TXT converter](/srt-to-txt): turn SRT, VTT or ASS subtitles into plain text, with or without timestamps.
 - [TXT to SRT converter](/txt-to-srt): turn a script or transcript into a timed SRT or VTT file.
+- [SUB to SRT converter](/sub-to-srt): turn a MicroDVD .sub file into an SRT file.
 
 Timing problems instead? See [Subtitles out of sync: shift vs drift](/guides/subtitles-out-of-sync).
 

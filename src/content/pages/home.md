@@ -30,7 +30,7 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 
 ## The tools
 
-**SubtitleFixer has nine free tools, grouped by the problem they solve.**
+**SubtitleFixer has ten free tools, grouped by the problem they solve.**
 
 ### Timing
 
