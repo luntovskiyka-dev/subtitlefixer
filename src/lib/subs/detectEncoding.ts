@@ -12,6 +12,8 @@ const DECODER_LABELS: Record<string, string> = {
   'utf-8-sig': 'utf-8',
   ascii: 'utf-8',
   'us-ascii': 'utf-8',
+  'windows-1250': 'windows-1250',
+  cp1250: 'windows-1250',
   'windows-1251': 'windows-1251',
   cp1251: 'windows-1251',
   'windows-1252': 'windows-1252',

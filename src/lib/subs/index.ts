@@ -20,6 +20,7 @@ export {
 } from './files';
 export type { DecodedSubtitleFile, SubtitleTextFile } from './files';
 export { assToSrt } from './assToSrt';
+export { microDvdToSrt } from './microDvd';
 export { convertSubtitle } from './convert';
 export { shiftCues } from './shift';
 export type { ShiftResult } from './shift';

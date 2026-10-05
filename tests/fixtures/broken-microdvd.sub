@@ -1,0 +1,5 @@
+{1}{1}25.000
+{0}{10}Hello
+nope
+{20}{10}Backwards
+{30}{55}{Y:i}Line one|{y:b}Line two{c:$0000FF}
