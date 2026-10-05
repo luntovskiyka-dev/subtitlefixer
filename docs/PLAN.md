@@ -88,7 +88,7 @@
 27. Cloudflare Web Analytics; кнопка доната — обычная ссылка `https://ko-fi.com/gngpromo` (`rel="noopener"`, `target="_blank"`), без виджета/скриптов Ko-fi: в футере + мягкий блок «Saved you time? Buy me a coffee» после успешной обработки файла. URL вынести в `src/config/site.ts`, чтобы сменить в одном месте.
 
 ## Этап 6 — Рост (2–3 задачи в неделю)
-28. Инструменты: склейка/разбиение, SUB/SBV→SRT, ✅ SRT↔TXT (28a `/srt-to-txt`, 28b `/txt-to-srt`), проверка на ошибки.
+28. Инструменты: ✅ склейка (28c `/merge-subtitles`), разбиение, SUB/SBV→SRT, ✅ SRT↔TXT (28a `/srt-to-txt`, 28b `/txt-to-srt`), проверка на ошибки.
 29. Страницы под плееры: VLC, Plex, Jellyfin, Samsung/LG TV.
 30. Локализация: es, pt, ru (Astro i18n + hreflang).
 31. Монетизация: affiliate с ~1–3k визитов/мес, реклама (AdSense, 1–2 места, не у дропзоны) с ~10k/мес.
