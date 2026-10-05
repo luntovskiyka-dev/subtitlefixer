@@ -67,6 +67,9 @@ module.exports = {
       t2s: 'var(--t-t2s)',
       't2s-bg': 'var(--t-t2s-bg)',
       't2s-wash': 'var(--c-t2s)',
+      merge: 'var(--t-merge)',
+      'merge-bg': 'var(--t-merge-bg)',
+      'merge-wash': 'var(--c-merge)',
     },
   },
   borderRadius: {

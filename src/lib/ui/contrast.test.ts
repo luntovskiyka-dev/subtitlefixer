@@ -63,6 +63,7 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'ink on ass-to-srt wash', foreground: 'text', background: 'cAss', minimum: TEXT },
   { label: 'ink on srt-to-txt wash', foreground: 'text', background: 'cS2t', minimum: TEXT },
   { label: 'ink on txt-to-srt wash', foreground: 'text', background: 'cT2s', minimum: TEXT },
+  { label: 'ink on merge wash', foreground: 'text', background: 'cMerge', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
   { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
@@ -123,6 +124,7 @@ const TOOL_PAIRS: readonly Pair[] = [
   { label: 'ass-to-srt icon on tile', foreground: 'tAss', background: 'tAssBg', minimum: NON_TEXT },
   { label: 'srt-to-txt icon on tile', foreground: 'tS2t', background: 'tS2tBg', minimum: NON_TEXT },
   { label: 'txt-to-srt icon on tile', foreground: 'tT2s', background: 'tT2sBg', minimum: NON_TEXT },
+  { label: 'merge icon on tile', foreground: 'tMerge', background: 'tMergeBg', minimum: NON_TEXT },
 ];
 
 describe('contrastRatio', () => {
@@ -201,6 +203,7 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'text on ass-to-srt card', foreground: 'text', background: 'cAss', minimum: TEXT },
   { label: 'text on srt-to-txt card', foreground: 'text', background: 'cS2t', minimum: TEXT },
   { label: 'text on txt-to-srt card', foreground: 'text', background: 'cT2s', minimum: TEXT },
+  { label: 'text on merge card', foreground: 'text', background: 'cMerge', minimum: TEXT },
   { label: 'outline on shift card', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
   { label: 'outline on drift card', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
   { label: 'outline on encoding card', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
@@ -209,6 +212,7 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'outline on ass-to-srt card', foreground: 'edge', background: 'cAss', minimum: NON_TEXT },
   { label: 'outline on srt-to-txt card', foreground: 'edge', background: 'cS2t', minimum: NON_TEXT },
   { label: 'outline on txt-to-srt card', foreground: 'edge', background: 'cT2s', minimum: NON_TEXT },
+  { label: 'outline on merge card', foreground: 'edge', background: 'cMerge', minimum: NON_TEXT },
 ];
 
 checkPairs('home light', LIGHT, HOME_PAIRS);

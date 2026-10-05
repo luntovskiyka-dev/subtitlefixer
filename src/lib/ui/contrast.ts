@@ -58,6 +58,9 @@ export type Palette = {
   tT2s: string;
   tT2sBg: string;
   cT2s: string;
+  tMerge: string;
+  tMergeBg: string;
+  cMerge: string;
 };
 
 export const LIGHT: Palette = {
@@ -119,6 +122,9 @@ export const LIGHT: Palette = {
   tT2s: '#1B1A3A',
   tT2sBg: '#B5E655',
   cT2s: '#EDF8D3',
+  tMerge: '#1B1A3A',
+  tMergeBg: '#C9A2FF',
+  cMerge: '#F1E6FF',
 };
 
 export const DARK: Palette = {
@@ -180,6 +186,9 @@ export const DARK: Palette = {
   tT2s: '#1B1A3A',
   tT2sBg: '#B5E655',
   cT2s: '#2B3A12',
+  tMerge: '#1B1A3A',
+  tMergeBg: '#C9A2FF',
+  cMerge: '#33204D',
 };
 
 const SRGB_THRESHOLD = 0.04045;

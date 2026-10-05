@@ -7,15 +7,25 @@ export const tools = {
   'fix-subtitle-drift': 'Fix subtitle drift',
   'srt-to-txt': 'SRT to TXT',
   'txt-to-srt': 'TXT to SRT',
+  'merge-subtitles': 'Merge subtitles',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s';
-export type ToolGroup = 'Timing' | 'Text' | 'Convert';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'merge';
+export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
   slug: ToolSlug;
-  nav: 'Shift' | 'Fix drift' | 'Fix encoding' | 'SRT→VTT' | 'VTT→SRT' | 'ASS→SRT' | 'SRT→TXT' | 'TXT→SRT';
+  nav:
+    | 'Shift'
+    | 'Fix drift'
+    | 'Fix encoding'
+    | 'SRT→VTT'
+    | 'VTT→SRT'
+    | 'ASS→SRT'
+    | 'SRT→TXT'
+    | 'TXT→SRT'
+    | 'Merge';
   key: ToolKey;
   group: ToolGroup;
   /** SVG path markup, drawn with the tool icon colour. */
@@ -108,6 +118,16 @@ export const toolMeta: readonly ToolMeta[] = [
     card: 'Turn a script or transcript into a timed SRT or VTT file.',
     mark: 'SRT',
   },
+  {
+    slug: 'merge-subtitles',
+    nav: 'Merge',
+    key: 'merge',
+    group: 'Combine',
+    icon: '<path d="M4 6h4.5l4 6"/><path d="M4 18h4.5l4-6H20"/><path d="m16.5 8.5 3.5 3.5-3.5 3.5"/>',
+    formats: '2 files → .srt/.vtt',
+    card: 'Combine two subtitle files: two languages in one, or CD1 and CD2 joined.',
+    mark: 'Merge',
+  },
 ];
 
 /** Groups of the header Tools menu, in column order, with the names the home page uses for them. */
@@ -115,21 +135,22 @@ export const toolGroups = [
   { group: 'Timing', label: 'Timing' },
   { group: 'Text', label: 'Text and encoding' },
   { group: 'Convert', label: 'Format conversion' },
+  { group: 'Combine', label: 'Combining files' },
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 8 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 9 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {
   heading: 'Pick a tool',
   open: 'Open tool →',
-  groups: 'Timing · Text and encoding · Format conversion',
+  groups: 'Timing · Text and encoding · Format conversion · Combining files',
 } as const;
 
 /**
  * Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge.
- * Six cards for the six fixing and converting tools; SRT to TXT and TXT to SRT have no card yet.
+ * Six cards for the six fixing and converting tools; SRT to TXT, TXT to SRT and Merge subtitles have no card yet.
  */
 export const homeProblems = [
   { key: 'shift', label: 'Always early or late' },

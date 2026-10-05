@@ -81,6 +81,9 @@
   --t-t2s: #1B1A3A;
   --t-t2s-bg: #B5E655;
   --c-t2s: #EDF8D3;
+  --t-merge: #1B1A3A;
+  --t-merge-bg: #C9A2FF;
+  --c-merge: #F1E6FF;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -132,5 +135,6 @@
     --c-ass: #15334D;
     --c-s2t: #3D3415;
     --c-t2s: #2B3A12;
+    --c-merge: #33204D;
   }
 }
