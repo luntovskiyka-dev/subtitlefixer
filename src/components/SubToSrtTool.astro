@@ -1,0 +1,277 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [{ label: 'SUB', tone: 'accent-soft' }] as const;
+---
+
+<form id="sub-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="sub-dropzone"
+        variant="stage"
+        label="Add one or more MicroDVD .sub files"
+        stageTitle="Add one or more MicroDVD .sub files"
+        accept=".sub,.idx"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="sub-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="sub-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div
+        id="sub-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Converted subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="sub-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <p id="sub-times" class="mb-2 text-sm font-extrabold"></p>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.sub → .srt</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="sub-fps" class="text-sm font-extrabold">Frame rate</label>
+        <select id="sub-fps" name="fps" class="sf-field" aria-describedby="sub-fps-note">
+          <option value="23.976" selected>23.976</option>
+          <option value="24">24</option>
+          <option value="25">25</option>
+          <option value="29.97">29.97</option>
+          <option value="30">30</option>
+        </select>
+        <p id="sub-fps-note" class="text-sm text-muted">Files without a {'{1}{1}'} frame-rate line use this rate.</p>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="sub-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="sub-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="sub-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download SRT file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="sub-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { DEFAULT_MICRODVD_FPS, microDvdFileError, microDvdToSrt, srtNamesForSub } from '../lib/subs/microDvd';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('sub-form');
+  const result = document.getElementById('sub-result');
+  const status = document.getElementById('sub-status');
+  const download = document.getElementById('sub-download');
+  const hint = document.getElementById('sub-download-hint');
+  const meta = document.querySelector('#sub-dropzone [data-file-meta]');
+  const fpsInput = document.getElementById('sub-fps');
+  const fpsNote = document.getElementById('sub-fps-note');
+  const bomInput = document.getElementById('sub-bom');
+
+  let files: DecodedSubtitleFile[] = [];
+  let chosen = '23.976';
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file) || !('bytes' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string' &&
+      file.bytes instanceof Uint8Array
+    );
+  }
+
+  function chosenFps(): number {
+    const value = Number(chosen);
+    if (!Number.isFinite(value) || value <= 0) return DEFAULT_MICRODVD_FPS;
+    return value;
+  }
+
+  function formatFps(fps: number): string {
+    if (!(fpsInput instanceof HTMLSelectElement)) return String(fps);
+    for (const option of fpsInput.options) {
+      if (Math.abs(Number(option.value) - fps) < 0.001) return option.value;
+    }
+    return String(fps);
+  }
+
+  function showResult(messages: readonly string[], preview: string | null, times: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('sub-preview');
+    const empty = document.getElementById('sub-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('sub-preview-tag');
+    const timesLine = document.getElementById('sub-times');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      if (timesLine instanceof HTMLElement) timesLine.textContent = '';
+      return;
+    }
+    const sliced = slicePreviewCues(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    if (timesLine instanceof HTMLElement) timesLine.textContent = times ?? '';
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    fpsInput instanceof HTMLSelectElement &&
+    fpsNote instanceof HTMLElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      let times: string | null = null;
+      const fps = chosenFps();
+      const accepted = files.filter((file) => microDvdFileError(file) === null);
+      const outputNames = srtNamesForSub(accepted.map((file) => file.name));
+      let fromFile = 0;
+      let shared: number | null = null;
+      let mixed = false;
+
+      for (const file of files) {
+        const blocked = microDvdFileError(file);
+        if (blocked) {
+          messages.push(`${file.name}: ${blocked}`);
+          continue;
+        }
+        const output = microDvdToSrt(file.text, fps, { name: file.name, bytes: file.bytes });
+        for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
+        if (output.fpsFromFile && output.fps !== null) {
+          fromFile += 1;
+          if (shared === null) shared = output.fps;
+          else if (Math.abs(output.fps - shared) >= 0.001) mixed = true;
+        }
+        if (output.cues.length === 0 || output.span === null) continue;
+        if (preview === null) {
+          preview = output.text;
+          const rate = output.fps === null ? formatFps(fps) : formatFps(output.fps);
+          const source = output.fpsFromFile ? `${rate} fps from the file` : `${rate} fps`;
+          times = `First subtitle starts at ${output.span.first}. Last subtitle ends at ${output.span.last}, at ${source}.`;
+        }
+        const name = outputNames[accepted.indexOf(file)] ?? 'subtitles.srt';
+        ready.push({ name, text: output.text });
+      }
+
+      let note = 'Files without a {1}{1} frame-rate line use this rate.';
+      let locked = false;
+      if (accepted.length > 0 && fromFile === accepted.length && shared !== null) {
+        locked = true;
+        note = mixed
+          ? 'Each file uses the frame rate written in it.'
+          : `Frame rate read from the file: ${formatFps(shared)}.`;
+        if (!mixed) chosen = formatFps(shared);
+      } else if (fromFile > 0) {
+        note = 'Files with a {1}{1} frame-rate line use that rate. This menu is for the others.';
+      }
+
+      return { messages, ready, preview, times, note, locked };
+    };
+
+    const applyFps = (locked: boolean, note: string) => {
+      fpsNote.textContent = note;
+      fpsInput.disabled = locked;
+      fpsInput.value = chosen;
+    };
+
+    const refresh = () => {
+      const outcome = converted();
+      applyFps(outcome.locked, outcome.note);
+      showResult(outcome.messages, outcome.preview, outcome.times);
+      setDownload(outcome.ready.length > 0);
+      return outcome;
+    };
+
+    fpsInput.addEventListener('change', () => {
+      if (!fpsInput.disabled) chosen = fpsInput.value;
+      if (files.length === 0) return;
+      refresh();
+    });
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        applyFps(false, 'Files without a {1}{1} frame-rate line use this rate.');
+        showResult([], null, null);
+        setDownload(false);
+        return;
+      }
+      refresh();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosenNames = names();
+      renderStatus(status, 'working', chosenNames);
+      if (files.length === 0) {
+        showResult(['Add one or more MicroDVD .sub files.'], null, null);
+        renderStatus(status, 'error', chosenNames);
+        return;
+      }
+      const outcome = refresh();
+      if (outcome.ready.length > 0) {
+        downloadSubtitleFiles(outcome.ready, bomInput.checked);
+        renderStatus(status, 'ready', chosenNames);
+        return;
+      }
+      renderStatus(status, 'error', chosenNames);
+    });
+  }
+</script>

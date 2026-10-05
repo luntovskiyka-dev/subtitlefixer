@@ -13,6 +13,7 @@ describe('listOgCards', () => {
       '/shift-subtitles',
       '/srt-to-txt',
       '/srt-to-vtt',
+      '/sub-to-srt',
       '/txt-to-srt',
       '/vtt-to-srt',
       '/about',
@@ -33,6 +34,7 @@ describe('listOgCards', () => {
       '/shift-subtitles',
       '/srt-to-txt',
       '/srt-to-vtt',
+      '/sub-to-srt',
       '/txt-to-srt',
       '/vtt-to-srt',
     ]);
