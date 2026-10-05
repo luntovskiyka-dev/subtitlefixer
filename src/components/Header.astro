@@ -1,29 +1,102 @@
 ---
 import Logo from './Logo.astro';
+import ToolIcon from './ToolIcon.astro';
 import { KOFI_URL } from '../config/site';
-import { toolMeta } from '../data/tools';
+import { toolGroups, toolMeta, tools } from '../data/tools';
 import { pagePath } from '../lib/ui/pagePath';
 
 const current = pagePath(Astro.url.pathname);
 
-const dot = {
-  shift: 'bg-tool-shift-bg',
-  drift: 'bg-tool-drift-bg',
-  enc: 'bg-tool-enc-bg',
-  s2v: 'bg-tool-s2v-bg',
-  v2s: 'bg-tool-v2s-bg',
-  ass: 'bg-tool-ass-bg',
-  s2t: 'bg-tool-s2t-bg',
-  t2s: 'bg-tool-t2s-bg',
-} as const;
-
-const linkClass =
-  'group inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border-2 px-3.5 py-2 text-[14.5px] font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover';
+/** Menu columns: one per group, in `toolGroups` order, each listing its tools in `toolMeta` order. */
+const columns = toolGroups
+  .map(({ group, label }) => ({
+    id: `tools-menu-${group.toLowerCase()}`,
+    label,
+    items: toolMeta.filter((tool) => tool.group === group),
+  }))
+  .filter((column) => column.items.length > 0);
 ---
 
 <header class="min-w-0 bg-bg">
-  <div class="mx-auto flex min-h-[60px] w-full max-w-[1180px] items-center gap-6 px-3 sm:px-6 md:min-h-[76px]">
+  <div
+    class="relative mx-auto flex min-h-[60px] w-full max-w-[1180px] items-center gap-2 px-3 sm:gap-6 sm:px-6 md:min-h-[76px]"
+  >
     <Logo current={current === '/'} />
+    <details class="sf-menu" data-tools-menu>
+      <summary class="sf-menu-button">
+        <span class="sf-menu-label">Tools</span>
+        <svg
+          class="sf-menu-chevron"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+        <svg
+          class="sf-menu-grid"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect>
+          <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect>
+          <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect>
+          <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect>
+        </svg>
+        <svg
+          class="sf-menu-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+      </summary>
+      <div class="sf-menu-panel sf-rise" data-tools-panel>
+        <nav aria-label="Tools">
+          <div class="sf-menu-columns">
+            {
+              columns.map((column) => (
+                <div class="sf-menu-group">
+                  <p id={column.id} class="sf-menu-heading">
+                    {column.label}
+                  </p>
+                  <ul aria-labelledby={column.id}>
+                    {column.items.map((tool) => (
+                      <li>
+                        <a
+                          href={`/${tool.slug}`}
+                          class={`sf-menu-item sf-card-${tool.key}`}
+                          aria-current={current === `/${tool.slug}` ? 'page' : undefined}
+                        >
+                          <ToolIcon name={tool.key} size="s" />
+                          <span class="sf-menu-text">
+                            <span class="sf-menu-name">{tools[tool.slug]}</span>
+                            <span class="sf-menu-formats">{tool.formats}</span>
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </nav>
+        <button type="button" class="sf-menu-close" data-tools-close hidden>Close menu</button>
+      </div>
+    </details>
     <a
       href={KOFI_URL}
       target="_blank"
@@ -35,32 +108,42 @@ const linkClass =
       <span class="hidden sm:inline">☕ Buy me a coffee</span>
     </a>
   </div>
-  <nav
-    class="sf-nav-scroll sf-nav-center mx-auto flex w-full min-w-0 max-w-[1180px] gap-1.5 overflow-x-auto px-3 pb-3 sm:px-6"
-    aria-label="Tools"
-  >
-    {
-      toolMeta.map((tool) => {
-        const active = current === `/${tool.slug}`;
-        return (
-          <a
-            href={`/${tool.slug}`}
-            class:list={[
-              linkClass,
-              active ? 'border-edge bg-nav-active text-on-nav' : 'border-edge bg-surface text-ink',
-            ]}
-            aria-current={active ? 'page' : undefined}
-          >
-            <span
-              class:list={[
-                'size-2.5 rounded-full border-[1.5px] border-edge group-aria-[current=page]:border-on-nav',
-                dot[tool.key],
-              ]}
-            />
-            {tool.nav}
-          </a>
-        );
-      })
-    }
-  </nav>
 </header>
+
+<script is:inline>
+  (() => {
+    const menu = document.querySelector('[data-tools-menu]');
+    if (!menu) return;
+    const button = menu.querySelector('summary');
+    const close = menu.querySelector('[data-tools-close]');
+    const sync = () => button.setAttribute('aria-expanded', menu.open ? 'true' : 'false');
+    const shut = (refocus) => {
+      if (!menu.open) return;
+      menu.open = false;
+      sync();
+      if (refocus) button.focus();
+    };
+    sync();
+    menu.addEventListener('toggle', sync);
+    if (close) {
+      close.hidden = false;
+      close.addEventListener('click', () => shut(true));
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.open) {
+        event.preventDefault();
+        shut(true);
+      }
+    });
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (menu.open && !(target instanceof Element && target.closest('[data-tools-menu] summary, [data-tools-panel]'))) {
+        shut(false);
+      }
+    });
+    menu.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget;
+      if (menu.open && next instanceof Node && !menu.contains(next)) shut(false);
+    });
+  })();
+</script>

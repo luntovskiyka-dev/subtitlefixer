@@ -81,16 +81,233 @@
   animation: sf-rise 160ms ease-out 1;
 }
 
-.sf-nav-scroll {
-  scrollbar-width: none;
+.sf-menu {
+  flex-shrink: 0;
 }
 
-.sf-nav-center {
-  justify-content: safe center;
+.sf-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  border: 2px solid var(--sf-edge);
+  border-radius: 999px;
+  background: var(--sf-surface);
+  padding: 7px 12px 7px 16px;
+  color: var(--sf-text);
+  font-size: 14.5px;
+  font-weight: 800;
+  line-height: 1;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
 }
 
-.sf-nav-scroll::-webkit-scrollbar {
+.sf-menu-button::-webkit-details-marker {
   display: none;
+}
+
+.sf-menu-button:hover {
+  background: var(--sf-subtle);
+}
+
+.sf-menu-button:focus-visible {
+  outline: 2px solid var(--sf-brand-hover);
+  outline-offset: 2px;
+}
+
+.sf-menu[open] > .sf-menu-button {
+  background: var(--sf-nav-active);
+  color: var(--sf-on-nav);
+}
+
+.sf-menu-chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 120ms ease-out;
+}
+
+.sf-menu[open] .sf-menu-chevron {
+  transform: rotate(180deg);
+}
+
+.sf-menu-grid,
+.sf-menu-x {
+  display: none;
+  width: 18px;
+  height: 18px;
+}
+
+/* Anchored to the header row (its `relative` box), not to the button, so it always fits in the 1180px row. */
+.sf-menu-panel {
+  position: absolute;
+  top: calc(100% - 6px);
+  left: 24px;
+  z-index: 50;
+  width: max-content;
+  max-width: calc(100% - 48px);
+  border: 2.5px solid var(--sf-edge);
+  border-radius: var(--sf-radius-lg);
+  background: var(--sf-surface);
+  padding: 16px;
+  box-shadow: var(--sf-shadow);
+}
+
+.sf-menu-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.sf-menu-group {
+  width: 250px;
+}
+
+.sf-menu-heading {
+  margin: 0 0 6px;
+  padding: 0 10px;
+  color: var(--sf-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.sf-menu-group ul {
+  display: grid;
+  gap: 2px;
+}
+
+.sf-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 6px 10px 6px 8px;
+  color: var(--sf-text);
+  text-decoration: none;
+}
+
+.sf-menu-item:hover {
+  background: var(--sf-card-wash);
+}
+
+.sf-menu-item[aria-current='page'] {
+  border-color: var(--sf-edge);
+  background: var(--sf-card-wash);
+}
+
+.sf-menu-item:focus-visible {
+  outline: 2px solid var(--sf-brand-hover);
+  outline-offset: 2px;
+}
+
+.sf-menu-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sf-menu-name {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.sf-menu-formats {
+  color: var(--sf-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sf-menu-item:is(:hover, [aria-current='page']) .sf-menu-formats {
+  color: var(--sf-text);
+}
+
+.sf-menu-close {
+  display: none;
+}
+
+/* Phones: an icon button and a full-width sheet under the header row, over a dimmed page. */
+@media (max-width: 639.98px) {
+  .sf-menu-button {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .sf-menu-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .sf-menu-chevron {
+    display: none;
+  }
+
+  .sf-menu:not([open]) .sf-menu-grid,
+  .sf-menu[open] .sf-menu-x {
+    display: block;
+  }
+
+  .sf-menu[open]::before {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 40;
+    height: 100dvh;
+    background: rgb(7 6 26 / 0.45);
+    content: '';
+  }
+
+  .sf-menu-panel {
+    top: 100%;
+    right: 0;
+    left: 0;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 60px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-width: 2.5px 0;
+    border-radius: 0 0 var(--sf-radius-lg) var(--sf-radius-lg);
+    padding: 12px 12px 16px;
+  }
+
+  .sf-menu-group {
+    width: 100%;
+  }
+
+  .sf-menu-close:not([hidden]) {
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    border: 2px solid var(--sf-edge);
+    border-radius: 999px;
+    background: var(--sf-surface);
+    color: var(--sf-text);
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .sf-menu-close:focus-visible {
+    outline: 2px solid var(--sf-brand-hover);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

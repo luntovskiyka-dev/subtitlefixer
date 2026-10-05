@@ -26,7 +26,7 @@ export type ToolMeta = {
   mark: string;
 };
 
-/** Header order. Footer links keep the insertion order of `tools`. */
+/** Home tool grid order, and the order inside each group of the header Tools menu. Footer links keep the insertion order of `tools`. */
 export const toolMeta: readonly ToolMeta[] = [
   {
     slug: 'shift-subtitles',
@@ -109,6 +109,13 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
 ];
+
+/** Groups of the header Tools menu, in column order, with the names the home page uses for them. */
+export const toolGroups = [
+  { group: 'Timing', label: 'Timing' },
+  { group: 'Text', label: 'Text and encoding' },
+  { group: 'Convert', label: 'Format conversion' },
+] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
 export const homeTrust = ['No upload', 'No sign-up', 'Free, 8 tools', 'Many files → one zip'] as const;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { toolMeta } from '../../data/tools';
 import { DARK, LIGHT, contrastRatio, type Palette } from './contrast';
 
 const TEXT = 4.5;
@@ -212,6 +213,30 @@ const HOME_PAIRS: readonly Pair[] = [
 
 checkPairs('home light', LIGHT, HOME_PAIRS);
 checkPairs('home dark', DARK, HOME_PAIRS);
+
+/** Header Tools menu: button, panel, focus ring, and every tool's wash behind the current or hovered tool. */
+const MENU_PAIRS: readonly Pair[] = [
+  { label: 'menu button label', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'menu button label on hover', foreground: 'text', background: 'subtle', minimum: TEXT },
+  { label: 'open menu button label', foreground: 'onNav', background: 'navActive', minimum: TEXT },
+  { label: 'menu button outline on page', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
+  { label: 'menu group heading', foreground: 'muted', background: 'surface', minimum: TEXT },
+  { label: 'menu tool name', foreground: 'text', background: 'surface', minimum: TEXT },
+  { label: 'menu formats line', foreground: 'muted', background: 'surface', minimum: TEXT },
+  { label: 'menu panel outline on page', foreground: 'edge', background: 'bg', minimum: NON_TEXT },
+  { label: 'menu focus ring on panel', foreground: 'brandHover', background: 'surface', minimum: NON_TEXT },
+  { label: 'menu focus ring on page', foreground: 'brandHover', background: 'bg', minimum: NON_TEXT },
+  ...toolMeta.flatMap((tool): Pair[] => {
+    const wash = `c${tool.key[0].toUpperCase()}${tool.key.slice(1)}` as keyof Palette;
+    return [
+      { label: `menu ${tool.slug} text on wash`, foreground: 'text', background: wash, minimum: TEXT },
+      { label: `menu ${tool.slug} current outline on wash`, foreground: 'edge', background: wash, minimum: NON_TEXT },
+    ];
+  }),
+];
+
+checkPairs('menu light', LIGHT, MENU_PAIRS);
+checkPairs('menu dark', DARK, MENU_PAIRS);
 
 /** Problem-card illustrations (R8). Checked in both themes. */
 const PROBLEM_PAIRS: readonly Pair[] = [
