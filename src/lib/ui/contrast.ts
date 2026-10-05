@@ -61,6 +61,9 @@ export type Palette = {
   tMerge: string;
   tMergeBg: string;
   cMerge: string;
+  tSub: string;
+  tSubBg: string;
+  cSub: string;
 };
 
 export const LIGHT: Palette = {
@@ -125,6 +128,9 @@ export const LIGHT: Palette = {
   tMerge: '#1B1A3A',
   tMergeBg: '#C9A2FF',
   cMerge: '#F1E6FF',
+  tSub: '#1B1A3A',
+  tSubBg: '#FFB07C',
+  cSub: '#FFE4D4',
 };
 
 export const DARK: Palette = {
@@ -189,6 +195,9 @@ export const DARK: Palette = {
   tMerge: '#1B1A3A',
   tMergeBg: '#C9A2FF',
   cMerge: '#33204D',
+  tSub: '#1B1A3A',
+  tSubBg: '#FFB07C',
+  cSub: '#3A2418',
 };
 
 const SRGB_THRESHOLD = 0.04045;

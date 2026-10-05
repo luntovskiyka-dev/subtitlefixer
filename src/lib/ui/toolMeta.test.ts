@@ -10,6 +10,7 @@ const NAV_ORDER = [
   'ASS→SRT',
   'SRT→TXT',
   'TXT→SRT',
+  'SUB→SRT',
   'Merge',
 ] as const;
 

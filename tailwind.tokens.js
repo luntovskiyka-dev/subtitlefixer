@@ -70,6 +70,9 @@ module.exports = {
       merge: 'var(--t-merge)',
       'merge-bg': 'var(--t-merge-bg)',
       'merge-wash': 'var(--c-merge)',
+      sub: 'var(--t-sub)',
+      'sub-bg': 'var(--t-sub-bg)',
+      'sub-wash': 'var(--c-sub)',
     },
   },
   borderRadius: {

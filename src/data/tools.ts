@@ -8,10 +8,11 @@ export const tools = {
   'srt-to-txt': 'SRT to TXT',
   'txt-to-srt': 'TXT to SRT',
   'merge-subtitles': 'Merge subtitles',
+  'sub-to-srt': 'SUB to SRT',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'merge';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'sub' | 'merge';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
@@ -25,6 +26,7 @@ export type ToolMeta = {
     | 'ASS→SRT'
     | 'SRT→TXT'
     | 'TXT→SRT'
+    | 'SUB→SRT'
     | 'Merge';
   key: ToolKey;
   group: ToolGroup;
@@ -119,6 +121,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'sub-to-srt',
+    nav: 'SUB→SRT',
+    key: 'sub',
+    group: 'Convert',
+    icon: '<path d="M3.5 5.5h8v13h-8z"/><path d="M5.5 9.5h4"/><circle cx="17.5" cy="15.5" r="4.5"/><path d="M17.5 13.5v2l1.5 1"/>',
+    formats: '.sub → .srt',
+    card: 'Turn MicroDVD frame numbers in a .sub file into SRT timestamps.',
+    mark: 'SRT',
+  },
+  {
     slug: 'merge-subtitles',
     nav: 'Merge',
     key: 'merge',
@@ -139,7 +151,7 @@ export const toolGroups = [
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 9 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 10 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {
@@ -150,7 +162,7 @@ export const toolGridCopy = {
 
 /**
  * Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge.
- * Six cards for the six fixing and converting tools; SRT to TXT, TXT to SRT and Merge subtitles have no card yet.
+ * Six cards for the six fixing and converting tools; SRT to TXT, TXT to SRT, SUB to SRT and Merge subtitles have no card yet.
  */
 export const homeProblems = [
   { key: 'shift', label: 'Always early or late' },
