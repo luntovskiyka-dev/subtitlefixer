@@ -1,0 +1,460 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+] as const;
+const labelClass = 'text-sm font-extrabold';
+const suffixClass = 'pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-bold text-muted';
+---
+
+<form id="merge-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="merge-dropzone"
+        variant="stage"
+        label="Add two SRT, VTT or ASS files"
+        stageTitle="Add two subtitle files"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="merge-status" tone="stage" />
+      <div id="merge-files" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <ol class="flex flex-col gap-2">
+          <li data-slot="0" class="flex min-w-0 items-center gap-3">
+            <span class="grid size-8 shrink-0 place-items-center rounded-full border-2 border-edge bg-accent-soft text-sm font-extrabold" aria-hidden="true">A</span>
+            <span class="min-w-0 flex-1">
+              <span data-role class="block text-[12.5px] font-extrabold text-muted"></span>
+              <span data-name class="block truncate text-[15px] font-extrabold"></span>
+              <span data-meta class="block truncate font-mono text-[12.5px] text-muted"></span>
+            </span>
+          </li>
+          <li data-slot="1" class="flex min-w-0 items-center gap-3">
+            <span class="grid size-8 shrink-0 place-items-center rounded-full border-2 border-edge bg-mint text-sm font-extrabold" aria-hidden="true">B</span>
+            <span class="min-w-0 flex-1">
+              <span data-role class="block text-[12.5px] font-extrabold text-muted"></span>
+              <span data-name class="block truncate text-[15px] font-extrabold"></span>
+              <span data-meta class="block truncate font-mono text-[12.5px] text-muted"></span>
+            </span>
+          </li>
+        </ol>
+        <button
+          id="merge-swap-files"
+          type="button"
+          class="mt-3 rounded-full border-2 border-edge bg-surface px-4 py-2 text-sm font-extrabold text-ink shadow-hard-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-hover"
+        >
+          ⇅ Swap files
+        </button>
+      </div>
+    </div>
+    <div slot="preview">
+      <p id="merge-preview-empty" class="text-sm font-medium text-on-brand-muted">Add two files to preview the merged subtitles.</p>
+      <div
+        id="merge-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Merged subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="merge-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">A + B → one file</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="merge-mode" class={labelClass}>Mode</label>
+        <select id="merge-mode" name="mode" class="sf-field">
+          <option value="dual" selected>Two languages (dual)</option>
+          <option value="join">Join parts (CD1 + CD2)</option>
+        </select>
+      </div>
+      <div data-dual-only class="mt-3">
+        <div class="flex min-h-11 items-center gap-3">
+          <input id="merge-swap" name="swap" type="checkbox" class="sf-check" aria-describedby="merge-order" />
+          <label for="merge-swap" class={labelClass}>Swap order: file B on top</label>
+        </div>
+        <p id="merge-order" class="text-sm text-muted">File A sets the timings. On screen: file A on top, file B below.</p>
+      </div>
+      <div data-join-only class="mt-3 flex flex-col gap-2" hidden>
+        <label for="merge-start-mode" class={labelClass}>Part 2 starts</label>
+        <select id="merge-start-mode" name="startMode" class="sf-field">
+          <option value="after" selected>After the last line of part 1</option>
+          <option value="manual">At a time I enter</option>
+        </select>
+      </div>
+      <div id="merge-gap-row" data-join-only class="mt-3 flex flex-col gap-2" hidden>
+        <label for="merge-gap" class={labelClass}>Gap after part 1</label>
+        <div class="relative">
+          <input id="merge-gap" name="gap" type="number" inputmode="numeric" min="0" step="100" value="0" class="sf-field pr-14" />
+          <span class={suffixClass} aria-hidden="true">ms</span>
+        </div>
+      </div>
+      <div id="merge-start-row" data-join-only class="mt-3 flex flex-col gap-2" hidden>
+        <label for="merge-start" class={labelClass}>Part 2 starts at</label>
+        <input
+          id="merge-start"
+          name="start"
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="hh:mm:ss,mmm"
+          aria-describedby="merge-start-hint"
+          class="sf-field"
+        />
+        <p id="merge-start-hint" class="text-sm text-muted">Where part 2 begins in the joined video, for example 01:02:15,000.</p>
+      </div>
+      <p id="merge-join-note" data-join-only class="mt-2 text-sm font-bold" aria-live="polite" hidden></p>
+      <div class="mt-3 flex flex-col gap-2">
+        <label for="merge-output" class={labelClass}>Output</label>
+        <select id="merge-output" name="output" class="sf-field">
+          <option value="srt" selected>SRT</option>
+          <option value="vtt">VTT</option>
+        </select>
+      </div>
+      <div class="mt-2 flex min-h-11 items-center gap-3">
+        <input id="merge-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="merge-bom" class={labelClass}>Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="merge-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add two files to enable the download.">
+        <span id="merge-download-label">Download SRT file</span>
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your files never leave your device.
+      </p>
+      <div id="merge-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { parseClock } from '../lib/subs/fromText';
+  import {
+    joinPreview,
+    mergedFileName,
+    mergeSubtitles,
+    readMergeInput,
+    type MergeInput,
+    type MergeResult,
+  } from '../lib/subs/merge';
+  import { formatSrtTimestamp } from '../lib/subs/time';
+  import { subtitleFormatFromName } from '../lib/subs/toText';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  type Slot = { file: DecodedSubtitleFile; input: MergeInput | null };
+  type Message = { text: string; tone: 'error' | 'warn' | 'info' };
+  type Merged = {
+    messages: Message[];
+    text: string | null;
+    preview: { text: string; caption: string } | null;
+    outcome: MergeResult | null;
+  };
+
+  const form = document.getElementById('merge-form');
+  const status = document.getElementById('merge-status');
+  const list = document.getElementById('merge-files');
+  const swapFiles = document.getElementById('merge-swap-files');
+  const zoneName = document.querySelector('#merge-dropzone [data-file-name]');
+  const zoneMeta = document.querySelector('#merge-dropzone [data-file-meta]');
+  const mode = document.getElementById('merge-mode');
+  const swap = document.getElementById('merge-swap');
+  const order = document.getElementById('merge-order');
+  const startMode = document.getElementById('merge-start-mode');
+  const gapRow = document.getElementById('merge-gap-row');
+  const gap = document.getElementById('merge-gap');
+  const startRow = document.getElementById('merge-start-row');
+  const start = document.getElementById('merge-start');
+  const joinNote = document.getElementById('merge-join-note');
+  const output = document.getElementById('merge-output');
+  const bomInput = document.getElementById('merge-bom');
+  const download = document.getElementById('merge-download');
+  const downloadLabel = document.getElementById('merge-download-label');
+  const hint = document.getElementById('merge-download-hint');
+  const result = document.getElementById('merge-result');
+
+  const ROLES = {
+    dual: ['File A · sets the timings', 'File B · added to the lines of file A'],
+    join: ['Part 1 (CD1)', 'Part 2 (CD2) · moved to follow part 1'],
+  } as const;
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.encoding === 'string' && typeof file.text === 'string';
+  }
+
+  function encodingLabel(encoding: string): string {
+    return encoding.replace(/^utf-8$/i, 'UTF-8');
+  }
+
+  function plural(count: number, word: string): string {
+    return `${count} ${word}${count === 1 ? '' : 's'}`;
+  }
+
+  const TONE_CLASS = {
+    error: 'sf-msg sf-rise',
+    warn: 'sf-msg sf-warn sf-rise',
+    info: 'text-sm font-medium text-muted sf-rise',
+  } as const;
+
+  function showMessages(messages: readonly Message[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = TONE_CLASS[message.tone];
+      paragraph.textContent = message.text;
+      result.append(paragraph);
+    }
+  }
+
+  function showPreview(preview: { text: string; caption: string } | null): void {
+    const card = document.getElementById('merge-preview');
+    const empty = document.getElementById('merge-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('merge-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    pre.textContent = preview.text;
+    if (tag instanceof HTMLElement) tag.textContent = preview.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    status instanceof HTMLElement &&
+    list instanceof HTMLElement &&
+    swapFiles instanceof HTMLButtonElement &&
+    mode instanceof HTMLSelectElement &&
+    swap instanceof HTMLInputElement &&
+    order instanceof HTMLElement &&
+    startMode instanceof HTMLSelectElement &&
+    gapRow instanceof HTMLElement &&
+    gap instanceof HTMLInputElement &&
+    startRow instanceof HTMLElement &&
+    start instanceof HTMLInputElement &&
+    joinNote instanceof HTMLElement &&
+    output instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const slots: (Slot | null)[] = [null, null];
+    let extraNote = '';
+
+    const format = () => (output.value === 'vtt' ? 'vtt' : 'srt');
+    const isJoin = () => mode.value === 'join';
+    const loaded = () => slots.filter((slot): slot is Slot => slot !== null);
+    const names = () => loaded().map((slot) => slot.file.name);
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const toSlot = (file: DecodedSubtitleFile): Slot => {
+      const kind = subtitleFormatFromName(file.name);
+      return { file, input: kind === null ? null : readMergeInput(file.text, kind) };
+    };
+
+    const renderList = () => {
+      const roles = isJoin() ? ROLES.join : ROLES.dual;
+      list.hidden = loaded().length === 0;
+      swapFiles.hidden = loaded().length < 2;
+      for (const [index, slot] of slots.entries()) {
+        const row = list.querySelector(`[data-slot="${index}"]`);
+        if (!(row instanceof HTMLElement)) continue;
+        const role = row.querySelector('[data-role]');
+        const name = row.querySelector('[data-name]');
+        const meta = row.querySelector('[data-meta]');
+        if (role) role.textContent = roles[index] ?? '';
+        if (name) name.textContent = slot ? slot.file.name : 'Add one more file';
+        if (meta) {
+          meta.textContent = slot
+            ? `${encodingLabel(slot.file.encoding)} · ${slot.input ? plural(slot.input.cues.length, 'subtitle') : 'not a subtitle file'}`
+            : 'SRT, VTT or ASS';
+        }
+      }
+      if (zoneName instanceof HTMLElement) zoneName.textContent = names().join(' + ');
+      if (zoneMeta instanceof HTMLElement) {
+        zoneMeta.textContent = loaded()
+          .map((slot) => encodingLabel(slot.file.encoding))
+          .join(' + ');
+      }
+    };
+
+    const merged = (): Merged => {
+      const messages: Message[] = [];
+      const error = (text: string) => messages.push({ text, tone: 'error' });
+      if (extraNote) messages.push({ text: extraNote, tone: 'warn' });
+      const [first, second] = slots;
+      for (const slot of loaded()) {
+        if (slot.input === null) {
+          error(`${slot.file.name}: Use an SRT, VTT, ASS or SSA file.`);
+          continue;
+        }
+        for (const problem of slot.input.errors.slice(0, 5)) error(`${slot.file.name}: ${problem.message}`);
+        if (slot.input.errors.length > 5) error(`${slot.file.name}: ${slot.input.errors.length - 5} more blocks could not be read.`);
+        if (slot.input.cues.length === 0) error(`${slot.file.name}: No subtitles were found.`);
+      }
+      if (!first || !second) {
+        if (first || second) messages.push({ text: 'Add one more subtitle file.', tone: 'info' });
+        return { messages, text: null, preview: null, outcome: null };
+      }
+      if (!first.input || !second.input || first.input.cues.length === 0 || second.input.cues.length === 0) {
+        return { messages, text: null, preview: null, outcome: null };
+      }
+      let startMs: number | null = null;
+      let gapMs = 0;
+      if (isJoin()) {
+        if (startMode.value === 'manual') {
+          startMs = parseClock(start.value);
+          if (startMs === null) {
+            error('Enter where part 2 starts as hh:mm:ss,mmm, for example 01:02:15,000.');
+            return { messages, text: null, preview: null, outcome: null };
+          }
+        } else {
+          gapMs = Number(gap.value.trim().replace(',', '.'));
+          if (gap.value.trim() === '' || !Number.isFinite(gapMs) || gapMs < 0) {
+            error('Enter a gap of 0 ms or more.');
+            return { messages, text: null, preview: null, outcome: null };
+          }
+          gapMs = Math.round(gapMs);
+        }
+      }
+      const outcome = mergeSubtitles(first.input, second.input, {
+        mode: isJoin() ? 'join' : 'dual',
+        output: format(),
+        secondOnTop: swap.checked,
+        gapMs,
+        startMs,
+      });
+      if (isJoin()) {
+        if (outcome.partsOverlap) {
+          messages.push({
+            text: 'Part 2 starts before the last line of part 1 ends, so some lines overlap. Check the start time.',
+            tone: 'warn',
+          });
+        }
+        const shown = joinPreview(outcome.text, first.input.cues.length);
+        return { messages, text: outcome.text, preview: { text: shown.preview, caption: shown.caption }, outcome };
+      }
+      const total = outcome.paired + outcome.unpaired;
+      messages.push({
+        text: `File B: ${outcome.paired} of ${plural(total, 'line')} added to the lines of file A, ${outcome.unpaired} kept with their own times.`,
+        tone: 'info',
+      });
+      const sliced = slicePreviewCues(outcome.text);
+      return { messages, text: outcome.text, preview: { text: sliced.preview, caption: sliced.caption }, outcome };
+    };
+
+    const refresh = () => {
+      const join = isJoin();
+      for (const row of form.querySelectorAll('[data-dual-only]')) {
+        if (row instanceof HTMLElement) row.hidden = join;
+      }
+      for (const row of form.querySelectorAll('[data-join-only]')) {
+        if (row instanceof HTMLElement) row.hidden = !join;
+      }
+      if (join) {
+        const manual = startMode.value === 'manual';
+        gapRow.hidden = manual;
+        startRow.hidden = !manual;
+      }
+      order.textContent = swap.checked
+        ? 'File A sets the timings. On screen: file B on top, file A below.'
+        : 'File A sets the timings. On screen: file A on top, file B below.';
+      if (downloadLabel instanceof HTMLElement) downloadLabel.textContent = `Download ${format().toUpperCase()} file`;
+      renderList();
+      const current = merged();
+      const startAt = current.outcome?.partTwoStartMs ?? null;
+      joinNote.textContent = startAt === null ? '' : `Part 2 starts at ${formatSrtTimestamp(startAt)}.`;
+      joinNote.hidden = !join || joinNote.textContent === '';
+      setDownload(current.text !== null);
+      showMessages(loaded().length > 0 ? current.messages : []);
+      showPreview(current.preview);
+      return current;
+    };
+
+    for (const input of [gap, start]) input.addEventListener('input', refresh);
+    for (const input of [mode, swap, startMode, output]) input.addEventListener('change', refresh);
+
+    swapFiles.addEventListener('click', () => {
+      const [first, second] = slots;
+      slots[0] = second ?? null;
+      slots[1] = first ?? null;
+      refresh();
+    });
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      const files = detail.files.filter(isDecodedFile);
+      extraNote = files.length > 2 ? `Only two files can be merged. Used: ${files[0]?.name ?? ''} and ${files[1]?.name ?? ''}.` : '';
+      if (files.length >= 2) {
+        const [a, b] = files
+          .slice(0, 2)
+          .sort((x, y) => x.name.localeCompare(y.name, undefined, { numeric: true, sensitivity: 'base' }));
+        if (a && b) {
+          slots[0] = toSlot(a);
+          slots[1] = toSlot(b);
+        }
+      } else if (files[0]) {
+        const slot = toSlot(files[0]);
+        if (slots[0] === null) slots[0] = slot;
+        else slots[1] = slot;
+      }
+      renderStatus(status, loaded().length > 0 ? 'loaded' : 'empty', names());
+      refresh();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosen = names();
+      const current = refresh();
+      const first = slots[0];
+      if (current.text === null || !first) {
+        renderStatus(status, 'error', chosen);
+        return;
+      }
+      const name = mergedFileName(first.file.name, format());
+      downloadSubtitleFiles([{ name, text: current.text }], bomInput.checked);
+      renderStatus(status, 'ready', chosen);
+      const note = form.querySelector('[data-kofi-note]');
+      if (note instanceof HTMLElement) note.hidden = false;
+    });
+
+    refresh();
+  }
+</script>
