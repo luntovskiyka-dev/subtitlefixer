@@ -9,10 +9,11 @@ export const tools = {
   'txt-to-srt': 'TXT to SRT',
   'merge-subtitles': 'Merge subtitles',
   'sub-to-srt': 'SUB to SRT',
+  'sbv-to-srt': 'SBV to SRT',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'sub' | 'merge';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'sub' | 'sbv' | 'merge';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
@@ -27,6 +28,7 @@ export type ToolMeta = {
     | 'SRT→TXT'
     | 'TXT→SRT'
     | 'SUB→SRT'
+    | 'SBV→SRT'
     | 'Merge';
   key: ToolKey;
   group: ToolGroup;
@@ -131,6 +133,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'sbv-to-srt',
+    nav: 'SBV→SRT',
+    key: 'sbv',
+    group: 'Convert',
+    icon: '<path d="M4 7h16v10H4z"/><path d="m10 9.5 5 2.5-5 2.5z"/>',
+    formats: '.sbv → .srt/.vtt',
+    card: 'Turn YouTube .sbv captions into SRT or VTT.',
+    mark: 'SRT',
+  },
+  {
     slug: 'merge-subtitles',
     nav: 'Merge',
     key: 'merge',
@@ -151,7 +163,7 @@ export const toolGroups = [
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 10 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 11 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {
@@ -162,7 +174,7 @@ export const toolGridCopy = {
 
 /**
  * Home problem cards (R8), in display order. PLACEHOLDER labels: Витя + Kirill must OK them before merge.
- * Six cards for the six fixing and converting tools; SRT to TXT, TXT to SRT, SUB to SRT and Merge subtitles have no card yet.
+ * Six cards for the six fixing and converting tools; SRT to TXT, TXT to SRT, SUB to SRT, SBV to SRT and Merge subtitles have no card yet.
  */
 export const homeProblems = [
   { key: 'shift', label: 'Always early or late' },

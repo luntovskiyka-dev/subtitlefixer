@@ -73,6 +73,9 @@ module.exports = {
       sub: 'var(--t-sub)',
       'sub-bg': 'var(--t-sub-bg)',
       'sub-wash': 'var(--c-sub)',
+      sbv: 'var(--t-sbv)',
+      'sbv-bg': 'var(--t-sbv-bg)',
+      'sbv-wash': 'var(--c-sbv)',
     },
   },
   borderRadius: {
