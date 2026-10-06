@@ -150,7 +150,7 @@ export const wrapTables = defineHastPlugin({
   },
 });
 
-const HIGHLIGHT_LANGUAGES = new Set(['srt', 'vtt', 'ass']);
+const HIGHLIGHT_LANGUAGES = new Set(['srt', 'vtt', 'ass', 'sbv']);
 
 function isBlank(node: ElementContent): boolean {
   return node.type === 'text' && !(node as Text).value.trim();
@@ -404,6 +404,7 @@ function lineKind(line: string, language: string): 'sf-cn' | 'sf-tc' | null {
   if (/^\d+$/.test(line)) return 'sf-cn';
   if (line.includes('-->')) return 'sf-tc';
   if (language === 'ass' && /\d:\d{2}:\d{2}/.test(line)) return 'sf-tc';
+  if (language === 'sbv' && /^\d+:[0-5]\d:[0-5]\d\.\d{1,3},\d+:[0-5]\d:[0-5]\d\.\d{1,3}$/.test(line)) return 'sf-tc';
   return null;
 }
 

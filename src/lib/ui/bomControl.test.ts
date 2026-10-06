@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const TOOLS = ['ShiftTool', 'ConvertTool', 'AssToSrtTool', 'DriftTool', 'EncodingTool', 'SrtToTxtTool', 'TxtToSrtTool', 'SubToSrtTool', 'MergeTool'];
+const TOOLS = ['ShiftTool', 'ConvertTool', 'AssToSrtTool', 'DriftTool', 'EncodingTool', 'SrtToTxtTool', 'TxtToSrtTool', 'SubToSrtTool', 'SbvToSrtTool', 'MergeTool'];
 
 describe('every UTF-8 download has an optional BOM checkbox', () => {
   for (const name of TOOLS) {

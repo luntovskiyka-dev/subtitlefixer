@@ -1,0 +1,237 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [{ label: 'SBV', tone: 'accent-soft' }] as const;
+---
+
+<form id="sbv-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="sbv-dropzone"
+        variant="stage"
+        label="Add one or more YouTube .sbv files"
+        stageTitle="Add one or more YouTube .sbv files"
+        accept=".sbv"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="sbv-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="sbv-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div
+        id="sbv-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Converted subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="sbv-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <p id="sbv-times" class="mb-2 text-sm font-extrabold"></p>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p id="sbv-heading" class="font-display text-[32px] font-extrabold leading-none tracking-tight">.sbv → .srt</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="sbv-output" class="text-sm font-extrabold">Output</label>
+        <select id="sbv-output" name="output" class="sf-field">
+          <option value="srt" selected>SRT</option>
+          <option value="vtt">VTT</option>
+        </select>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="sbv-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="sbv-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="sbv-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        <span id="sbv-download-label">Download SRT file</span>
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="sbv-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { outputNamesForSbv, sbvFileError, sbvToSubtitles, type SbvOutput } from '../lib/subs/sbv';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('sbv-form');
+  const result = document.getElementById('sbv-result');
+  const status = document.getElementById('sbv-status');
+  const download = document.getElementById('sbv-download');
+  const hint = document.getElementById('sbv-download-hint');
+  const downloadLabel = document.getElementById('sbv-download-label');
+  const heading = document.getElementById('sbv-heading');
+  const meta = document.querySelector('#sbv-dropzone [data-file-meta]');
+  const output = document.getElementById('sbv-output');
+  const bomInput = document.getElementById('sbv-bom');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file) || !('bytes' in file)) return false;
+    return (
+      typeof file.name === 'string' &&
+      typeof file.encoding === 'string' &&
+      typeof file.text === 'string' &&
+      file.bytes instanceof Uint8Array
+    );
+  }
+
+  function showResult(messages: readonly string[], preview: string | null, times: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('sbv-preview');
+    const empty = document.getElementById('sbv-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('sbv-preview-tag');
+    const timesLine = document.getElementById('sbv-times');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      if (timesLine instanceof HTMLElement) timesLine.textContent = '';
+      return;
+    }
+    const sliced = slicePreviewCues(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    if (timesLine instanceof HTMLElement) timesLine.textContent = times ?? '';
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    output instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+    const format = (): SbvOutput => (output.value === 'vtt' ? 'vtt' : 'srt');
+
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+      const label = format() === 'vtt' ? 'VTT' : 'SRT';
+      if (downloadLabel instanceof HTMLElement) downloadLabel.textContent = `Download ${label} file`;
+      if (heading instanceof HTMLElement) heading.textContent = format() === 'vtt' ? '.sbv → .vtt' : '.sbv → .srt';
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      let times: string | null = null;
+      const chosen = format();
+      const accepted = files.filter((file) => sbvFileError(file.name) === null);
+      const outputNames = outputNamesForSbv(
+        accepted.map((file) => file.name),
+        chosen,
+      );
+
+      for (const file of files) {
+        const blocked = sbvFileError(file.name);
+        if (blocked) {
+          messages.push(`${file.name}: ${blocked}`);
+          continue;
+        }
+        const convertedFile = sbvToSubtitles(file.text, chosen);
+        for (const error of convertedFile.errors) messages.push(`${file.name}: ${error.message}`);
+        if (convertedFile.cues.length === 0 || convertedFile.span === null) continue;
+        if (preview === null) {
+          preview = convertedFile.text;
+          times = `First subtitle starts at ${convertedFile.span.first}. Last subtitle ends at ${convertedFile.span.last}.`;
+        }
+        const name = outputNames[accepted.indexOf(file)] ?? `subtitles.${chosen}`;
+        ready.push({ name, text: convertedFile.text });
+      }
+
+      return { messages, ready, preview, times };
+    };
+
+    const refresh = () => {
+      const outcome = converted();
+      showResult(outcome.messages, outcome.preview, outcome.times);
+      setDownload(outcome.ready.length > 0);
+      return outcome;
+    };
+
+    output.addEventListener('change', () => {
+      if (files.length === 0) {
+        setDownload(false);
+        return;
+      }
+      refresh();
+    });
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail)) return;
+      if (!Array.isArray(detail.files)) return;
+      files = detail.files.filter(isDecodedFile);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null, null);
+        setDownload(false);
+        return;
+      }
+      refresh();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosenNames = names();
+      renderStatus(status, 'working', chosenNames);
+      if (files.length === 0) {
+        showResult(['Add one or more YouTube .sbv files.'], null, null);
+        renderStatus(status, 'error', chosenNames);
+        return;
+      }
+      const outcome = refresh();
+      if (outcome.ready.length > 0) {
+        downloadSubtitleFiles(outcome.ready, bomInput.checked);
+        renderStatus(status, 'ready', chosenNames);
+        return;
+      }
+      renderStatus(status, 'error', chosenNames);
+    });
+  }
+</script>

@@ -8,6 +8,7 @@ import EncodingTool from '../components/EncodingTool.astro';
 import MergeTool from '../components/MergeTool.astro';
 import ShiftTool from '../components/ShiftTool.astro';
 import SrtToTxtTool from '../components/SrtToTxtTool.astro';
+import SbvToSrtTool from '../components/SbvToSrtTool.astro';
 import SubToSrtTool from '../components/SubToSrtTool.astro';
 import ToolPage from '../components/ToolPage.astro';
 import TxtToSrtTool from '../components/TxtToSrtTool.astro';
@@ -50,6 +51,7 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
     {entry.id === 'srt-to-txt' && <SrtToTxtTool />}
     {entry.id === 'txt-to-srt' && <TxtToSrtTool />}
     {entry.id === 'sub-to-srt' && <SubToSrtTool />}
+    {entry.id === 'sbv-to-srt' && <SbvToSrtTool />}
     {entry.id === 'merge-subtitles' && <MergeTool />}
     {entry.id === 'fix-subtitle-drift' && <DriftTool />}
     {entry.id === 'fix-subtitle-drift' && <DriftFps slot="below" />}

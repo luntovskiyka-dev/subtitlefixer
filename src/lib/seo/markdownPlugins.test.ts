@@ -170,6 +170,14 @@ describe('highlightSubtitleCode', () => {
     expect(html.match(/sf-tc/g)?.length).toBe(2);
   });
 
+  it('marks an SBV start,end line as a timestamp', async () => {
+    const source = ['```sbv', '0:00:01.200,0:00:03.800', 'Hi, and welcome back.', '```'].join('\n');
+    const html = await render(source, [highlightSubtitleCode]);
+    expect(html).toContain('class="sf-tc"');
+    expect(plainText(html)).toContain('0:00:01.200,0:00:03.800');
+    expect(plainText(html)).toContain('Hi, and welcome back.');
+  });
+
   it('marks ASS dialogue lines that contain a timestamp', async () => {
     const source = ['```ass', 'Dialogue: 0,0:00:05.37,0:00:08.12,Default,,0,0,0,,Hello', '```'].join('\n');
     const html = await render(source, [highlightSubtitleCode]);
