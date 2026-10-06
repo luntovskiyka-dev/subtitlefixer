@@ -11,7 +11,7 @@ faq:
   - q: "Is SubtitleFixer really free? Do I need an account?"
     a: "Yes, every tool is free, and there is no paid version. You don't need an account, a sign-up or an email address."
   - q: "Which subtitle formats do you support?"
-    a: "The tools work with SRT, VTT and ASS subtitle files, and the ASS to SRT converter also takes older SSA files. The encoding fixer also accepts text-based SUB and TXT files. You can convert SRT files to VTT and back, and convert ASS or SSA files to SRT files. Not sure which format you need? Read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass)."
+    a: "The tools work with SRT, VTT and ASS subtitle files, and the ASS to SRT converter also takes older SSA files. The encoding fixer also accepts text-based SUB and TXT files. You can convert SRT files to VTT and back, and convert ASS or SSA files to SRT files. MicroDVD .sub and YouTube .sbv files convert to SRT, and two subtitle files can be merged into one SRT or VTT. Not sure which format you need? Read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass)."
   - q: "Why are my subtitles out of sync, and which tool do I need?"
     a: "If every line is early or late by the same amount, use [shift subtitles](/shift-subtitles). If the subtitles start in sync and slowly drift, use [fix subtitle drift](/fix-subtitle-drift). If you're not sure, the guide [Subtitles out of sync](/guides/subtitles-out-of-sync) helps you find out in a few checks."
   - q: "Why do my subtitles show weird characters?"
@@ -48,6 +48,12 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 - [**ASS to SRT**](/ass-to-srt): turn styled Advanced SubStation Alpha (.ass) and SubStation Alpha (.ssa) files into SRT subtitles by removing styling tags (italics and bold are kept), turning `\N` into real line breaks and merging duplicate lines from multiple layers.
 - [**SRT to TXT**](/srt-to-txt): turn SRT, VTT or ASS subtitles into plain text, with or without timestamps.
 - [**TXT to SRT**](/txt-to-srt): turn a script or transcript into an SRT file, timed by reading speed or by the timestamps already in your text.
+- [**SUB to SRT**](/sub-to-srt): turn MicroDVD frame numbers in a .sub file into SRT timestamps.
+- [**SBV to SRT**](/sbv-to-srt): turn YouTube .sbv captions into SRT or VTT.
+
+### Combining files
+
+- [**Merge subtitles**](/merge-subtitles): combine two subtitle files: two languages in one, or CD1 and CD2 joined.
 
 ## Which tool do I need?
 
@@ -64,6 +70,9 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 | You have an ASS file, but your player or platform only takes SRT files | [ASS to SRT](/ass-to-srt) |
 | You need the words from a subtitle file as plain text | [SRT to TXT](/srt-to-txt) |
 | You have a script or transcript and need a subtitle file | [TXT to SRT](/txt-to-srt) |
+| You have a MicroDVD .sub file with frame numbers and need SRT | [SUB to SRT](/sub-to-srt) |
+| You have a YouTube .sbv caption file and need SRT | [SBV to SRT](/sbv-to-srt) |
+| You need two languages in one file, or CD1 and CD2 joined | [Merge subtitles](/merge-subtitles) |
 
 Not sure what kind of timing problem you have? Read [Subtitles out of sync: shift vs drift](/guides/subtitles-out-of-sync).
 
