@@ -105,7 +105,7 @@ For a full comparison of the formats, read [SRT vs VTT vs ASS](/guides/srt-vs-vt
 
 VTT is the usual format for captions from websites and meeting apps, and you can convert all of them to SRT here.
 
-- **YouTube:** captions you download (for example with yt-dlp) are usually .vtt files. SubtitleFixer removes the `<c>` tags and word-by-word timestamps of auto-generated captions, but it doesn't merge the repeated rolling lines.
+- **YouTube:** captions you download (for example with yt-dlp) are usually .vtt files. SubtitleFixer removes the `<c>` tags and word-by-word timestamps of auto-generated captions, but it doesn't merge the repeated rolling lines. A YouTube .sbv (SubViewer) file is a different format: convert it with the [SBV to SRT converter](/sbv-to-srt).
 - **Zoom and Microsoft Teams:** meeting transcripts are saved as .vtt files. Teams speaker tags (`<v Name>`) become "Name: " in front of each line.
 - **Web video players:** most HTML5 players use VTT captions.
 
