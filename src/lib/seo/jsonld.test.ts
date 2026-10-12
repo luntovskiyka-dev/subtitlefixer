@@ -53,6 +53,10 @@ describe('buildJsonLd', () => {
         url: 'https://subtitlefixer.com/',
         logo: 'https://subtitlefixer.com/apple-touch-icon.png',
         founder: { '@type': 'Person', name: 'Kirill Luntovskii' },
+        sameAs: [
+          'https://github.com/luntovskiyka-dev/subtitlefixer',
+          'https://www.producthunt.com/products/subtitlefixer',
+        ],
       },
       {
         '@context': 'https://schema.org',

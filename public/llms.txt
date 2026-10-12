@@ -22,3 +22,5 @@
 
 - [About](https://subtitlefixer.com/about): who makes SubtitleFixer, why everything runs in the browser, and how it is funded.
 - [Privacy](https://subtitlefixer.com/privacy): subtitle files are processed on your device and never uploaded; no account, no cookies set by us, Cloudflare Web Analytics.
+
+Source code: https://github.com/luntovskiyka-dev/subtitlefixer

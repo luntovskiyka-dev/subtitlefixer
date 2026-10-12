@@ -1,4 +1,7 @@
+import { GITHUB_URL } from '../../config/site';
 import { BRAND } from './urls';
+
+const PRODUCT_HUNT_URL = 'https://www.producthunt.com/products/subtitlefixer';
 
 const FOUNDER = 'Kirill Luntovskii';
 
@@ -28,6 +31,7 @@ export function buildJsonLd(input: JsonLdInput): unknown {
             '@type': 'Person',
             name: FOUNDER,
           },
+          sameAs: [GITHUB_URL, PRODUCT_HUNT_URL],
         },
         {
           '@context': 'https://schema.org',

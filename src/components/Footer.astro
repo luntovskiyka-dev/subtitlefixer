@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Logo from './Logo.astro';
-import { KOFI_URL } from '../config/site';
+import { GITHUB_URL, KOFI_URL } from '../config/site';
 import { tools } from '../data/tools';
 import { pagePath } from '../lib/ui/pagePath';
 
@@ -77,6 +77,11 @@ const headingClass = 'mb-2.5 font-display text-[15px] font-extrabold text-footer
             aria-current={current === '/privacy' ? 'page' : undefined}
           >
             Privacy
+          </a>
+        </li>
+        <li>
+          <a href={GITHUB_URL} class={linkClass}>
+            GitHub
           </a>
         </li>
       </ul>
