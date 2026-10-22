@@ -21,7 +21,7 @@ faq:
     a: "VLC and Plex can both load external .vtt subtitle files, but most desktop players and TVs handle SRT at least as well. Keep the SRT file for them and use VTT for the web."
   - q: "Is my SRT file uploaded?"
     a: "No. SubtitleFixer converts SRT to VTT inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/vtt-to-srt", "/shift-subtitles", "/fix-subtitle-encoding", "/ass-to-srt", "/sbv-to-srt", "/guides/srt-vs-vtt-vs-ass"]
+related: ["/vtt-to-srt", "/shift-subtitles", "/fix-subtitle-encoding", "/ass-to-srt", "/sbv-to-srt", "/sup-to-srt", "/guides/srt-vs-vtt-vs-ass"]
 ---
 
 Free SRT to VTT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -113,4 +113,5 @@ If the subtitles don't show:
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©` or other garbled characters.
 - [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into SRT.
 - [SBV to SRT converter](/sbv-to-srt): turn YouTube SBV captions into SRT.
+- [SUP to SRT converter](/sup-to-srt): read a Blu-ray .sup picture subtitle into SRT. Check the text: OCR can be wrong.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).

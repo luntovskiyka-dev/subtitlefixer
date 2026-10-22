@@ -48,6 +48,9 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
         Add a .sup file, pick a language, then read the pictures.
       </p>
       <div id="sup-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <p id="sup-unreadable" class="mb-2 text-sm font-extrabold" role="status" hidden>
+          Text looks unreadable — try another language
+        </p>
         <p class="font-display text-lg font-extrabold">Check the text</p>
         <p class="mb-2 text-sm text-muted">OCR can miss letters. Fix a line before you download.</p>
         <div id="sup-scroll" class="max-h-[32rem] overflow-y-auto" tabindex="0" aria-label="Recognised subtitles">
@@ -94,6 +97,8 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
 
 <script>
   import { saveEditorHandoff } from '../lib/subs/editorHandoff';
+  import { isOcrLanguage, type OcrLanguage } from '../lib/ocr/languages';
+  import { ocrTextLooksUnreadable } from '../lib/ocr/text';
   import { OCR_CORE_PATH, OCR_LANG_PATH, OCR_WORKER_PATH, ocrAssetUrl } from '../lib/ocr/paths';
   import type { OcrOut } from '../lib/ocr/messages';
   import { spawnOcrWorker } from '../lib/ocr/spawn';
@@ -125,6 +130,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
   const empty = document.getElementById('sup-empty');
   const preview = document.getElementById('sup-preview');
   const list = document.getElementById('sup-list');
+  const unreadable = document.getElementById('sup-unreadable');
   const langSelect = document.getElementById('sup-lang');
   const note = form instanceof HTMLFormElement ? form.querySelector('[data-kofi-note]') : null;
 
@@ -133,6 +139,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
   let running = false;
   let saved = true;
   let current: ByteFile | null = null;
+  let recognisedLang: OcrLanguage = 'eng';
   let rows: Row[] = [];
   const urls: string[] = [];
 
@@ -200,7 +207,14 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
     if (list) list.replaceChildren();
     if (preview instanceof HTMLElement) preview.hidden = true;
     if (empty instanceof HTMLElement) empty.hidden = false;
+    if (unreadable instanceof HTMLElement) unreadable.hidden = true;
     saved = true;
+  }
+
+  function showLanguageWarning(): void {
+    if (!(unreadable instanceof HTMLElement)) return;
+    const text = rows.map((row) => row.area.value).join('\n');
+    unreadable.hidden = !ocrTextLooksUnreadable(text, recognisedLang);
   }
 
   function srtText(): string {
@@ -252,6 +266,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
     worker = null;
     const count = rows.length;
     setRunning(false);
+    showLanguageWarning();
     showMessages([
       count === 0
         ? 'Stopped before any subtitle was read.'
@@ -266,6 +281,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
     generation += 1;
     const token = generation;
     const name = current.name;
+    recognisedLang = isOcrLanguage(langSelect.value) ? langSelect.value : 'eng';
     const payload = current.bytes.slice();
     const buffer = payload.buffer;
     const origin = window.location.origin;
@@ -309,6 +325,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
             : `Read ${count} subtitles. Check the text: OCR can miss letters.`,
         ]);
         renderStatus(status, 'loaded', [name]);
+        showLanguageWarning();
         return;
       }
       if (data.type === 'cancelled') {

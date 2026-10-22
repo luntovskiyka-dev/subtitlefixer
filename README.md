@@ -20,6 +20,7 @@ Free subtitle tools that run in your browser — [subtitlefixer.com](https://sub
 - [SUB to SRT Converter](https://subtitlefixer.com/sub-to-srt)
 - [SBV to SRT Converter](https://subtitlefixer.com/sbv-to-srt)
 - [SMI to SRT Converter](https://subtitlefixer.com/smi-to-srt)
+- [SUP to SRT Converter](https://subtitlefixer.com/sup-to-srt)
 - [Merge Subtitles: Dual Subtitles in One File](https://subtitlefixer.com/merge-subtitles)
 
 ## Guides

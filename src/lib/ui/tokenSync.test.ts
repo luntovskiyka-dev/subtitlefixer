@@ -24,6 +24,7 @@ const WASHES: ReadonlyArray<readonly [string, keyof Palette]> = [
   ['--c-v2t', 'cV2t'],
   ['--c-s2w', 'cS2w'],
   ['--c-smi', 'cSmi'],
+  ['--c-sup', 'cSup'],
 ];
 
 function valueOf(block: string, name: string): string | undefined {

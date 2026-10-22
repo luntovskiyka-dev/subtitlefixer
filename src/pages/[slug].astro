@@ -33,22 +33,19 @@ interface Props {
 
 const { entry } = Astro.props;
 const { title, description, faq } = entry.data;
-const experimental = entry.id === 'sup-to-srt';
-const toolName = experimental ? 'SUP to SRT' : tools[entry.id as keyof typeof tools];
+const toolName = tools[entry.id as keyof typeof tools];
 if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
 ---
 
 <Base
   title={title}
   description={description}
-  noindex={experimental}
   schema="webapp"
   schemaName={toolName}
   faq={faq}
   width="wide"
   spacing="tight"
 >
-  {experimental && <link slot="head" rel="canonical" href={new URL('/sup-to-srt', Astro.site).href} />}
   <ToolPage entry={entry}>
     {entry.id === 'shift-subtitles' && <ShiftTool />}
     {entry.id === 'fix-subtitle-encoding' && <EncodingTool />}

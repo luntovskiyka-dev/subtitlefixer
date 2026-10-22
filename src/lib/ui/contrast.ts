@@ -79,6 +79,9 @@ export type Palette = {
   tSmi: string;
   tSmiBg: string;
   cSmi: string;
+  tSup: string;
+  tSupBg: string;
+  cSup: string;
 };
 
 export const LIGHT: Palette = {
@@ -161,6 +164,9 @@ export const LIGHT: Palette = {
   tSmi: '#1B1A3A',
   tSmiBg: '#FDE047',
   cSmi: '#FEF9C3',
+  tSup: '#1B1A3A',
+  tSupBg: '#C084FC',
+  cSup: '#FDE8FF',
 };
 
 export const DARK: Palette = {
@@ -243,6 +249,9 @@ export const DARK: Palette = {
   tSmi: '#1B1A3A',
   tSmiBg: '#FDE047',
   cSmi: '#3F2E05',
+  tSup: '#1B1A3A',
+  tSupBg: '#C084FC',
+  cSup: '#4A044E',
 };
 
 const SRGB_THRESHOLD = 0.04045;

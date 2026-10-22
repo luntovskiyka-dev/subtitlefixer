@@ -88,6 +88,9 @@ module.exports = {
       smi: 'var(--t-smi)',
       'smi-bg': 'var(--t-smi-bg)',
       'smi-wash': 'var(--c-smi)',
+      sup: 'var(--t-sup)',
+      'sup-bg': 'var(--t-sup-bg)',
+      'sup-wash': 'var(--c-sup)',
     },
   },
   borderRadius: {

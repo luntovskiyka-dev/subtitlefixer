@@ -21,7 +21,7 @@ faq:
     a: "SRT is the most widely supported subtitle format for desktop players, media servers and TVs, including VLC and Plex. If an older TV shows wrong characters, tick \"Add BOM (old players)\" and convert again."
   - q: "Is my VTT file uploaded?"
     a: "No. SubtitleFixer converts VTT to SRT inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-to-vtt", "/vtt-to-txt", "/shift-subtitles", "/srt-to-txt", "/sbv-to-srt", "/fix-subtitle-encoding", "/guides/srt-vs-vtt-vs-ass"]
+related: ["/srt-to-vtt", "/vtt-to-txt", "/shift-subtitles", "/srt-to-txt", "/sbv-to-srt", "/sup-to-srt", "/fix-subtitle-encoding", "/guides/srt-vs-vtt-vs-ass"]
 ---
 
 Free VTT to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -112,5 +112,6 @@ Once converted, the SRT file works in video editors, on TVs and in most desktop 
 - [SRT to TXT](/srt-to-txt): get plain text from SRT or ASS captions.
 - [VTT to TXT](/vtt-to-txt): turn VTT captions into plain text.
 - [SBV to SRT converter](/sbv-to-srt): turn YouTube SBV captions into SRT.
+- [SUP to SRT converter](/sup-to-srt): read a Blu-ray .sup picture subtitle into SRT. Check the text: OCR can be wrong.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for garbled characters.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).

@@ -21,7 +21,7 @@ faq:
     a: "No. Nothing is stored, on our side or in your browser, so download your file before you close the page."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer edits your subtitles inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
+related: ["/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles", "/sup-to-srt"]
 ---
 
 Free online SRT editor that runs in your browser: your file never leaves your device, and there is no sign-up.
@@ -88,3 +88,4 @@ The editor marked line 2 because its end time was earlier than its start time.
 - [SRT to Word](/srt-to-word): put the subtitles into a Word document.
 - [Merge subtitles](/merge-subtitles): combine two files.
 - [SRT to VTT](/srt-to-vtt) and [VTT to SRT](/vtt-to-srt): change the format.
+- [SUP to SRT](/sup-to-srt): read Blu-ray picture subtitles into text, then edit that text here.

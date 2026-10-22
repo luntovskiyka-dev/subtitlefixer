@@ -70,6 +70,7 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'ink on vtt-to-txt wash', foreground: 'text', background: 'cV2t', minimum: TEXT },
   { label: 'ink on srt-to-word wash', foreground: 'text', background: 'cS2w', minimum: TEXT },
   { label: 'ink on smi-to-srt wash', foreground: 'text', background: 'cSmi', minimum: TEXT },
+  { label: 'ink on sup-to-srt wash', foreground: 'text', background: 'cSup', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
   { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
@@ -137,6 +138,7 @@ const TOOL_PAIRS: readonly Pair[] = [
   { label: 'vtt-to-txt icon on tile', foreground: 'tV2t', background: 'tV2tBg', minimum: NON_TEXT },
   { label: 'srt-to-word icon on tile', foreground: 'tS2w', background: 'tS2wBg', minimum: NON_TEXT },
   { label: 'smi-to-srt icon on tile', foreground: 'tSmi', background: 'tSmiBg', minimum: NON_TEXT },
+  { label: 'sup-to-srt icon on tile', foreground: 'tSup', background: 'tSupBg', minimum: NON_TEXT },
 ];
 
 describe('contrastRatio', () => {
@@ -222,6 +224,7 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'text on vtt-to-txt card', foreground: 'text', background: 'cV2t', minimum: TEXT },
   { label: 'text on srt-to-word card', foreground: 'text', background: 'cS2w', minimum: TEXT },
   { label: 'text on smi-to-srt card', foreground: 'text', background: 'cSmi', minimum: TEXT },
+  { label: 'text on sup-to-srt card', foreground: 'text', background: 'cSup', minimum: TEXT },
   { label: 'outline on shift card', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
   { label: 'outline on drift card', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
   { label: 'outline on encoding card', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
@@ -237,6 +240,7 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'outline on vtt-to-txt card', foreground: 'edge', background: 'cV2t', minimum: NON_TEXT },
   { label: 'outline on srt-to-word card', foreground: 'edge', background: 'cS2w', minimum: NON_TEXT },
   { label: 'outline on smi-to-srt card', foreground: 'edge', background: 'cSmi', minimum: NON_TEXT },
+  { label: 'outline on sup-to-srt card', foreground: 'edge', background: 'cSup', minimum: NON_TEXT },
 ];
 
 checkPairs('home light', LIGHT, HOME_PAIRS);

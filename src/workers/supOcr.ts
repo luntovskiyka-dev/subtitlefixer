@@ -126,7 +126,7 @@ async function run(data: Extract<OcrIn, { type: 'start' }>): Promise<void> {
     try {
       const prepared = preprocessForOcr(cue.image);
       const result = await tess.recognize(ocrCanvas(prepared), {}, { text: true, blocks: false, hocr: false, tsv: false });
-      text = cleanOcrText(result.data.text ?? '');
+      text = cleanOcrText(result.data.text ?? '', lang);
     } catch {
       if (cancel) {
         await tess.terminate();

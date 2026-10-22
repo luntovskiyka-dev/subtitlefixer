@@ -1548,6 +1548,10 @@ input[type='number']::-webkit-outer-spin-button {
   --sf-card-wash: var(--c-smi);
 }
 
+.sf-card-sup {
+  --sf-card-wash: var(--c-sup);
+}
+
 .sf-card-top {
   display: flex;
   align-items: flex-start;

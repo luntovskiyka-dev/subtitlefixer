@@ -170,6 +170,7 @@ The WebVTT standard requires UTF-8. YouTube asks for SRT files in plain UTF-8, a
 - [TXT to SRT converter](/txt-to-srt): turn a script or transcript into a timed SRT or VTT file.
 - [SUB to SRT converter](/sub-to-srt): turn a MicroDVD .sub file into an SRT file.
 - [SBV to SRT converter](/sbv-to-srt): turn YouTube .sbv captions into an SRT or VTT file.
+- [SUP to SRT converter](/sup-to-srt): read a Blu-ray .sup picture subtitle into an SRT file. OCR can miss letters, so check the text.
 
 Timing problems instead? See [Subtitles out of sync: shift vs drift](/guides/subtitles-out-of-sync).
 

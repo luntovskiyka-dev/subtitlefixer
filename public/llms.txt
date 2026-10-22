@@ -17,6 +17,7 @@
 - [SUB to SRT](https://subtitlefixer.com/sub-to-srt): turn MicroDVD frame numbers in a .sub file into SRT timestamps.
 - [SBV to SRT](https://subtitlefixer.com/sbv-to-srt): turn YouTube .sbv captions into SRT or VTT.
 - [SMI to SRT](https://subtitlefixer.com/smi-to-srt): turn SAMI .smi or .sami subtitles into SRT. Pick one language class when the file has several. Reads EUC-KR and saves UTF-8.
+- [SUP to SRT](https://subtitlefixer.com/sup-to-srt): read a Blu-ray PGS .sup picture subtitle into SRT with OCR in the browser. The text can be wrong, so check it. The file is not uploaded.
 - [SRT editor](https://subtitlefixer.com/srt-editor): edit SRT and VTT text and times, add, delete, split or merge lines, and see lines that overlap, end too early, are empty or out of order. Saves SRT or VTT. No video preview.
 - [Merge subtitles](https://subtitlefixer.com/merge-subtitles): combine two subtitle files, either as dual-language lines or by joining CD1 and CD2.
 

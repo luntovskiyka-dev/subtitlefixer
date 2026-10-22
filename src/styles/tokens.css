@@ -102,6 +102,9 @@
   --t-smi: #1B1A3A;
   --t-smi-bg: #FDE047;
   --c-smi: #FEF9C3;
+  --t-sup: #1B1A3A;
+  --t-sup-bg: #C084FC;
+  --c-sup: #FDE8FF;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -160,5 +163,6 @@
     --c-v2t: #2E1060;
     --c-s2w: #0C2F2C;
     --c-smi: #3F2E05;
+    --c-sup: #4A044E;
   }
 }

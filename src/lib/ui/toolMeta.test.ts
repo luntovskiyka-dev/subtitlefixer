@@ -15,6 +15,7 @@ const NAV_ORDER = [
   'SUB→SRT',
   'SBV→SRT',
   'SMI→SRT',
+  'SUP→SRT',
   'Edit',
   'Merge',
 ] as const;

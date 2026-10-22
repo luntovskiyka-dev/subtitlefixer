@@ -14,10 +14,11 @@ export const tools = {
   'sub-to-srt': 'SUB to SRT',
   'sbv-to-srt': 'SBV to SRT',
   'smi-to-srt': 'SMI to SRT',
+  'sup-to-srt': 'SUP to SRT',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 'edit' | 's2v' | 'v2s' | 'ass' | 's2t' | 'v2t' | 's2w' | 't2s' | 'sub' | 'sbv' | 'smi' | 'merge';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 'edit' | 's2v' | 'v2s' | 'ass' | 's2t' | 'v2t' | 's2w' | 't2s' | 'sub' | 'sbv' | 'smi' | 'sup' | 'merge';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
@@ -37,6 +38,7 @@ export type ToolMeta = {
     | 'SUB→SRT'
     | 'SBV→SRT'
     | 'SMI→SRT'
+    | 'SUP→SRT'
     | 'Merge';
   key: ToolKey;
   group: ToolGroup;
@@ -181,6 +183,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'sup-to-srt',
+    nav: 'SUP→SRT',
+    key: 'sup',
+    group: 'Convert',
+    icon: '<path d="M4 7.5h16v11H4z"/><path d="M4 7.5 8.5 4h7L20 7.5"/><path d="M8 12h8"/><path d="M8 15.5h5"/>',
+    formats: '.sup → .srt',
+    card: 'Read Blu-ray picture subtitles into SRT text in your browser.',
+    mark: 'SRT',
+  },
+  {
     slug: 'srt-editor',
     nav: 'Edit',
     key: 'edit',
@@ -211,7 +223,7 @@ export const toolGroups = [
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 15 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 16 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {
