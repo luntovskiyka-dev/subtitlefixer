@@ -6,3 +6,12 @@ npm-debug.log*
 .env*
 .DS_Store
 .idea/
+
+# Tesseract runtime copied from node_modules by scripts/copy-ocr-assets.mjs
+public/ocr/worker.min.js
+public/ocr/worker.min.js.LICENSE.txt
+public/ocr/tesseract-core-lstm.wasm
+public/ocr/tesseract-core-lstm.wasm.js
+public/ocr/tesseract-core-simd-lstm.wasm
+public/ocr/tesseract-core-simd-lstm.wasm.js
+public/ocr/*.LICENSE

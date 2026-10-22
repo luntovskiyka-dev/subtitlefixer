@@ -27,12 +27,14 @@ export function redirectLocation(url: URL): string | null {
   return `${path}${url.search}`;
 }
 
+const UNLISTED = new Set(['/_styleguide', '/sup-to-srt']);
+
 /** Sitemap `<loc>` for a page, or null when the page is not public. */
 export function canonicalSitemapLoc(page: string): string | null {
   const url = new URL(page);
-  if (url.pathname === '/_styleguide' || url.pathname.startsWith('/_styleguide/')) return null;
   url.pathname = canonicalPathname(url.pathname);
   url.search = '';
   url.hash = '';
+  if (UNLISTED.has(url.pathname)) return null;
   return url.href;
 }

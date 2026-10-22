@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-ocr-assets.mjs",
+    "prebuild": "node scripts/copy-ocr-assets.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -18,7 +20,8 @@
     "astro": "^7.3.5",
     "fflate": "^0.8.3",
     "jschardet": "^4.0.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

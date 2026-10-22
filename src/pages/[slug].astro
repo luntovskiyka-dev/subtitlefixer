@@ -13,6 +13,7 @@ import SrtToTxtTool from '../components/SrtToTxtTool.astro';
 import SrtToWordTool from '../components/SrtToWordTool.astro';
 import SbvToSrtTool from '../components/SbvToSrtTool.astro';
 import SubToSrtTool from '../components/SubToSrtTool.astro';
+import SupToSrtTool from '../components/SupToSrtTool.astro';
 import ToolPage from '../components/ToolPage.astro';
 import TxtToSrtTool from '../components/TxtToSrtTool.astro';
 import { tools } from '../data/tools';
@@ -32,19 +33,22 @@ interface Props {
 
 const { entry } = Astro.props;
 const { title, description, faq } = entry.data;
-const toolName = tools[entry.id as keyof typeof tools];
+const experimental = entry.id === 'sup-to-srt';
+const toolName = experimental ? 'SUP to SRT' : tools[entry.id as keyof typeof tools];
 if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
 ---
 
 <Base
   title={title}
   description={description}
+  noindex={experimental}
   schema="webapp"
   schemaName={toolName}
   faq={faq}
   width="wide"
   spacing="tight"
 >
+  {experimental && <link slot="head" rel="canonical" href={new URL('/sup-to-srt', Astro.site).href} />}
   <ToolPage entry={entry}>
     {entry.id === 'shift-subtitles' && <ShiftTool />}
     {entry.id === 'fix-subtitle-encoding' && <EncodingTool />}
@@ -57,6 +61,7 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
     {entry.id === 'srt-to-word' && <SrtToWordTool />}
     {entry.id === 'txt-to-srt' && <TxtToSrtTool />}
     {entry.id === 'sub-to-srt' && <SubToSrtTool />}
+    {entry.id === 'sup-to-srt' && <SupToSrtTool />}
     {entry.id === 'sbv-to-srt' && <SbvToSrtTool />}
     {entry.id === 'smi-to-srt' && <SmiToSrtTool />}
     {entry.id === 'merge-subtitles' && <MergeTool />}

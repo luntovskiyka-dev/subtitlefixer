@@ -47,7 +47,7 @@ export function listOgCards(): OgCard[] {
   const root = projectRoot();
   return [
     markdownCard(root, '/', 'src/content/pages/home.md'),
-    ...cardsIn(root, 'src/content/tools', (slug) => `/${slug}`),
+    ...cardsIn(root, 'src/content/tools', (slug) => `/${slug}`).filter((card) => card.path !== '/sup-to-srt'),
     markdownCard(root, '/about', 'src/content/pages/about.md'),
     markdownCard(root, '/privacy', 'src/content/pages/privacy.md'),
     ...cardsIn(root, 'src/content/guides', (slug) => `/guides/${slug}`),

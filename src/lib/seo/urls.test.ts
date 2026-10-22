@@ -57,5 +57,7 @@ describe('canonicalSitemapLoc', () => {
     );
     expect(canonicalSitemapLoc('https://subtitlefixer.com/_styleguide')).toBeNull();
     expect(canonicalSitemapLoc('https://subtitlefixer.com/_styleguide/')).toBeNull();
+    expect(canonicalSitemapLoc('https://subtitlefixer.com/sup-to-srt')).toBeNull();
+    expect(canonicalSitemapLoc('https://subtitlefixer.com/sup-to-srt.html')).toBeNull();
   });
 });

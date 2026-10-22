@@ -15,6 +15,10 @@ interface Props {
   note?: string;
   /** Visible stage title. Shift keeps the default desktop/mobile pair. */
   stageTitle?: string;
+  /** Read the file as bytes. Text tools keep the decoded-text path. */
+  bytes?: boolean;
+  multiple?: boolean;
+  error?: string;
 }
 
 const {
@@ -27,6 +31,9 @@ const {
   formats = [],
   note = '',
   stageTitle,
+  bytes = false,
+  multiple = true,
+  error = 'Use an SRT, VTT, or ASS file.',
 } = Astro.props;
 const fineTitle = stageTitle ?? 'Drop .srt, .vtt or .ass file here';
 const coarseTitle = stageTitle ?? 'Choose .srt, .vtt or .ass file';
@@ -50,6 +57,7 @@ const chipTone = {
     data-state={state}
     data-variant={variant}
     data-dropzone-interactive={interactive ? '' : undefined}
+    data-dropzone-bytes={bytes ? '' : undefined}
     aria-labelledby={stage ? undefined : labelId}
     aria-describedby={state === 'error' ? errorId : undefined}
     aria-controls={interactive ? inputId : undefined}
@@ -168,7 +176,7 @@ const chipTone = {
         id={inputId}
         type="file"
         class="sr-only"
-        multiple
+        multiple={multiple ? true : undefined}
         accept={accept}
         tabindex="-1"
         aria-label={stage ? label : undefined}
@@ -177,12 +185,12 @@ const chipTone = {
     )
   }
   <p id={errorId} class:list={['mt-2 text-sm font-bold', stage ? 'text-on-brand' : 'text-danger']} hidden={state !== 'error'}>
-    Use an SRT, VTT, or ASS file.
+    {error}
   </p>
 </div>
 
 <script>
-  import { readSubtitleFiles } from '../lib/subs/files';
+  import { readFileBytes, readSubtitleFiles } from '../lib/subs/files';
 
   const zones = document.querySelectorAll('[data-dropzone-interactive]');
   const bound = new WeakSet<HTMLElement>();
@@ -215,7 +223,10 @@ const chipTone = {
     zone.dispatchEvent(new CustomEvent('subtitlereading', { bubbles: true }));
 
     try {
-      const decoded = await readSubtitleFiles(files);
+      const decoded =
+        'dropzoneBytes' in zone.dataset
+          ? await Promise.all(files.map(async (file) => ({ name: file.name, bytes: await readFileBytes(file) })))
+          : await readSubtitleFiles(files);
       if (decoded.length === 0) {
         failZone(zone);
         return;

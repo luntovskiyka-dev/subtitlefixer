@@ -70,6 +70,7 @@ const formats = [
 </form>
 
 <script>
+  import { takeEditorHandoff } from '../lib/subs/editorHandoff';
   import {
     EDITOR_ROW_HEIGHT,
     EDITOR_VIRTUAL_THRESHOLD,
@@ -586,5 +587,13 @@ const formats = [
       showMessages(messages);
       renderStatus(status, 'ready', [sourceName]);
     });
+
+    const handed = takeEditorHandoff(sessionStorage);
+    if (handed) {
+      const notes = loadParsed(handed.name, 'srt', handed.text);
+      if (meta instanceof HTMLElement) meta.textContent = 'UTF-8';
+      showMessages(notes);
+      renderStatus(status, 'loaded', [handed.name]);
+    }
   }
 </script>
