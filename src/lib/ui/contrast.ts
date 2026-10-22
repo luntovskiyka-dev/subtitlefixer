@@ -67,6 +67,18 @@ export type Palette = {
   tSbv: string;
   tSbvBg: string;
   cSbv: string;
+  tEdit: string;
+  tEditBg: string;
+  cEdit: string;
+  tV2t: string;
+  tV2tBg: string;
+  cV2t: string;
+  tS2w: string;
+  tS2wBg: string;
+  cS2w: string;
+  tSmi: string;
+  tSmiBg: string;
+  cSmi: string;
 };
 
 export const LIGHT: Palette = {
@@ -137,6 +149,18 @@ export const LIGHT: Palette = {
   tSbv: '#1B1A3A',
   tSbvBg: '#38BDF8',
   cSbv: '#B3E8FB',
+  tEdit: '#1B1A3A',
+  tEditBg: '#F9A8D4',
+  cEdit: '#FCE7F3',
+  tV2t: '#1B1A3A',
+  tV2tBg: '#C4B5FD',
+  cV2t: '#EDE9FE',
+  tS2w: '#1B1A3A',
+  tS2wBg: '#5EEAD4',
+  cS2w: '#CCFBF1',
+  tSmi: '#1B1A3A',
+  tSmiBg: '#FDE047',
+  cSmi: '#FEF9C3',
 };
 
 export const DARK: Palette = {
@@ -207,6 +231,18 @@ export const DARK: Palette = {
   tSbv: '#1B1A3A',
   tSbvBg: '#38BDF8',
   cSbv: '#0A3040',
+  tEdit: '#1B1A3A',
+  tEditBg: '#F9A8D4',
+  cEdit: '#4A1942',
+  tV2t: '#1B1A3A',
+  tV2tBg: '#C4B5FD',
+  cV2t: '#2E1060',
+  tS2w: '#1B1A3A',
+  tS2wBg: '#5EEAD4',
+  cS2w: '#0C2F2C',
+  tSmi: '#1B1A3A',
+  tSmiBg: '#FDE047',
+  cSmi: '#3F2E05',
 };
 
 const SRGB_THRESHOLD = 0.04045;

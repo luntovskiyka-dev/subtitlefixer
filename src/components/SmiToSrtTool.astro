@@ -1,0 +1,242 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SMI', tone: 'accent-soft' },
+  { label: 'SAMI', tone: 'mint' },
+] as const;
+---
+
+<form id="smi-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="smi-dropzone"
+        variant="stage"
+        label="Add one or more SMI or SAMI files"
+        stageTitle="Add one or more .smi files"
+        accept=".smi,.sami"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="smi-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="smi-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div
+        id="smi-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Converted subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="smi-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.smi → .srt</p>
+      <div id="smi-class-row" class="mt-4 flex flex-col gap-2" hidden>
+        <label for="smi-class" class="text-sm font-extrabold">Language</label>
+        <select id="smi-class" name="class" class="sf-field"></select>
+        <p class="text-sm text-muted">Files with one language skip this. A file without the language you pick uses its first language.</p>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="smi-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="smi-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="smi-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download SRT file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="smi-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { serializeSrt } from '../lib/subs/srt';
+  import { classLabel, isSmiName, parseSmi, selectSmiGroup, smiOutputNames, type SmiResult } from '../lib/subs/smi';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('smi-form');
+  const result = document.getElementById('smi-result');
+  const status = document.getElementById('smi-status');
+  const download = document.getElementById('smi-download');
+  const hint = document.getElementById('smi-download-hint');
+  const meta = document.querySelector('#smi-dropzone [data-file-meta]');
+  const classRow = document.getElementById('smi-class-row');
+  const classInput = document.getElementById('smi-class');
+  const bomInput = document.getElementById('smi-bom');
+
+  let files: DecodedSubtitleFile[] = [];
+  let parsed: SmiResult[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.encoding === 'string' && typeof file.text === 'string';
+  }
+
+  function showResult(messages: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('smi-preview');
+    const empty = document.getElementById('smi-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('smi-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const sliced = slicePreviewCues(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  function selectedClass(): string | null {
+    if (!(classInput instanceof HTMLSelectElement) || classRow instanceof HTMLElement && classRow.hidden) return null;
+    return classInput.value || null;
+  }
+
+  function fillClasses(): void {
+    if (!(classInput instanceof HTMLSelectElement) || !(classRow instanceof HTMLElement)) return;
+    const seen = new Map<string, string>();
+    for (const file of parsed) {
+      for (const group of file.groups) {
+        const key = group.id.toLowerCase();
+        if (!seen.has(key)) seen.set(key, classLabel(group));
+      }
+    }
+    const previous = classInput.value;
+    classInput.replaceChildren();
+    for (const [id, label] of seen) {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = label;
+      classInput.append(option);
+    }
+    if ([...seen.keys()].includes(previous)) classInput.value = previous;
+    classRow.hidden = seen.size < 2;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    classInput instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      const classId = selectedClass();
+      const accepted: { name: string; classId: string; multi: boolean }[] = [];
+      const texts: string[] = [];
+      for (const [index, file] of files.entries()) {
+        if (!isSmiName(file.name)) {
+          messages.push(`${file.name}: Use an SMI or SAMI file.`);
+          continue;
+        }
+        const smi = parsed[index];
+        if (!smi || smi.error) {
+          messages.push(`${file.name}: ${smi?.error ?? "This doesn't look like an SMI file."}`);
+          continue;
+        }
+        for (const warning of smi.warnings) messages.push(`${file.name}: ${warning}`);
+        const picked = selectSmiGroup(smi, classId);
+        if (picked.warning) messages.push(`${file.name}: ${picked.warning}`);
+        const cues = picked.group?.cues ?? [];
+        if (cues.length === 0) {
+          messages.push(`${file.name}: No subtitle text was found.`);
+          continue;
+        }
+        const text = serializeSrt(cues);
+        accepted.push({ name: file.name, classId: picked.group?.id ?? 'default', multi: smi.groups.length > 1 });
+        texts.push(text);
+        if (preview === null) preview = text;
+      }
+      const outputNames = smiOutputNames(accepted);
+      outputNames.forEach((name, index) => {
+        const text = texts[index];
+        if (text && name) ready.push({ name, text });
+      });
+      return { messages, ready, preview };
+    };
+
+    const refresh = () => {
+      if (files.length === 0) return;
+      const { messages, preview } = converted();
+      showResult(messages, preview);
+    };
+
+    classInput.addEventListener('change', refresh);
+
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      parsed = files.map((file) => (isSmiName(file.name) ? parseSmi(file.text) : parseSmi('')));
+      fillClasses();
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8').replace(/^euc-kr$/i, 'EUC-KR');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null);
+        return;
+      }
+      refresh();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      const { messages, ready, preview } = converted();
+      showResult(messages, preview);
+      if (ready.length > 0) {
+        downloadSubtitleFiles(ready, bomInput.checked);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>

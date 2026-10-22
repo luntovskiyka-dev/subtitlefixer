@@ -203,6 +203,18 @@ describe('subtitlesToText: YouTube automatic captions', () => {
     const vtt = 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nOne\n \n2\n00:00:03.000 --> 00:00:04.000\nTwo\n';
     expect(subtitlesToText(vtt, 'vtt').text).toBe('One\nTwo\n');
   });
+
+  it('turns the VTT to TXT example into speaker lines', () => {
+    const vtt = `WEBVTT
+
+00:00:02.500 --> 00:00:05.000
+<v Anna>Good afternoon, everyone.
+
+00:00:05.300 --> 00:00:08.960
+<v Ben>Let's start with the <b>numbers</b>.
+`;
+    expect(subtitlesToText(vtt, 'vtt').text).toBe("Anna: Good afternoon, everyone.\nBen: Let's start with the numbers.\n");
+  });
 });
 
 describe('helpers', () => {

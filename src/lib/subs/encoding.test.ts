@@ -256,3 +256,16 @@ describe('index re-exports', () => {
     expect(decodeWithLabelFromIndex).toBe(decodeWithLabel);
   });
 });
+
+describe('EUC-KR', () => {
+  it('decodes CP949 bytes as euc-kr when the file is not UTF-8', async () => {
+    const hangul = Uint8Array.from([0xbe, 0xc8, 0xb3, 0xe7, 0xc7, 0xcf, 0xbc, 0xbc, 0xbf, 0xe4]);
+    const prefix = new TextEncoder().encode('<SAMI><BODY><SYNC Start=0><P Class=KRCC>');
+    const bytes = new Uint8Array(prefix.length + hangul.length);
+    bytes.set(prefix);
+    bytes.set(hangul, prefix.length);
+    const decoded = await decodeBytes(bytes);
+    expect(decoded.encoding).toBe('euc-kr');
+    expect(decoded.text).toContain('안녕하세요');
+  });
+});

@@ -10,18 +10,18 @@ faq:
   - q: "Can I keep the timestamps?"
     a: "Yes. Choose \"With timestamps\" and each subtitle starts with its start time in square brackets, like `[00:01:05] text`. Choose \"Text only\" if you want the words without any times."
   - q: "Can I convert VTT captions from YouTube or Zoom to text?"
-    a: "Yes. Add the .vtt file like any other subtitle file. The WEBVTT header, NOTE blocks and tags are removed, and speaker tags such as `<v Anna>` become \"Anna: \" at the start of the line, so you can still see who is talking."
+    a: "Yes. Add the .vtt file here, or use [VTT to TXT](/vtt-to-txt) for the same conversion aimed at VTT captions. The WEBVTT header, NOTE blocks and tags are removed, and speaker tags such as `<v Anna>` become \"Anna: \" at the start of the line, so you can still see who is talking."
   - q: "Why does my YouTube caption text repeat every line?"
     a: "YouTube's automatic captions show text as it is spoken, so the same words appear in two cues in a row and each line ends up in the text twice. Tick \"Remove repeated lines\" and SubtitleFixer drops a line when it is the same as the line right before it. The option is off by default, so normal subtitles are never changed."
   - q: "Can I convert the TXT file back to SRT?"
     a: "Only if you keep the timestamps. A text-only file has no times left, so the timings would have to be created again. Save with \"With timestamps\" if you may need subtitles later, and use [TXT to SRT](/txt-to-srt) to turn text back into a subtitle file."
   - q: "Can I get a Word document instead of TXT?"
-    a: "Download the TXT file and open it in Microsoft Word, Google Docs or LibreOffice, then save it as .docx from there. SubtitleFixer doesn't create Word files itself."
+    a: "Yes. Use [SRT to Word](/srt-to-word) to download a .docx file, including a table of times and text. You can also download the TXT file and open it in Microsoft Word, Google Docs or LibreOffice."
   - q: "Does it work with Arabic, Cyrillic or Chinese subtitles?"
     a: "Yes. SubtitleFixer detects the encoding of each file, including older ones like Windows-1251 or Windows-1256, and saves the text as UTF-8. If the text already shows characters like `Ã©`, repair it first with [Fix subtitle encoding](/fix-subtitle-encoding)."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer converts subtitles to text inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/txt-to-srt", "/vtt-to-srt", "/fix-subtitle-encoding", "/ass-to-srt", "/srt-to-vtt"]
+related: ["/txt-to-srt", "/vtt-to-txt", "/srt-to-word", "/vtt-to-srt", "/fix-subtitle-encoding", "/srt-editor"]
 ---
 
 ## How to convert subtitles to text in 3 steps
@@ -105,7 +105,7 @@ The converter turns subtitles into readable text. It doesn't change the words.
 **What it doesn't do:**
 
 - It doesn't transcribe audio or video. It only works with subtitle files that already contain the text.
-- It doesn't create Word (.docx) or PDF files. Open the TXT file in a word processor and save it from there.
+- It doesn't create PDF files. For a Word document, use [SRT to Word](/srt-to-word).
 - It doesn't repair double-encoded text like `Ã©`. If your subtitles already show garbled characters, fix them first with [Fix subtitle encoding](/fix-subtitle-encoding), then convert.
 - It doesn't translate the text.
 

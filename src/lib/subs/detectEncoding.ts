@@ -40,6 +40,12 @@ const DECODER_LABELS: Record<string, string> = {
   gb18030: 'gb18030',
   gbk: 'gb18030',
   gb2312: 'gb18030',
+  'euc-kr': 'euc-kr',
+  euckr: 'euc-kr',
+  cp949: 'euc-kr',
+  'windows-949': 'euc-kr',
+  'ks-c-5601-1987': 'euc-kr',
+  uhc: 'euc-kr',
 };
 
 function detectorKey(label: string): string {

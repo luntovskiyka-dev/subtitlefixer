@@ -66,6 +66,10 @@ const LIGHT_PAIRS: readonly Pair[] = [
   { label: 'ink on merge wash', foreground: 'text', background: 'cMerge', minimum: TEXT },
   { label: 'ink on sub-to-srt wash', foreground: 'text', background: 'cSub', minimum: TEXT },
   { label: 'ink on sbv-to-srt wash', foreground: 'text', background: 'cSbv', minimum: TEXT },
+  { label: 'ink on editor wash', foreground: 'text', background: 'cEdit', minimum: TEXT },
+  { label: 'ink on vtt-to-txt wash', foreground: 'text', background: 'cV2t', minimum: TEXT },
+  { label: 'ink on srt-to-word wash', foreground: 'text', background: 'cS2w', minimum: TEXT },
+  { label: 'ink on smi-to-srt wash', foreground: 'text', background: 'cSmi', minimum: TEXT },
   { label: 'edge on surface', foreground: 'edge', background: 'surface', minimum: NON_TEXT },
   { label: 'edge on brand', foreground: 'edge', background: 'brand', minimum: NON_TEXT },
   { label: 'stage line on brand', foreground: 'stageLine', background: 'brand', minimum: NON_TEXT },
@@ -129,6 +133,10 @@ const TOOL_PAIRS: readonly Pair[] = [
   { label: 'merge icon on tile', foreground: 'tMerge', background: 'tMergeBg', minimum: NON_TEXT },
   { label: 'sub-to-srt icon on tile', foreground: 'tSub', background: 'tSubBg', minimum: NON_TEXT },
   { label: 'sbv-to-srt icon on tile', foreground: 'tSbv', background: 'tSbvBg', minimum: NON_TEXT },
+  { label: 'editor icon on tile', foreground: 'tEdit', background: 'tEditBg', minimum: NON_TEXT },
+  { label: 'vtt-to-txt icon on tile', foreground: 'tV2t', background: 'tV2tBg', minimum: NON_TEXT },
+  { label: 'srt-to-word icon on tile', foreground: 'tS2w', background: 'tS2wBg', minimum: NON_TEXT },
+  { label: 'smi-to-srt icon on tile', foreground: 'tSmi', background: 'tSmiBg', minimum: NON_TEXT },
 ];
 
 describe('contrastRatio', () => {
@@ -210,6 +218,10 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'text on merge card', foreground: 'text', background: 'cMerge', minimum: TEXT },
   { label: 'text on sub-to-srt card', foreground: 'text', background: 'cSub', minimum: TEXT },
   { label: 'text on sbv-to-srt card', foreground: 'text', background: 'cSbv', minimum: TEXT },
+  { label: 'text on editor card', foreground: 'text', background: 'cEdit', minimum: TEXT },
+  { label: 'text on vtt-to-txt card', foreground: 'text', background: 'cV2t', minimum: TEXT },
+  { label: 'text on srt-to-word card', foreground: 'text', background: 'cS2w', minimum: TEXT },
+  { label: 'text on smi-to-srt card', foreground: 'text', background: 'cSmi', minimum: TEXT },
   { label: 'outline on shift card', foreground: 'edge', background: 'cShift', minimum: NON_TEXT },
   { label: 'outline on drift card', foreground: 'edge', background: 'cDrift', minimum: NON_TEXT },
   { label: 'outline on encoding card', foreground: 'edge', background: 'cEnc', minimum: NON_TEXT },
@@ -221,6 +233,10 @@ const HOME_PAIRS: readonly Pair[] = [
   { label: 'outline on merge card', foreground: 'edge', background: 'cMerge', minimum: NON_TEXT },
   { label: 'outline on sub-to-srt card', foreground: 'edge', background: 'cSub', minimum: NON_TEXT },
   { label: 'outline on sbv-to-srt card', foreground: 'edge', background: 'cSbv', minimum: NON_TEXT },
+  { label: 'outline on editor card', foreground: 'edge', background: 'cEdit', minimum: NON_TEXT },
+  { label: 'outline on vtt-to-txt card', foreground: 'edge', background: 'cV2t', minimum: NON_TEXT },
+  { label: 'outline on srt-to-word card', foreground: 'edge', background: 'cS2w', minimum: NON_TEXT },
+  { label: 'outline on smi-to-srt card', foreground: 'edge', background: 'cSmi', minimum: NON_TEXT },
 ];
 
 checkPairs('home light', LIGHT, HOME_PAIRS);

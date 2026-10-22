@@ -4,12 +4,27 @@ import Dropzone from './Dropzone.astro';
 import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
 
-const formats = [
-  { label: 'SRT', tone: 'accent-soft' },
-  { label: 'VTT', tone: 'mint' },
-  { label: 'ASS', tone: 'lilac' },
-  { label: 'SSA', tone: 'teal-soft' },
-] as const;
+interface Props {
+  /** VTT page uses the same converter with VTT-first labels. Other formats still work. */
+  variant?: 'srt' | 'vtt';
+}
+
+const { variant = 'srt' } = Astro.props;
+const vtt = variant === 'vtt';
+
+const formats = vtt
+  ? ([
+      { label: 'VTT', tone: 'mint' },
+      { label: 'SRT', tone: 'accent-soft' },
+      { label: 'ASS', tone: 'lilac' },
+      { label: 'SSA', tone: 'teal-soft' },
+    ] as const)
+  : ([
+      { label: 'SRT', tone: 'accent-soft' },
+      { label: 'VTT', tone: 'mint' },
+      { label: 'ASS', tone: 'lilac' },
+      { label: 'SSA', tone: 'teal-soft' },
+    ] as const);
 ---
 
 <form id="s2t-form">
@@ -18,8 +33,8 @@ const formats = [
       <Dropzone
         id="s2t-dropzone"
         variant="stage"
-        label="Add one or more SRT, VTT, ASS or SSA files"
-        stageTitle="Add one or more subtitle files"
+        label={vtt ? 'Drop .vtt files here' : 'Add one or more SRT, VTT, ASS or SSA files'}
+        stageTitle={vtt ? 'Drop .vtt files here' : 'Add one or more subtitle files'}
         formats={formats}
         interactive
       />
@@ -42,7 +57,7 @@ const formats = [
       </div>
     </div>
     <div slot="settings">
-      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Subtitles → .txt</p>
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">{vtt ? 'VTT → .txt' : 'Subtitles → .txt'}</p>
       <div class="mt-4 flex flex-col gap-2">
         <label for="s2t-layout" class="text-sm font-extrabold">Layout</label>
         <select id="s2t-layout" name="layout" class="sf-field">

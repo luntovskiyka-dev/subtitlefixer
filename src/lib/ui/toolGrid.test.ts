@@ -28,7 +28,7 @@ describe('tool card and tool grid components', () => {
     expect(grid).toContain('toolGridCopy.heading');
     expect(toolGridCopy.heading).toBe('Pick a tool');
     expect(toolGridCopy.open).toBe('Open tool →');
-    expect(toolMeta).toHaveLength(11);
+    expect(toolMeta).toHaveLength(15);
   });
 
   it('shows the group caption beside the heading', () => {
@@ -55,7 +55,7 @@ describe('home hero', () => {
   });
 
   it('shows the four approved trust pills in order', () => {
-    expect([...homeTrust]).toEqual(['No upload', 'No sign-up', 'Free, 11 tools', 'Many files → one zip']);
+    expect([...homeTrust]).toEqual(['No upload', 'No sign-up', 'Free, 15 tools', 'Many files → one zip']);
   });
 });
 

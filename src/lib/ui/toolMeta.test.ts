@@ -9,9 +9,13 @@ const NAV_ORDER = [
   'VTT→SRT',
   'ASS→SRT',
   'SRT→TXT',
+  'VTT→TXT',
+  'SRT→Word',
   'TXT→SRT',
   'SUB→SRT',
   'SBV→SRT',
+  'SMI→SRT',
+  'Edit',
   'Merge',
 ] as const;
 

@@ -8,15 +8,19 @@ Free subtitle tools that run in your browser — [subtitlefixer.com](https://sub
 
 - [Shift Subtitles Online](https://subtitlefixer.com/shift-subtitles)
 - [Fix Subtitle Drift (Two-Point Sync)](https://subtitlefixer.com/fix-subtitle-drift)
-- [Fix Subtitle Encoding](https://subtitlefixer.com/fix-subtitle-encoding)
+- [Fix SRT Encoding: Convert Subtitles to UTF-8](https://subtitlefixer.com/fix-subtitle-encoding)
+- [SRT Editor Online](https://subtitlefixer.com/srt-editor)
 - [SRT to VTT Converter](https://subtitlefixer.com/srt-to-vtt)
 - [VTT to SRT Converter](https://subtitlefixer.com/vtt-to-srt)
 - [ASS to SRT Converter](https://subtitlefixer.com/ass-to-srt)
 - [SRT to TXT Converter](https://subtitlefixer.com/srt-to-txt)
+- [VTT to TXT Converter](https://subtitlefixer.com/vtt-to-txt)
+- [SRT to Word Converter](https://subtitlefixer.com/srt-to-word)
 - [TXT to SRT Converter](https://subtitlefixer.com/txt-to-srt)
 - [SUB to SRT Converter](https://subtitlefixer.com/sub-to-srt)
 - [SBV to SRT Converter](https://subtitlefixer.com/sbv-to-srt)
-- [Merge Two Subtitle Files](https://subtitlefixer.com/merge-subtitles)
+- [SMI to SRT Converter](https://subtitlefixer.com/smi-to-srt)
+- [Merge Subtitles: Dual Subtitles in One File](https://subtitlefixer.com/merge-subtitles)
 
 ## Guides
 

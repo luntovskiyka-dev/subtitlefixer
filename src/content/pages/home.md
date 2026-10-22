@@ -11,13 +11,13 @@ faq:
   - q: "Is SubtitleFixer really free? Do I need an account?"
     a: "Yes, every tool is free, and there is no paid version. You don't need an account, a sign-up or an email address."
   - q: "Which subtitle formats do you support?"
-    a: "The tools work with SRT, VTT and ASS subtitle files, and the ASS to SRT converter also takes older SSA files. The encoding fixer also accepts text-based SUB and TXT files. You can convert SRT files to VTT and back, and convert ASS or SSA files to SRT files. MicroDVD .sub and YouTube .sbv files convert to SRT, and two subtitle files can be merged into one SRT or VTT. Not sure which format you need? Read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass)."
+    a: "The tools work with SRT, VTT and ASS subtitle files, and the ASS to SRT converter also takes older SSA files. The encoding fixer also accepts text-based SUB and TXT files. You can convert SRT files to VTT and back, turn VTT into plain text, and convert ASS or SSA files to SRT files. MicroDVD .sub, YouTube .sbv and SAMI .smi files convert to SRT. Subtitles can also become a Word document, and SRT or VTT lines can be edited in the browser. Two subtitle files can be merged into one SRT or VTT. Not sure which format you need? Read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass)."
   - q: "Why are my subtitles out of sync, and which tool do I need?"
     a: "If every line is early or late by the same amount, use [shift subtitles](/shift-subtitles). If the subtitles start in sync and slowly drift, use [fix subtitle drift](/fix-subtitle-drift). If you're not sure, the guide [Subtitles out of sync](/guides/subtitles-out-of-sync) helps you find out in a few checks."
   - q: "Why do my subtitles show weird characters?"
     a: "Weird characters like `Ã©` or `Ð¿Ñ€Ð¸` usually mean the file was read with the wrong text encoding. Use [fix subtitle encoding](/fix-subtitle-encoding) to find the right one and save the file as UTF-8."
   - q: "Can I fix or convert many files at once?"
-    a: "Yes. You can add several files at once. A single result downloads as a file, and several results download together as one zip. The only exception is two-point sync in [fix subtitle drift](/fix-subtitle-drift), which works on one file at a time."
+    a: "Yes. You can add several files at once. A single result downloads as a file, and several results download together as one zip. Two exceptions work on one file at a time: two-point sync in [fix subtitle drift](/fix-subtitle-drift), and the [SRT editor](/srt-editor)."
 ---
 
 # Fix Subtitles Online
@@ -30,7 +30,7 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 
 ## The tools
 
-**SubtitleFixer has eleven free tools, grouped by the problem they solve.**
+**SubtitleFixer has fifteen free tools, grouped by the problem they solve.**
 
 ### Timing
 
@@ -40,6 +40,7 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 ### Text and encoding
 
 - [**Fix subtitle encoding**](/fix-subtitle-encoding): turn garbled text like `Ã©` or `Ð¿Ñ€Ð¸` back into readable letters by detecting the encoding, comparing a few previews, picking your language and saving the file as UTF-8.
+- [**SRT editor**](/srt-editor): change the text and times of individual SRT or VTT lines, and mark lines that overlap, end too early or are empty.
 
 ### Format conversion
 
@@ -47,9 +48,12 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 - [**VTT to SRT**](/vtt-to-srt): convert one or many WebVTT (.vtt) files to SubRip (.srt) files.
 - [**ASS to SRT**](/ass-to-srt): turn styled Advanced SubStation Alpha (.ass) and SubStation Alpha (.ssa) files into SRT subtitles by removing styling tags (italics and bold are kept), turning `\N` into real line breaks and merging duplicate lines from multiple layers.
 - [**SRT to TXT**](/srt-to-txt): turn SRT, VTT or ASS subtitles into plain text, with or without timestamps.
+- [**VTT to TXT**](/vtt-to-txt): turn VTT captions from YouTube, Zoom or Teams into plain text.
+- [**SRT to Word**](/srt-to-word): turn SRT, VTT or ASS subtitles into a Word document, as text or as a table.
 - [**TXT to SRT**](/txt-to-srt): turn a script or transcript into an SRT file, timed by reading speed or by the timestamps already in your text.
 - [**SUB to SRT**](/sub-to-srt): turn MicroDVD frame numbers in a .sub file into SRT timestamps.
 - [**SBV to SRT**](/sbv-to-srt): turn YouTube .sbv captions into SRT or VTT.
+- [**SMI to SRT**](/smi-to-srt): turn SAMI .smi subtitles into SRT, and pick a language when the file has several.
 
 ### Combining files
 
@@ -69,9 +73,13 @@ Pick the tool that matches your problem, drop in your file, and download the fix
 | You need an SRT file, but you have a VTT file | [VTT to SRT](/vtt-to-srt) |
 | You have an ASS file, but your player or platform only takes SRT files | [ASS to SRT](/ass-to-srt) |
 | You need the words from a subtitle file as plain text | [SRT to TXT](/srt-to-txt) |
+| You have a VTT caption file and need plain text | [VTT to TXT](/vtt-to-txt) |
+| You need a Word document from a subtitle file | [SRT to Word](/srt-to-word) |
 | You have a script or transcript and need a subtitle file | [TXT to SRT](/txt-to-srt) |
 | You have a MicroDVD .sub file with frame numbers and need SRT | [SUB to SRT](/sub-to-srt) |
 | You have a YouTube .sbv caption file and need SRT | [SBV to SRT](/sbv-to-srt) |
+| You have a SAMI .smi file and need SRT | [SMI to SRT](/smi-to-srt) |
+| You want to change single lines of text or timing | [SRT editor](/srt-editor) |
 | You need two languages in one file, or CD1 and CD2 joined | [Merge subtitles](/merge-subtitles) |
 
 Not sure what kind of timing problem you have? Read [Subtitles out of sync: shift vs drift](/guides/subtitles-out-of-sync).

@@ -90,6 +90,18 @@
   --t-sbv: #1B1A3A;
   --t-sbv-bg: #38BDF8;
   --c-sbv: #B3E8FB;
+  --t-edit: #1B1A3A;
+  --t-edit-bg: #F9A8D4;
+  --c-edit: #FCE7F3;
+  --t-v2t: #1B1A3A;
+  --t-v2t-bg: #C4B5FD;
+  --c-v2t: #EDE9FE;
+  --t-s2w: #1B1A3A;
+  --t-s2w-bg: #5EEAD4;
+  --c-s2w: #CCFBF1;
+  --t-smi: #1B1A3A;
+  --t-smi-bg: #FDE047;
+  --c-smi: #FEF9C3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -144,5 +156,9 @@
     --c-merge: #33204D;
     --c-sub: #3A2418;
     --c-sbv: #0A3040;
+    --c-edit: #4A1942;
+    --c-v2t: #2E1060;
+    --c-s2w: #0C2F2C;
+    --c-smi: #3F2E05;
   }
 }

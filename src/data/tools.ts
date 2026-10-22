@@ -1,19 +1,23 @@
 export const tools = {
   'shift-subtitles': 'Shift subtitles',
   'fix-subtitle-encoding': 'Fix subtitle encoding',
+  'srt-editor': 'SRT editor',
   'srt-to-vtt': 'SRT to VTT',
   'vtt-to-srt': 'VTT to SRT',
   'ass-to-srt': 'ASS to SRT',
   'fix-subtitle-drift': 'Fix subtitle drift',
   'srt-to-txt': 'SRT to TXT',
+  'vtt-to-txt': 'VTT to TXT',
+  'srt-to-word': 'SRT to Word',
   'txt-to-srt': 'TXT to SRT',
   'merge-subtitles': 'Merge subtitles',
   'sub-to-srt': 'SUB to SRT',
   'sbv-to-srt': 'SBV to SRT',
+  'smi-to-srt': 'SMI to SRT',
 } as const;
 
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 's2v' | 'v2s' | 'ass' | 's2t' | 't2s' | 'sub' | 'sbv' | 'merge';
+export type ToolKey = 'shift' | 'drift' | 'enc' | 'edit' | 's2v' | 'v2s' | 'ass' | 's2t' | 'v2t' | 's2w' | 't2s' | 'sub' | 'sbv' | 'smi' | 'merge';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
@@ -22,13 +26,17 @@ export type ToolMeta = {
     | 'Shift'
     | 'Fix drift'
     | 'Fix encoding'
+    | 'Edit'
     | 'SRT→VTT'
     | 'VTT→SRT'
     | 'ASS→SRT'
     | 'SRT→TXT'
+    | 'VTT→TXT'
+    | 'SRT→Word'
     | 'TXT→SRT'
     | 'SUB→SRT'
     | 'SBV→SRT'
+    | 'SMI→SRT'
     | 'Merge';
   key: ToolKey;
   group: ToolGroup;
@@ -113,6 +121,26 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'TXT',
   },
   {
+    slug: 'vtt-to-txt',
+    nav: 'VTT→TXT',
+    key: 'v2t',
+    group: 'Convert',
+    icon: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/>',
+    formats: '.vtt → .txt',
+    card: 'Turn VTT captions into plain text, with or without timestamps.',
+    mark: 'TXT',
+  },
+  {
+    slug: 'srt-to-word',
+    nav: 'SRT→Word',
+    key: 's2w',
+    group: 'Convert',
+    icon: '<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5V8h4"/><path d="M9.5 12h5"/><path d="M9.5 16h5"/>',
+    formats: '.srt → .docx',
+    card: 'Turn SRT, VTT or ASS subtitles into a Word document.',
+    mark: 'Word',
+  },
+  {
     slug: 'txt-to-srt',
     nav: 'TXT→SRT',
     key: 't2s',
@@ -143,6 +171,26 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'smi-to-srt',
+    nav: 'SMI→SRT',
+    key: 'smi',
+    group: 'Convert',
+    icon: '<path d="M4 6h16"/><path d="M7 6v12"/><path d="M17 6v12"/><path d="M7 12h10"/>',
+    formats: '.smi → .srt',
+    card: 'Turn SAMI .smi subtitles into SRT, and pick a language when the file has several.',
+    mark: 'SRT',
+  },
+  {
+    slug: 'srt-editor',
+    nav: 'Edit',
+    key: 'edit',
+    group: 'Text',
+    icon: '<path d="M4 18.5h4l9.5-9.5-4-4L4 14.5z"/><path d="m12.5 6 4 4"/>',
+    formats: 'SRT · VTT',
+    card: 'Change subtitle text and times, add or delete lines, and mark problems.',
+    mark: 'Editor',
+  },
+  {
     slug: 'merge-subtitles',
     nav: 'Merge',
     key: 'merge',
@@ -163,7 +211,7 @@ export const toolGroups = [
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 11 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 15 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {

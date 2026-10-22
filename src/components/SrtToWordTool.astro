@@ -1,0 +1,246 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+  { label: 'ASS', tone: 'lilac' },
+  { label: 'SSA', tone: 'teal-soft' },
+] as const;
+---
+
+<form id="s2w-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="s2w-dropzone"
+        variant="stage"
+        label="Add one or more SRT, VTT, ASS or SSA files"
+        stageTitle="Add one or more subtitle files"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="s2w-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="s2w-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the text.</p>
+      <div
+        id="s2w-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Word document preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="s2w-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Subtitles → .docx</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="s2w-layout" class="text-sm font-extrabold">Layout</label>
+        <select id="s2w-layout" name="layout" class="sf-field">
+          <option value="text" selected>Text only</option>
+          <option value="timestamps">With timestamps</option>
+          <option value="paragraphs">Paragraphs</option>
+          <option value="table">Table</option>
+        </select>
+      </div>
+      <div id="s2w-pause-row" class="mt-3 flex flex-col gap-2" hidden>
+        <label for="s2w-pause" class="text-sm font-extrabold">New paragraph after a pause of</label>
+        <div class="relative">
+          <input
+            id="s2w-pause"
+            name="pause"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.5"
+            value="2"
+            aria-describedby="s2w-pause-hint"
+            class="sf-field pr-24"
+          />
+          <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-bold text-muted" aria-hidden="true">seconds</span>
+        </div>
+        <p id="s2w-pause-hint" class="text-sm text-muted">Default: 2 seconds.</p>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="s2w-repeats" name="repeats" type="checkbox" class="sf-check" />
+        <label for="s2w-repeats" class="text-sm font-extrabold">Remove repeated lines</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="s2w-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        Download Word file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="s2w-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import { docxFileNames, subtitlesToDocx, type DocxLayout } from '../lib/subs/docx';
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadDocxFiles } from '../lib/subs/files';
+  import { subtitleFormatFromName, subtitlesToText } from '../lib/subs/toText';
+  import { slicePreviewLines } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('s2w-form');
+  const result = document.getElementById('s2w-result');
+  const status = document.getElementById('s2w-status');
+  const download = document.getElementById('s2w-download');
+  const hint = document.getElementById('s2w-download-hint');
+  const meta = document.querySelector('#s2w-dropzone [data-file-meta]');
+  const layoutInput = document.getElementById('s2w-layout');
+  const pauseRow = document.getElementById('s2w-pause-row');
+  const pauseInput = document.getElementById('s2w-pause');
+  const repeatsInput = document.getElementById('s2w-repeats');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.encoding === 'string' && typeof file.text === 'string';
+  }
+
+  function isLayout(value: string): value is DocxLayout {
+    return value === 'text' || value === 'timestamps' || value === 'paragraphs' || value === 'table';
+  }
+
+  function showResult(messages: readonly string[], preview: string | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('s2w-preview');
+    const empty = document.getElementById('s2w-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('s2w-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const sliced = slicePreviewLines(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = sliced.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    layoutInput instanceof HTMLSelectElement &&
+    pauseRow instanceof HTMLElement &&
+    pauseInput instanceof HTMLInputElement &&
+    repeatsInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const optionsOf = () => {
+      const layout = isLayout(layoutInput.value) ? layoutInput.value : 'text';
+      const seconds = Number(pauseInput.value.replace(',', '.'));
+      return { layout, seconds };
+    };
+
+    const converted = () => {
+      const messages: string[] = [];
+      const ready: { name: string; bytes: Uint8Array }[] = [];
+      let preview: string | null = null;
+      const { layout, seconds } = optionsOf();
+      if (layout === 'paragraphs' && (pauseInput.value.trim() === '' || !Number.isFinite(seconds) || seconds < 0)) {
+        return { messages: ['Enter a pause of 0 seconds or more.'], ready, preview };
+      }
+      const options = { layout, pauseMs: Math.round(seconds * 1000), removeRepeats: repeatsInput.checked };
+      const accepted = files.filter((file) => subtitleFormatFromName(file.name) !== null);
+      const outputNames = docxFileNames(accepted.map((file) => file.name));
+      for (const file of files) {
+        const format = subtitleFormatFromName(file.name);
+        if (format === null) {
+          messages.push(`${file.name}: Use an SRT, VTT, ASS or SSA file.`);
+          continue;
+        }
+        const output = subtitlesToDocx(file.text, format, options);
+        for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
+        if (!output.bytes || output.count === 0) {
+          messages.push(`${file.name}: No subtitle text was found.`);
+          continue;
+        }
+        if (preview === null) {
+          const textLayout = layout === 'table' ? 'timestamps' : layout;
+          preview = subtitlesToText(file.text, format, {
+            layout: textLayout,
+            pauseMs: options.pauseMs,
+            removeRepeats: options.removeRepeats,
+          }).text;
+        }
+        const name = outputNames[accepted.indexOf(file)] ?? 'subtitles.docx';
+        ready.push({ name, bytes: output.bytes });
+      }
+      return { messages, ready, preview };
+    };
+
+    const refresh = () => {
+      pauseRow.hidden = layoutInput.value !== 'paragraphs';
+      if (files.length === 0) return;
+      const { messages, preview } = converted();
+      showResult(messages, preview);
+    };
+
+    layoutInput.addEventListener('change', refresh);
+    pauseInput.addEventListener('input', refresh);
+    repeatsInput.addEventListener('change', refresh);
+    form.addEventListener('subtitlereading', () => renderStatus(status, 'working', names()));
+    form.addEventListener('subtitlefailed', () => renderStatus(status, 'error', names()));
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null);
+        return;
+      }
+      refresh();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      const { messages, ready, preview } = converted();
+      showResult(messages, preview);
+      if (ready.length > 0) {
+        downloadDocxFiles(ready);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>

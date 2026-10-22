@@ -61,6 +61,18 @@ export function zipTexts(files: readonly SubtitleTextFile[], bom: boolean): Uint
   return zipSync(entries);
 }
 
+export interface BinaryFile {
+  name: string;
+  bytes: Uint8Array;
+}
+
+/** Zip already-built files, such as .docx, without re-encoding them as text. */
+export function zipBytes(files: readonly BinaryFile[]): Uint8Array {
+  const entries: Record<string, Uint8Array> = {};
+  for (const file of files) entries[file.name] = file.bytes;
+  return zipSync(entries);
+}
+
 function triggerDownload(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -74,6 +86,24 @@ function triggerDownload(filename: string, blob: Blob): void {
 
 export function downloadText(filename: string, text: string, bom: boolean): void {
   triggerDownload(filename, textFileBlob(text, bom));
+}
+
+export function downloadBytes(filename: string, bytes: Uint8Array, type: string): void {
+  triggerDownload(filename, new Blob([toArrayBuffer(bytes)], { type }));
+}
+
+const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+/** One .docx downloads as itself. Two or more become a single subtitles.zip. */
+export function downloadDocxFiles(files: readonly BinaryFile[]): void {
+  if (files.length === 0) return;
+  if (files.length === 1) {
+    const file = files[0];
+    if (!file) return;
+    downloadBytes(file.name, file.bytes, DOCX_TYPE);
+    return;
+  }
+  triggerDownload(ZIP_FILENAME, new Blob([toArrayBuffer(zipBytes(files))], { type: 'application/zip' }));
 }
 
 /** One file downloads as text. Two or more become a single subtitles.zip. */

@@ -11,7 +11,14 @@
 - [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT, including YouTube, Zoom and Teams files, to numbered SRT; keeps italics and bold, strips other tags.
 - [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert ASS/SSA to clean SRT; removes style tags and duplicate layers, keeps dialogue, timing, italics and bold.
 - [SRT to TXT](https://subtitlefixer.com/srt-to-txt): turn SRT, VTT, ASS or SSA subtitles into plain text, one line per subtitle, with timestamps, or as paragraphs; removes cue numbers and tags, can drop repeated YouTube caption lines; batch.
+- [VTT to TXT](https://subtitlefixer.com/vtt-to-txt): turn WebVTT captions, including YouTube, Zoom and Teams transcripts, into plain text. Removes the WEBVTT header, cue settings and tags, keeps speaker names, and can drop repeated lines.
+- [SRT to Word](https://subtitlefixer.com/srt-to-word): turn SRT, VTT or ASS subtitles into a Word .docx file: plain paragraphs, timestamps, or a table of number, start, end and text. Built in the browser.
 - [TXT to SRT](https://subtitlefixer.com/txt-to-srt): turn a script or transcript into SRT or VTT, timed by reading speed or by timestamps already in the text (such as a YouTube transcript); timings are estimated from the text, not from audio.
+- [SUB to SRT](https://subtitlefixer.com/sub-to-srt): turn MicroDVD frame numbers in a .sub file into SRT timestamps.
+- [SBV to SRT](https://subtitlefixer.com/sbv-to-srt): turn YouTube .sbv captions into SRT or VTT.
+- [SMI to SRT](https://subtitlefixer.com/smi-to-srt): turn SAMI .smi or .sami subtitles into SRT. Pick one language class when the file has several. Reads EUC-KR and saves UTF-8.
+- [SRT editor](https://subtitlefixer.com/srt-editor): edit SRT and VTT text and times, add, delete, split or merge lines, and see lines that overlap, end too early, are empty or out of order. Saves SRT or VTT. No video preview.
+- [Merge subtitles](https://subtitlefixer.com/merge-subtitles): combine two subtitle files, either as dual-language lines or by joining CD1 and CD2.
 
 ## Guides
 

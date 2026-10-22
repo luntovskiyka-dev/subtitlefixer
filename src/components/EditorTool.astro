@@ -1,0 +1,465 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'mint' },
+] as const;
+---
+
+<form id="editor-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="editor-dropzone"
+        variant="stage"
+        label="Open one SRT or VTT file"
+        stageTitle="Open an SRT or VTT file"
+        accept=".srt,.vtt"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="editor-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="editor-empty" class="text-sm font-medium text-on-brand-muted">Open a file, or start with an empty one.</p>
+      <button id="editor-add-first" type="button" class="mt-3 min-h-11 rounded-sf border-2 border-stage-line bg-surface px-4 text-sm font-extrabold text-ink">
+        Add a line
+      </button>
+      <div id="editor-panel" class="rounded-sf-lg border-2.5 border-stage-line bg-surface text-ink" hidden>
+        <div class="flex items-center justify-between gap-3 px-4 py-3">
+          <p class="font-display text-lg font-extrabold">Subtitles</p>
+          <p id="editor-count" class="text-sm font-extrabold"></p>
+        </div>
+        <div id="editor-scroll" class="max-h-[28rem] overflow-y-auto border-t-2 border-line" tabindex="0" aria-label="Subtitle lines">
+          <div id="editor-list"></div>
+        </div>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Edit lines</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="editor-format" class="text-sm font-extrabold">Save as</label>
+        <select id="editor-format" name="format" class="sf-field">
+          <option value="srt" selected>SRT</option>
+          <option value="vtt">VTT</option>
+        </select>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="editor-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="editor-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+      <div class="mt-4 flex flex-col gap-2">
+        <Button id="editor-new" type="button" variant="secondary" class="w-full">New empty file</Button>
+        <Button id="editor-undo" type="button" variant="secondary" class="w-full" disabled>Undo</Button>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="editor-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a subtitle before downloading.">
+        Download subtitle file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
+        Your file never leaves your device.
+      </p>
+      <div id="editor-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import {
+    EDITOR_ROW_HEIGHT,
+    EDITOR_VIRTUAL_THRESHOLD,
+    blankCueAfter,
+    cueIssues,
+    editorCuesFrom,
+    editorFormatFromName,
+    editorOutputName,
+    formatIssueCount,
+    issueLabel,
+    mergeEditorCues,
+    parseEditorTime,
+    sortForDownload,
+    splitEditorCue,
+    visibleCueRange,
+    type CueIssue,
+    type EditorCue,
+  } from '../lib/subs/editor';
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadText } from '../lib/subs/files';
+  import { parseSrt, serializeSrt } from '../lib/subs/srt';
+  import { formatSrtTimestamp } from '../lib/subs/time';
+  import { parseVtt, serializeVtt } from '../lib/subs/vtt';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const lineCount = (count: number) => `${count} line${count === 1 ? '' : 's'}`;
+
+  const form = document.getElementById('editor-form');
+  const result = document.getElementById('editor-result');
+  const status = document.getElementById('editor-status');
+  const download = document.getElementById('editor-download');
+  const hint = document.getElementById('editor-download-hint');
+  const meta = document.querySelector('#editor-dropzone [data-file-meta]');
+  const formatInput = document.getElementById('editor-format');
+  const bomInput = document.getElementById('editor-bom');
+  const undoButton = document.getElementById('editor-undo');
+  const newButton = document.getElementById('editor-new');
+  const list = document.getElementById('editor-list');
+  const scroll = document.getElementById('editor-scroll');
+  const panel = document.getElementById('editor-panel');
+  const empty = document.getElementById('editor-empty');
+  const addFirst = document.getElementById('editor-add-first');
+  const count = document.getElementById('editor-count');
+
+  let cues: EditorCue[] = [];
+  let nextId = 1;
+  let undoStack: EditorCue[][] = [];
+  let dirty = false;
+  let sourceName = 'subtitles.srt';
+  let scrollTop = 0;
+  let frame = 0;
+
+  function freshId(): string {
+    nextId += 1;
+    return `c${nextId}`;
+  }
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.encoding === 'string' && typeof file.text === 'string';
+  }
+
+  function showMessages(messages: readonly string[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+  }
+
+  function setDownload(enabled: boolean): void {
+    if (!(download instanceof HTMLButtonElement)) return;
+    if (enabled) download.removeAttribute('aria-disabled');
+    else download.setAttribute('aria-disabled', 'true');
+    if (hint instanceof HTMLElement) hint.hidden = enabled;
+  }
+
+  function setUndo(): void {
+    if (undoButton instanceof HTMLButtonElement) undoButton.disabled = undoStack.length === 0;
+  }
+
+  function remember(): void {
+    undoStack.push(cues.map((cue) => ({ ...cue })));
+    if (undoStack.length > 50) undoStack.shift();
+    dirty = true;
+    setUndo();
+  }
+
+  function replaceCues(next: EditorCue[]): void {
+    cues = next;
+    setDownload(cues.length > 0);
+    renderList();
+  }
+
+  function button(label: string, onClick: () => void): HTMLButtonElement {
+    const control = document.createElement('button');
+    control.type = 'button';
+    control.className = 'min-h-11 rounded-sf border-2 border-edge bg-surface px-3 text-sm font-extrabold text-ink';
+    control.textContent = label;
+    control.addEventListener('click', onClick);
+    return control;
+  }
+
+  function renderList(): void {
+    if (!(list instanceof HTMLElement) || !(scroll instanceof HTMLElement) || !(panel instanceof HTMLElement)) return;
+    if (!(empty instanceof HTMLElement) || !(count instanceof HTMLElement)) return;
+    const issues = cueIssues(cues);
+    const summary = formatIssueCount(issues);
+    count.textContent = summary === '' ? lineCount(cues.length) : `${lineCount(cues.length)} · ${summary}`;
+    const started = cues.length > 0;
+    panel.hidden = !started;
+    empty.hidden = started;
+    if (addFirst instanceof HTMLButtonElement) addFirst.hidden = started;
+    list.replaceChildren();
+    if (!started) return;
+    const range = visibleCueRange(cues.length, scrollTop, scroll.clientHeight || 448, EDITOR_ROW_HEIGHT);
+    const top = document.createElement('div');
+    top.style.height = `${range.start * EDITOR_ROW_HEIGHT}px`;
+    list.append(top);
+    for (let index = range.start; index < range.end; index += 1) {
+      const cue = cues[index];
+      if (!cue) continue;
+      list.append(renderRow(cue, index, issues.get(cue.id) ?? []));
+    }
+    const bottom = document.createElement('div');
+    bottom.style.height = `${(cues.length - range.end) * EDITOR_ROW_HEIGHT}px`;
+    list.append(bottom);
+  }
+
+  function renderRow(cue: EditorCue, index: number, issues: readonly CueIssue[]): HTMLElement {
+    const row = document.createElement('div');
+    row.className = `grid grid-cols-[auto_1fr] gap-2 overflow-hidden border-b border-line px-3 py-2 ${issues.length > 0 ? 'border-l-4 border-l-warning' : ''}`;
+    row.style.height = `${EDITOR_ROW_HEIGHT}px`;
+
+    const number = document.createElement('p');
+    number.className = 'pt-2 font-mono text-sm font-medium text-muted';
+    number.textContent = String(index + 1);
+
+    const body = document.createElement('div');
+    body.className = 'flex min-w-0 flex-col gap-1';
+
+    const times = document.createElement('div');
+    times.className = 'flex flex-wrap gap-2';
+    times.append(timeField('Start', cue, 'start', index));
+    times.append(timeField('End', cue, 'end', index));
+
+    const text = document.createElement('textarea');
+    text.className = 'sf-field min-h-11 resize-none py-1.5 font-mono text-sm';
+    text.rows = 2;
+    text.value = cue.text;
+    text.ariaLabel = `Text for subtitle ${index + 1}`;
+    text.addEventListener('input', () => {
+      const current = cues[index];
+      if (!current) return;
+      current.text = text.value;
+      dirty = true;
+      const live = cueIssues(cues);
+      const rowIssues = live.get(current.id) ?? [];
+      count instanceof HTMLElement && (count.textContent = `${lineCount(cues.length)}${formatIssueCount(live) ? ` · ${formatIssueCount(live)}` : ''}`);
+      row.className = `grid grid-cols-[auto_1fr] gap-2 overflow-hidden border-b border-line px-3 py-2 ${rowIssues.length > 0 ? 'border-l-4 border-l-warning' : ''}`;
+      row.style.height = `${EDITOR_ROW_HEIGHT}px`;
+      let note = body.querySelector('[data-issue]');
+      if (rowIssues.length === 0) {
+        note?.remove();
+        return;
+      }
+      if (!(note instanceof HTMLParagraphElement)) {
+        note = document.createElement('p');
+        note.setAttribute('data-issue', '');
+        note.className = 'text-sm font-bold text-warning';
+        body.append(note);
+      }
+      note.textContent = rowIssues.map((issue) => issueLabel(issue)).join(' · ');
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'flex flex-wrap gap-2';
+    actions.append(
+      button('Add after', () => {
+        remember();
+        const next = cues.slice();
+        next.splice(index + 1, 0, blankCueAfter(cues[index] ?? null, freshId()));
+        replaceCues(next);
+      }),
+      button('Delete', () => {
+        remember();
+        replaceCues(cues.filter((item) => item.id !== cue.id));
+      }),
+      button('Split', () => {
+        const current = cues[index];
+        if (!current) return;
+        const split = splitEditorCue(current, text.selectionStart ?? 0, freshId);
+        if (!split) {
+          showMessages(['Place the cursor inside the text to split this line.']);
+          return;
+        }
+        remember();
+        const next = cues.slice();
+        next.splice(index, 1, split[0], split[1]);
+        replaceCues(next);
+      }),
+    );
+    const merge = button('Merge with next', () => {
+      const current = cues[index];
+      const following = cues[index + 1];
+      if (!current || !following) return;
+      remember();
+      const next = cues.slice();
+      next.splice(index, 2, mergeEditorCues(current, following));
+      replaceCues(next);
+    });
+    if (index === cues.length - 1) merge.disabled = true;
+    actions.append(merge);
+
+    body.append(times, text, actions);
+    if (issues.length > 0) {
+      const note = document.createElement('p');
+      note.setAttribute('data-issue', '');
+      note.className = 'text-sm font-bold text-warning';
+      note.textContent = issues.map((issue) => issueLabel(issue)).join(' · ');
+      body.append(note);
+    }
+    row.append(number, body);
+    return row;
+  }
+
+  function timeField(label: string, cue: EditorCue, key: 'start' | 'end', index: number): HTMLLabelElement {
+    const wrap = document.createElement('label');
+    wrap.className = 'flex items-center gap-2 text-sm font-extrabold';
+    wrap.append(document.createTextNode(label));
+    const input = document.createElement('input');
+    input.className = 'sf-field w-[9.5rem] font-mono';
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.value = formatSrtTimestamp(cue[key]);
+    input.ariaLabel = `${label} time for subtitle ${index + 1}`;
+    input.addEventListener('change', () => {
+      const parsed = parseEditorTime(input.value);
+      const current = cues[index];
+      if (!current || parsed === null) {
+        input.setAttribute('aria-invalid', 'true');
+        showMessages(['Enter the time as hh:mm:ss,mmm.']);
+        input.value = current ? formatSrtTimestamp(current[key]) : input.value;
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      if (parsed === current[key]) return;
+      remember();
+      current[key] = parsed;
+      dirty = true;
+      renderList();
+    });
+    wrap.append(input);
+    return wrap;
+  }
+
+  function scheduleRender(): void {
+    if (frame !== 0) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      renderList();
+    });
+  }
+
+  function confirmReplace(): boolean {
+    if (!dirty) return true;
+    return window.confirm('Replace the subtitles you are editing? Download them first if you want to keep this version.');
+  }
+
+  function loadParsed(name: string, format: 'srt' | 'vtt', text: string): string[] {
+    sourceName = name;
+    if (formatInput instanceof HTMLSelectElement) formatInput.value = format;
+    undoStack = [];
+    dirty = false;
+    scrollTop = 0;
+    if (scroll instanceof HTMLElement) scroll.scrollTop = 0;
+    const parsed = format === 'srt' ? parseSrt(text) : parseVtt(text);
+    cues = editorCuesFrom(parsed.cues, () => freshId());
+    setUndo();
+    setDownload(cues.length > 0);
+    renderList();
+    return parsed.errors.map((error) => `Block ${error.block}: ${error.message}`);
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    formatInput instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    undoButton instanceof HTMLButtonElement &&
+    newButton instanceof HTMLButtonElement &&
+    scroll instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    window.addEventListener('beforeunload', (event) => {
+      if (!dirty) return;
+      event.preventDefault();
+    });
+
+    scroll.addEventListener('scroll', () => {
+      scrollTop = scroll.scrollTop;
+      if (cues.length > EDITOR_VIRTUAL_THRESHOLD) scheduleRender();
+    });
+
+    newButton.addEventListener('click', () => {
+      if (!confirmReplace()) return;
+      sourceName = 'subtitles.srt';
+      formatInput.value = 'srt';
+      undoStack = [];
+      cues = [blankCueAfter(null, freshId())];
+      dirty = true;
+      setUndo();
+      setDownload(true);
+      showMessages([]);
+      renderList();
+      renderStatus(status, 'loaded', [sourceName]);
+    });
+
+    if (addFirst instanceof HTMLButtonElement) {
+      addFirst.addEventListener('click', () => {
+        remember();
+        sourceName = sourceName || 'subtitles.srt';
+        replaceCues([blankCueAfter(null, freshId())]);
+        renderStatus(status, 'loaded', [sourceName]);
+      });
+    }
+
+    undoButton.addEventListener('click', () => {
+      const previous = undoStack.pop();
+      if (!previous) return;
+      dirty = true;
+      setUndo();
+      replaceCues(previous);
+    });
+
+    form.addEventListener('subtitlereading', () => renderStatus(status, 'working', [sourceName]));
+    form.addEventListener('subtitlefailed', () => renderStatus(status, 'error', [sourceName]));
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail: unknown = event.detail;
+      if (typeof detail !== 'object' || detail === null || !('files' in detail) || !Array.isArray(detail.files)) return;
+      const decoded = detail.files.filter(isDecodedFile);
+      const file = decoded[0];
+      if (!file) return;
+      if (!confirmReplace()) return;
+      const format = editorFormatFromName(file.name);
+      const messages: string[] = [];
+      if (decoded.length > 1) messages.push('Opened the first file. The editor works on one file at a time.');
+      if (format === 'ass') {
+        showMessages([...messages, `${file.name}: ASS files aren't supported here. Convert them with ASS to SRT first.`]);
+        renderStatus(status, 'error', [file.name]);
+        return;
+      }
+      if (format !== 'srt' && format !== 'vtt') {
+        showMessages([...messages, `${file.name}: Use an SRT or VTT file.`]);
+        renderStatus(status, 'error', [file.name]);
+        return;
+      }
+      if (meta instanceof HTMLElement) meta.textContent = file.encoding.replace(/^utf-8$/i, 'UTF-8');
+      const notes = loadParsed(file.name, format, file.text);
+      showMessages([...messages, ...notes]);
+      renderStatus(status, 'loaded', [file.name]);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      if (cues.length === 0) {
+        showMessages(['Add at least one subtitle before downloading.']);
+        renderStatus(status, 'error', [sourceName]);
+        return;
+      }
+      const format = formatInput.value === 'vtt' ? 'vtt' : 'srt';
+      const sorted = sortForDownload(cues);
+      const text = format === 'vtt' ? serializeVtt(sorted.cues) : serializeSrt(sorted.cues);
+      const name = editorOutputName(sourceName, format);
+      downloadText(name, text, bomInput.checked);
+      dirty = false;
+      const messages = [`Downloaded ${name}.`];
+      if (sorted.orderChanged) messages.unshift('Lines were out of order, so the file was sorted by start time.');
+      const attention = formatIssueCount(cueIssues(sorted.cues));
+      if (attention) messages.push(attention);
+      showMessages(messages);
+      renderStatus(status, 'ready', [sourceName]);
+    });
+  }
+</script>

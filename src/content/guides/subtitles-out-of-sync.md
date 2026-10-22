@@ -13,14 +13,14 @@ faq:
     a: "That is drift. The subtitle timing runs at a slightly different speed than your video, usually because the file was made for a release with a different frame rate, such as 25 fps instead of 23.976 fps. A single shift can't fix it. Use [fix subtitle drift](/fix-subtitle-drift) instead."
   - q: "Does changing the subtitle delay in VLC change the subtitle file?"
     a: "No. The H and G keys in VLC change the subtitle delay for playback in VLC only. The subtitle file stays the same. To fix the file itself, apply the same delay with [shift subtitles](/shift-subtitles)."
-  - q: "Why are my subtitles right at first but wrong after a certain scene?"
-    a: "Your video is probably a different cut, or ad breaks were removed from a TV recording. Everything after that point is off by the same amount. Use [shift subtitles](/shift-subtitles) and start the shift from the first line that's wrong, so the earlier lines stay as they are."
-  - q: "How much should I shift my subtitles?"
-    a: "Compare when you hear a clear line with when its subtitle appears. If the subtitle shows up 2 seconds after the voice, move the subtitles 2,000 ms earlier. If it shows up before the voice, move them later. A player's subtitle delay setting is a handy way to find the exact value first."
-  - q: "Should I fix timing before or after converting to another format?"
-    a: "Either order works for a simple shift, because shift subtitles works with SRT, VTT and ASS files directly. The easiest approach is to fix the timing in the format you already have, then convert if you need to."
-  - q: "Can I fix out-of-sync subtitles online for free?"
-    a: "Yes. The SubtitleFixer timing tools are free and run in your browser. Your subtitle file is not uploaded, and you don't need an account."
+  - q: "How do I fix subtitles out of sync in Plex?"
+    a: "For a quick fix while watching, open Playback Settings and use Adjust Offsets. Plex's help says this works for external text subtitles such as a separate SRT file, not for subtitles embedded in the video. To fix the file for good, use [Shift subtitles](/shift-subtitles) for a constant delay or [Fix subtitle drift](/fix-subtitle-drift) if the gap grows, then replace the old file next to your video."
+  - q: "How do I fix subtitles out of sync in Jellyfin?"
+    a: "Jellyfin's web player has a Subtitle Offset option in the playback settings for text subtitles such as SRT or VTT. It only changes playback. To fix the file itself, use [Shift subtitles](/shift-subtitles) or [Fix subtitle drift](/fix-subtitle-drift) and replace the old file."
+  - q: "Why are Netflix subtitles out of sync, and can I fix them?"
+    a: "You can't edit Netflix subtitles, because they aren't a file on your device. Check whether other titles are also off: if they are, restart or update the app or device; if only one title is off, report it from Viewing Activity in your Netflix account (Profiles, then Viewing activity, then Report a problem)."
+  - q: "What is subtitle delay, and how do I fix it?"
+    a: "Subtitle delay means the subtitles appear before or after the words are spoken. If they are off by the same amount all the way through, enter that amount in milliseconds in [Shift subtitles](/shift-subtitles). If the gap keeps growing, use [Fix subtitle drift](/fix-subtitle-drift)."
 ---
 
 # Subtitles Out of Sync? How to Tell Shift from Drift and Fix It
@@ -99,7 +99,7 @@ If you don't know the frame rates, use two-point sync. It works from what you ac
 
 **Different cut or removed ad breaks.** The subtitles are in sync up to a certain scene, and everything after it is off by the same amount. Use [shift subtitles](/shift-subtitles) and start the shift from the first line that's wrong. Lines before it stay as they are. If the timing jumps again later, repeat the shift from the next wrong line.
 
-**A few badly timed lines.** If only single lines appear too early or too late, no automatic tool can know the right time for each one. Fix those lines by hand in a subtitle editor, or look for a subtitle file made for your exact release.
+**A few badly timed lines.** If only single lines appear too early or too late, no automatic tool can know the right time for each one. Fix those lines by hand in the [SRT editor](/srt-editor), or look for a subtitle file made for your exact release.
 
 **Missing or extra scenes.** Subtitles for dialogue you never see, or long silent gaps where people are talking, point to a different cut. A subtitle file made for your version is usually the quickest fix.
 
