@@ -12,8 +12,13 @@ import {
   mergeEditorCueAt,
   mergeEditorCues,
   parseEditorTime,
+  UNDO_DISABLED_CLASSES,
+  UNDO_READY_CLASSES,
+  editorEdgeOffset,
+  pushTextUndo,
   rememberEditorCues,
   sortForDownload,
+  undoButtonState,
   splitEditorCue,
   undoEditorCues,
   virtualCueBox,
@@ -76,6 +81,37 @@ describe('edits', () => {
     });
   });
 
+  it('enables Undo only when a step is stored, including its aria state and styling', () => {
+    const idle = undoButtonState(0);
+    expect(idle.disabled).toBe(true);
+    expect(idle.ariaDisabled).toBe('true');
+    expect(idle.add).toEqual(UNDO_DISABLED_CLASSES);
+    expect(idle.remove).toEqual(UNDO_READY_CLASSES);
+    const ready = undoButtonState(2);
+    expect(ready.disabled).toBe(false);
+    expect(ready.ariaDisabled).toBeNull();
+    expect(ready.add).toContain('bg-surface');
+    expect(ready.add).toContain('text-ink');
+    expect(ready.remove).toContain('border-dashed');
+    expect(ready.remove).toContain('text-muted');
+  });
+
+  it('undoes text edits, one step for each typing session', () => {
+    const original = [cue('a', 0, 1000, 'Hi')];
+    let history: EditorCue[][] = [];
+    let open = false;
+    ({ history, sessionOpen: open } = pushTextUndo(history, original, open));
+    const typing = [cue('a', 0, 1000, 'Hi!')];
+    ({ history, sessionOpen: open } = pushTextUndo(history, typing, open));
+    expect(history).toHaveLength(1);
+    const after = [cue('a', 0, 1000, 'Hi!!')];
+    ({ history, sessionOpen: open } = pushTextUndo(history, after, false));
+    expect(history).toHaveLength(2);
+    const once = undoEditorCues(history);
+    expect(once.cues?.[0]?.text).toBe('Hi!!');
+    expect(undoEditorCues(once.history).cues?.[0]?.text).toBe('Hi');
+  });
+
   it('undoes a merge back to the separate lines', () => {
     const original = [cue('a', 0, 1000, 'Hi'), cue('b', 1000, 2000, 'there'), cue('c', 2000, 3000, 'again')];
     const merged = mergeEditorCueAt(original, 0);
@@ -134,6 +170,20 @@ describe('visibleCueRange', () => {
     expect(atTop.total).toBe(2000 * row);
     expect(below.total).toBe(atTop.total);
     expect(below.offset).toBe(1494 * row);
+  });
+
+  it('jumps Home to the first cue and End to the last cue in one step', () => {
+    const row = EDITOR_ROW_HEIGHT;
+    const client = 446;
+    const scrollHeight = 2000 * row;
+    const end = editorEdgeOffset('End', scrollHeight, client);
+    expect(end).toBe(375554);
+    expect(scrollHeight - client).toBe(375554);
+    const atEnd = visibleCueRange(2000, end, client, row);
+    expect(atEnd.end).toBe(2000);
+    expect(atEnd.start).toBeGreaterThan(1900);
+    expect(editorEdgeOffset('Home', scrollHeight, client)).toBe(0);
+    expect(visibleCueRange(2000, 0, client, row).start).toBe(0);
   });
 });
 

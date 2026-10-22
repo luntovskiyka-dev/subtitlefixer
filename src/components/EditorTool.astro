@@ -76,6 +76,7 @@ const formats = [
     blankCueAfter,
     cueIssues,
     cuesForDownload,
+    editorEdgeOffset,
     editorFormatFromName,
     editorOutputName,
     formatIssueCount,
@@ -83,9 +84,11 @@ const formats = [
     loadEditorCues,
     mergeEditorCueAt,
     parseEditorTime,
+    pushTextUndo,
     rememberEditorCues,
     sortForDownload,
     splitEditorCue,
+    undoButtonState,
     undoEditorCues,
     virtualCueBox,
     visibleCueRange,
@@ -159,7 +162,13 @@ const formats = [
   }
 
   function setUndo(): void {
-    if (undoButton instanceof HTMLButtonElement) undoButton.disabled = undoStack.length === 0;
+    if (!(undoButton instanceof HTMLButtonElement)) return;
+    const state = undoButtonState(undoStack.length);
+    undoButton.disabled = state.disabled;
+    if (state.ariaDisabled === null) undoButton.removeAttribute('aria-disabled');
+    else undoButton.setAttribute('aria-disabled', state.ariaDisabled);
+    for (const name of state.remove) undoButton.classList.remove(name);
+    for (const name of state.add) undoButton.classList.add(name);
   }
 
   function remember(): void {
@@ -281,9 +290,20 @@ const formats = [
     text.rows = 2;
     text.value = cue.text;
     text.ariaLabel = `Text for subtitle ${index + 1}`;
+    let textUndo = false;
+    text.addEventListener('focus', () => {
+      textUndo = false;
+    });
     text.addEventListener('input', () => {
       const current = cues[index];
       if (!current) return;
+      if (!textUndo) {
+        const recorded = pushTextUndo(undoStack, cues, false);
+        undoStack = recorded.history;
+        textUndo = recorded.sessionOpen;
+        dirty = true;
+        setUndo();
+      }
       current.text = text.value;
       dirty = true;
       const live = cueIssues(cues);
@@ -426,6 +446,28 @@ const formats = [
     window.addEventListener('beforeunload', (event) => {
       if (!dirty) return;
       event.preventDefault();
+    });
+
+    scroll.addEventListener('keydown', (event) => {
+      if (event.key !== 'Home' && event.key !== 'End') return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return;
+      if (cues.length <= EDITOR_VIRTUAL_THRESHOLD) return;
+      event.preventDefault();
+      const next = editorEdgeOffset(event.key, scroll.scrollHeight, scroll.clientHeight);
+      scrollTop = next;
+      scrollLock = true;
+      scroll.scrollTop = next;
+      scrollLock = false;
+      renderList();
+      const settled = editorEdgeOffset(event.key, scroll.scrollHeight, scroll.clientHeight);
+      if (scroll.scrollTop !== settled) {
+        scrollTop = settled;
+        scrollLock = true;
+        scroll.scrollTop = settled;
+        scrollLock = false;
+      }
     });
 
     scroll.addEventListener('scroll', () => {

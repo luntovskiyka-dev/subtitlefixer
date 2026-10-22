@@ -121,6 +121,45 @@ export function undoEditorCues(history: readonly (readonly EditorCue[])[]): { hi
   };
 }
 
+/** Classes that show Undo as ready or unavailable. Shared chrome (size, radius) stays put. */
+export const UNDO_READY_CLASSES = ['border-edge', 'bg-surface', 'text-ink', 'shadow-hard-sm'] as const;
+export const UNDO_DISABLED_CLASSES = ['border-dashed', 'border-muted', 'bg-subtle', 'text-muted', 'shadow-none'] as const;
+
+/** Undo is available only when the stack has a step. `aria-disabled` follows that, not the initial markup. */
+export function undoButtonState(steps: number): {
+  disabled: boolean;
+  ariaDisabled: 'true' | null;
+  add: readonly string[];
+  remove: readonly string[];
+} {
+  const disabled = steps <= 0;
+  return {
+    disabled,
+    ariaDisabled: disabled ? 'true' : null,
+    add: disabled ? UNDO_DISABLED_CLASSES : UNDO_READY_CLASSES,
+    remove: disabled ? UNDO_READY_CLASSES : UNDO_DISABLED_CLASSES,
+  };
+}
+
+/**
+ * One undo step for a run of typing. The first keystroke in a focus session stores the text
+ * from before that keystroke. Later keystrokes in the same session do not add steps.
+ */
+export function pushTextUndo(
+  history: readonly (readonly EditorCue[])[],
+  cues: readonly EditorCue[],
+  sessionOpen: boolean,
+): { history: EditorCue[][]; sessionOpen: true } {
+  if (sessionOpen) return { history: history.map((step) => cloneEditorCues(step)), sessionOpen: true };
+  return { history: rememberEditorCues(history, cues), sessionOpen: true };
+}
+
+/** Home goes to the first cue. End goes to the last scroll pixel, which includes the last cue. */
+export function editorEdgeOffset(key: 'Home' | 'End', scrollHeight: number, clientHeight: number): number {
+  if (key === 'Home') return 0;
+  return Math.max(0, scrollHeight - Math.max(0, clientHeight));
+}
+
 /** Merge index with the next row. Null when there is no next row. */
 export function mergeEditorCueAt(cues: readonly EditorCue[], index: number): EditorCue[] | null {
   const first = cues[index];
