@@ -108,7 +108,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
   import { formatSrtTimestamp } from '../lib/subs/time';
   import { renderStatus } from '../lib/ui/statusView';
 
-  type Row = { start: number; end: number; area: HTMLTextAreaElement };
+  type Row = { start: number; end: number; area: HTMLTextAreaElement; confidence?: number };
   type ByteFile = { name: string; bytes: Uint8Array };
 
   const form = document.getElementById('sup-form');
@@ -214,7 +214,8 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
   function showLanguageWarning(): void {
     if (!(unreadable instanceof HTMLElement)) return;
     const text = rows.map((row) => row.area.value).join('\n');
-    unreadable.hidden = !ocrTextLooksUnreadable(text, recognisedLang);
+    const confidence = rows.flatMap((row) => (typeof row.confidence === 'number' ? [row.confidence] : []));
+    unreadable.hidden = !ocrTextLooksUnreadable(text, recognisedLang, confidence);
   }
 
   function srtText(): string {
@@ -225,7 +226,7 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
     return button.getAttribute('aria-disabled') === 'true';
   }
 
-  function addRow(index: number, start: number, end: number, text: string, png: ArrayBuffer): void {
+  function addRow(index: number, start: number, end: number, text: string, png: ArrayBuffer, confidence?: number): void {
     if (!(list instanceof HTMLElement) || !(preview instanceof HTMLElement) || !(empty instanceof HTMLElement)) return;
     preview.hidden = false;
     empty.hidden = true;
@@ -251,12 +252,14 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
     area.setAttribute('aria-label', `Text for subtitle ${index + 1}`);
     area.addEventListener('input', () => {
       saved = false;
+      showLanguageWarning();
     });
     label.append(time, area);
     item.append(image, label);
     list.append(item);
-    rows.push({ start, end, area });
+    rows.push({ start, end, area, confidence });
     saved = false;
+    showLanguageWarning();
   }
 
   function stop(): void {
@@ -311,7 +314,14 @@ const formats = [{ label: 'SUP', tone: 'accent-soft' }] as const;
         return;
       }
       if (data.type === 'cue' && data.png instanceof ArrayBuffer && typeof data.text === 'string') {
-        addRow(rows.length, Number(data.start), Number(data.end), data.text, data.png);
+        addRow(
+          rows.length,
+          Number(data.start),
+          Number(data.end),
+          data.text,
+          data.png,
+          typeof data.confidence === 'number' ? data.confidence : undefined,
+        );
         setActions(true);
         return;
       }

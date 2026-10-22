@@ -47,6 +47,24 @@ describe('cleanOcrText', () => {
   });
 });
 
+const ENGLISH = [
+  'I told you I was at work.',
+  'Can you wait for me?',
+  'Hello, how are you today?',
+  'We should go now.',
+  'Thank you very much.',
+].join('\n');
+
+const GERMAN = [
+  'Ich habe dir gesagt, dass ich bei der Arbeit war.',
+  'Kannst du auf mich warten?',
+  'Hallo, wie geht es dir heute?',
+  'Wir sollten jetzt gehen.',
+  'Danke, das war sehr gut.',
+].join('\n');
+
+const GARBAGE = ['-FE AL RAGE RE HIT', 'EERBRHRMERS', '-FE AL RAGE RE HIT'].join('\n');
+
 describe('ocrTextLooksUnreadable', () => {
   it('flags the wrong script and symbol soup, and leaves real text alone', () => {
     expect(ocrTextLooksUnreadable('', 'eng')).toBe(false);
@@ -56,6 +74,26 @@ describe('ocrTextLooksUnreadable', () => {
     expect(ocrTextLooksUnreadable('Я был на работе весь день', 'rus')).toBe(false);
     expect(ocrTextLooksUnreadable('### $$$ @@@ %%%', 'spa')).toBe(true);
     expect(ocrTextLooksUnreadable('Hi', 'fra')).toBe(false);
+  });
+
+  it('flags Latin junk from the wrong language and leaves normal English and German', () => {
+    expect(ocrTextLooksUnreadable('-FE AL RAGE RE HIT', 'eng')).toBe(true);
+    expect(ocrTextLooksUnreadable('EERBRHRMERS', 'eng')).toBe(true);
+    expect(ocrTextLooksUnreadable(GARBAGE, 'eng')).toBe(true);
+    expect(ocrTextLooksUnreadable(ENGLISH, 'eng')).toBe(false);
+    expect(ocrTextLooksUnreadable(GERMAN, 'deu')).toBe(false);
+    expect(ocrTextLooksUnreadable('COME HERE NOW PLEASE\nI TOLD YOU I WAS AT WORK', 'eng')).toBe(false);
+    expect(ocrTextLooksUnreadable('BBC NEWS AT TEN', 'eng')).toBe(false);
+    expect(ocrTextLooksUnreadable('ICH HABE DIR GESAGT DASS ICH BEI DER ARBEIT WAR', 'deu')).toBe(false);
+  });
+
+  it('uses the text read so far, and low confidence only together with junk', () => {
+    expect(ocrTextLooksUnreadable('-FE AL RAGE RE HIT', 'eng')).toBe(true);
+    expect(ocrTextLooksUnreadable('-FE AL RAGE RE HIT\nEERBRHRMERS', 'eng')).toBe(true);
+    expect(ocrTextLooksUnreadable(`${ENGLISH}\nEERBRHRMERS`, 'eng')).toBe(false);
+    expect(ocrTextLooksUnreadable('Hello FE AL friend today please', 'eng')).toBe(false);
+    expect(ocrTextLooksUnreadable('Hello FE AL friend today please', 'eng', [12, 18, 15])).toBe(true);
+    expect(ocrTextLooksUnreadable(ENGLISH, 'eng', [10, 12, 14, 11])).toBe(false);
   });
 });
 

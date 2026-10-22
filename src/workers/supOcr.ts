@@ -123,10 +123,13 @@ async function run(data: Extract<OcrIn, { type: 'start' }>): Promise<void> {
     if (!cue) continue;
     const png = await pngBytes(cue.image);
     let text = '';
+    let confidence: number | undefined;
     try {
       const prepared = preprocessForOcr(cue.image);
       const result = await tess.recognize(ocrCanvas(prepared), {}, { text: true, blocks: false, hocr: false, tsv: false });
-      text = cleanOcrText(result.data.text ?? '', lang);
+      const page = result.data;
+      text = cleanOcrText(page.text ?? '', lang);
+      confidence = typeof page.confidence === 'number' ? page.confidence : undefined;
     } catch {
       if (cancel) {
         await tess.terminate();
@@ -137,7 +140,15 @@ async function run(data: Extract<OcrIn, { type: 'start' }>): Promise<void> {
       text = '';
     }
     post(
-      { type: 'cue', index, start: cue.start, end: cue.end, text, png },
+      {
+        type: 'cue',
+        index,
+        start: cue.start,
+        end: cue.end,
+        text,
+        ...(confidence === undefined ? {} : { confidence }),
+        png,
+      },
       [png],
     );
     finished += 1;

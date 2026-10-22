@@ -23,6 +23,8 @@ export type OcrCue = {
   start: number;
   end: number;
   text: string;
+  /** Tesseract mean confidence for this cue, 0–100. Absent when the engine did not report one. */
+  confidence?: number;
   png: ArrayBuffer;
 };
 
