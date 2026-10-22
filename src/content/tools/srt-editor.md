@@ -12,7 +12,7 @@ faq:
   - q: "Can I add, delete or split subtitles?"
     a: "Yes. You can add a new subtitle after any line, delete lines, split a line into two at the cursor, and merge a line with the next one. Lines are renumbered when you download."
   - q: "Does it find errors in my SRT file?"
-    a: "Yes. Lines that end before they start, overlap the next line, are out of order or have no text are marked, so you can fix them. Lines that can't be read at all are listed when you open the file."
+    a: "Yes. Lines that end before they start, last zero seconds, overlap the next line, are out of order or have no text are marked, so you can fix them. A full report is on the [SRT validator](/srt-validator). Lines that can't be read at all are listed when you open the file."
   - q: "Can I watch my video while I edit?"
     a: "No. The editor works on the subtitle file only."
   - q: "Can I move all subtitles earlier or later?"
@@ -21,7 +21,7 @@ faq:
     a: "No. Nothing is stored, on our side or in your browser, so download your file before you close the page."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer edits your subtitles inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles", "/sup-to-srt"]
+related: ["/srt-validator", "/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
 ---
 
 Free online SRT editor that runs in your browser: your file never leaves your device, and there is no sign-up.
@@ -67,7 +67,7 @@ The editor marked line 2 because its end time was earlier than its start time.
 - Open SRT and VTT files, or start a new empty file.
 - Change the text, start time and end time of any line.
 - Add, delete, split and merge lines, and renumber them on download.
-- Mark lines that end before they start, overlap the next line, are out of order, or are empty.
+- Mark lines that end before they start, last zero seconds, overlap the next line, are out of order, or are empty.
 - Read files in other encodings and save as UTF-8, with an optional BOM.
 - Save as SRT or VTT.
 - Run fully in your browser, with no upload and no sign-up.

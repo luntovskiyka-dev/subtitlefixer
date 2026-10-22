@@ -1,0 +1,204 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'teal-soft' },
+  { label: 'ASS', tone: 'lilac' },
+] as const;
+
+const options = [
+  { id: 'brackets', label: 'Text in [brackets]' },
+  { id: 'parentheses', label: 'Text in (parentheses)' },
+  { id: 'speakers', label: 'Speaker names (JOHN:)' },
+  { id: 'music', label: 'Music lines (♪ or #)' },
+  { id: 'tags', label: 'Formatting tags' },
+] as const;
+---
+
+<form id="clean-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="clean-dropzone"
+        variant="stage"
+        label="Add one or more SRT, VTT or ASS files"
+        stageTitle="Add one or more subtitle files"
+        accept=".srt,.vtt,.ass,.ssa"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="clean-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="clean-empty" class="text-sm font-medium text-on-brand-muted">Tick what to remove. The preview shows each change.</p>
+      <div id="clean-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll" hidden>
+        <p class="mb-2 font-display text-lg font-extrabold">Preview</p>
+        <div id="clean-lines" class="flex flex-col gap-2 text-sm"></div>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Clean text</p>
+      <fieldset class="mt-4 flex flex-col gap-3">
+        <legend class="text-sm font-extrabold">Remove</legend>
+        {options.map((option) => (
+          <div class="flex min-h-11 items-center gap-3">
+            <input id={`clean-${option.id}`} name={option.id} type="checkbox" class="sf-check" data-clean={option.id} />
+            <label for={`clean-${option.id}`} class="text-sm font-extrabold">{option.label}</label>
+          </div>
+        ))}
+      </fieldset>
+      <p class="mt-3 text-sm text-muted">All options start off. Timing stays. Empty subtitles are deleted.</p>
+    </div>
+    <div slot="action">
+      <Button id="clean-download" type="submit" size="lg" class="w-full" softDisabled hint="Add a file to enable the download.">
+        Download cleaned file
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">Your file never leaves your device.</p>
+      <div id="clean-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import { cleanSubtitles, type CleanOptions } from '../lib/subs/clean';
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { subtitleFormatFromName } from '../lib/subs/toText';
+  import { formatSrtTimestamp } from '../lib/subs/time';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('clean-form');
+  const status = document.getElementById('clean-status');
+  const result = document.getElementById('clean-result');
+  const download = document.getElementById('clean-download');
+  const hint = document.getElementById('clean-download-hint');
+  const lines = document.getElementById('clean-lines');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.text === 'string';
+  }
+
+  function options(): CleanOptions {
+    const read = (name: keyof CleanOptions) => {
+      const input = form?.querySelector(`[data-clean="${name}"]`);
+      return input instanceof HTMLInputElement && input.checked;
+    };
+    return {
+      brackets: read('brackets'),
+      parentheses: read('parentheses'),
+      speakers: read('speakers'),
+      music: read('music'),
+      tags: read('tags'),
+    };
+  }
+
+  function showMessages(messages: readonly string[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+  }
+
+  function outputName(name: string): string {
+    return name;
+  }
+
+  function refresh(): { ready: { name: string; text: string }[] } {
+    const chosen = options();
+    const ready: { name: string; text: string }[] = [];
+    const messages: string[] = [];
+    if (lines instanceof HTMLElement) lines.replaceChildren();
+    const card = document.getElementById('clean-preview');
+    const empty = document.getElementById('clean-empty');
+    const first = files[0];
+    if (!first) {
+      if (card instanceof HTMLElement) card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return { ready };
+    }
+    let shown = false;
+    for (const file of files) {
+      const format = subtitleFormatFromName(file.name);
+      if (!format) {
+        messages.push(`${file.name}: Use an SRT, VTT, ASS or SSA file.`);
+        continue;
+      }
+      const cleaned = cleanSubtitles(file.text, format, chosen);
+      if (cleaned.text.trim() === '') {
+        messages.push(`${file.name}: Nothing left after cleaning.`);
+        continue;
+      }
+      ready.push({ name: outputName(file.name), text: cleaned.text });
+      if (shown || !(lines instanceof HTMLElement)) continue;
+      shown = true;
+      for (const item of cleaned.preview.slice(0, 8)) {
+        const row = document.createElement('p');
+        const stamp = document.createElement('span');
+        stamp.className = 'font-mono text-muted';
+        stamp.textContent = `${formatSrtTimestamp(item.start)}  `;
+        row.append(stamp);
+        if (item.deleted) {
+          const gone = document.createElement('span');
+          gone.className = 'text-muted';
+          gone.textContent = 'Removed';
+          row.append(gone);
+        } else {
+          for (const part of item.parts) {
+            const span = document.createElement(part.removed ? 'del' : 'span');
+            span.textContent = part.text;
+            row.append(span);
+          }
+        }
+        lines.append(row);
+      }
+      if (cleaned.changed > 0 || cleaned.deleted > 0) {
+        messages.push(`${file.name}: ${cleaned.changed} changed, ${cleaned.deleted} removed.`);
+      }
+    }
+    if (card instanceof HTMLElement) card.hidden = !shown;
+    if (empty instanceof HTMLElement) empty.hidden = shown;
+    showMessages(messages);
+    return { ready };
+  }
+
+  if (form instanceof HTMLFormElement && status instanceof HTMLElement && download instanceof HTMLButtonElement) {
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+    form.addEventListener('change', () => {
+      if (files.length > 0) refresh();
+    });
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      setDownload(files.length > 0);
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', files.map((file) => file.name));
+      refresh();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const next = refresh();
+      if (next.ready.length === 0) {
+        renderStatus(status, 'error', files.map((file) => file.name));
+        return;
+      }
+      downloadSubtitleFiles(next.ready, false);
+      renderStatus(status, 'ready', files.map((file) => file.name));
+    });
+  }
+</script>

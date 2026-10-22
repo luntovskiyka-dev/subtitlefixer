@@ -1,0 +1,445 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+import { OCR_LANGUAGES } from '../lib/ocr/languages';
+
+const formats = [
+  { label: 'IDX', tone: 'accent-soft' },
+  { label: 'SUB', tone: 'mint' },
+] as const;
+---
+
+<form id="idx-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="idx-dropzone"
+        variant="stage"
+        label="Add the .idx and .sub files together"
+        stageTitle="Add the .idx and the .sub file"
+        accept=".idx,.sub"
+        formats={formats}
+        bytes
+        note="DVD VobSub. Both files are required."
+        interactive
+      />
+      <ToolStatus id="idx-status" tone="stage" />
+      <div id="idx-progress" hidden>
+        <div class="mb-1.5 flex items-center justify-between gap-3 text-sm font-extrabold">
+          <p id="idx-progress-label">Reading subtitles</p>
+          <p id="idx-progress-count"></p>
+        </div>
+        <div
+          id="idx-meter"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-labelledby="idx-progress-label"
+          class="h-3 overflow-hidden rounded-full border-2 border-on-brand bg-surface"
+        >
+          <div id="idx-meter-bar" class="h-full w-0 bg-accent motion-safe:transition-[width] motion-safe:duration-150 motion-reduce:transition-none"></div>
+        </div>
+      </div>
+    </div>
+    <div slot="preview">
+      <p id="idx-empty" class="text-sm font-medium text-on-brand-muted">Add both files, pick a language, then read the pictures.</p>
+      <div id="idx-preview" class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink" hidden>
+        <p id="idx-unreadable" class="mb-2 text-sm font-extrabold" role="status" hidden>Text looks unreadable — try another language</p>
+        <p class="font-display text-lg font-extrabold">Check the text</p>
+        <p class="mb-2 text-sm text-muted">OCR can miss letters. Fix a line before you download.</p>
+        <div id="idx-scroll" class="max-h-[32rem] overflow-y-auto" tabindex="0" aria-label="Recognised subtitles">
+          <ol id="idx-list"></ol>
+        </div>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.idx/.sub → .srt</p>
+      <div id="idx-track-row" class="mt-4 flex flex-col gap-2" hidden>
+        <label for="idx-track" class="text-sm font-extrabold">Track</label>
+        <select id="idx-track" name="track" class="sf-field"></select>
+      </div>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="idx-lang" class="text-sm font-extrabold">OCR language</label>
+        <select id="idx-lang" name="lang" class="sf-field">
+          {OCR_LANGUAGES.map((language) => (
+            <option value={language.code} selected={language.code === 'eng'}>{language.label}</option>
+          ))}
+        </select>
+        <p class="text-sm text-muted">The language file is loaded from this site when you read the pictures. Your files are not uploaded.</p>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="idx-read" type="button" size="lg" class="w-full" softDisabled hint="Add the .idx and .sub files to read them.">
+        Read subtitles
+      </Button>
+      <div id="idx-cancel-wrap" class="mt-3" hidden>
+        <Button id="idx-cancel" type="button" variant="secondary" size="lg" class="w-full">Cancel</Button>
+      </div>
+      <Button id="idx-download" type="button" size="lg" class="mt-3 w-full" softDisabled hint="Read a file before downloading.">
+        Download SRT file
+      </Button>
+      <Button id="idx-editor" type="button" variant="secondary" class="mt-3 w-full" softDisabled hint="Read a file before opening the editor.">
+        Open in SRT editor
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">Your file never leaves your device.</p>
+      <div id="idx-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import { isOcrLanguage, type OcrLanguage } from '../lib/ocr/languages';
+  import type { OcrOut } from '../lib/ocr/messages';
+  import { OCR_CORE_PATH, OCR_LANG_PATH, OCR_WORKER_PATH, ocrAssetUrl } from '../lib/ocr/paths';
+  import { spawnOcrWorker } from '../lib/ocr/spawn';
+  import { ocrTextLooksUnreadable } from '../lib/ocr/text';
+  import { saveEditorHandoff } from '../lib/subs/editorHandoff';
+  import { downloadText } from '../lib/subs/files';
+  import { serializeSrt } from '../lib/subs/srt';
+  import { formatSrtTimestamp } from '../lib/subs/time';
+  import { listVobTracks, pairBaseName } from '../lib/subs/vobsub';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  type Row = { start: number; end: number; area: HTMLTextAreaElement; confidence?: number };
+  type ByteFile = { name: string; bytes: Uint8Array };
+  type Pair = { idx: ByteFile; sub: ByteFile };
+
+  const form = document.getElementById('idx-form');
+  const status = document.getElementById('idx-status');
+  const result = document.getElementById('idx-result');
+  const read = document.getElementById('idx-read');
+  const readHint = document.getElementById('idx-read-hint');
+  const download = document.getElementById('idx-download');
+  const downloadHint = document.getElementById('idx-download-hint');
+  const editor = document.getElementById('idx-editor');
+  const editorHint = document.getElementById('idx-editor-hint');
+  const cancelWrap = document.getElementById('idx-cancel-wrap');
+  const cancel = document.getElementById('idx-cancel');
+  const progress = document.getElementById('idx-progress');
+  const progressLabel = document.getElementById('idx-progress-label');
+  const progressCount = document.getElementById('idx-progress-count');
+  const meter = document.getElementById('idx-meter');
+  const meterBar = document.getElementById('idx-meter-bar');
+  const empty = document.getElementById('idx-empty');
+  const preview = document.getElementById('idx-preview');
+  const list = document.getElementById('idx-list');
+  const unreadable = document.getElementById('idx-unreadable');
+  const langSelect = document.getElementById('idx-lang');
+  const trackRow = document.getElementById('idx-track-row');
+  const trackSelect = document.getElementById('idx-track');
+  const note = form instanceof HTMLFormElement ? form.querySelector('[data-kofi-note]') : null;
+
+  let generation = 0;
+  let worker: Worker | null = null;
+  let running = false;
+  let saved = true;
+  let pair: Pair | null = null;
+  let recognisedLang: OcrLanguage = 'eng';
+  let rows: Row[] = [];
+  const urls: string[] = [];
+
+  function isByteFile(file: unknown): file is ByteFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('bytes' in file)) return false;
+    return typeof file.name === 'string' && file.bytes instanceof Uint8Array;
+  }
+
+  function isRecord(value: unknown): value is { type?: unknown } {
+    return typeof value === 'object' && value !== null && 'type' in value;
+  }
+
+  function showMessages(messages: readonly string[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+  }
+
+  function setHeld(button: HTMLButtonElement, hint: HTMLElement | null, enabled: boolean): void {
+    if (enabled) button.removeAttribute('aria-disabled');
+    else button.setAttribute('aria-disabled', 'true');
+    if (hint) hint.hidden = enabled;
+  }
+
+  function setReadEnabled(enabled: boolean): void {
+    if (read instanceof HTMLButtonElement) setHeld(read, readHint instanceof HTMLElement ? readHint : null, enabled && !running);
+  }
+
+  function setActions(enabled: boolean): void {
+    if (download instanceof HTMLButtonElement) setHeld(download, downloadHint instanceof HTMLElement ? downloadHint : null, enabled && !running);
+    if (editor instanceof HTMLButtonElement) setHeld(editor, editorHint instanceof HTMLElement ? editorHint : null, enabled && !running);
+  }
+
+  function setProgress(label: string, ratio: number, count: string): void {
+    if (progressLabel) progressLabel.textContent = label;
+    if (progressCount) progressCount.textContent = count;
+    const percent = Math.max(0, Math.min(100, Math.round(ratio * 100)));
+    if (meterBar instanceof HTMLElement) meterBar.style.width = `${percent}%`;
+    if (meter instanceof HTMLElement) meter.setAttribute('aria-valuenow', String(percent));
+  }
+
+  function setRunning(active: boolean): void {
+    running = active;
+    if (progress instanceof HTMLElement) progress.hidden = !active;
+    if (cancelWrap instanceof HTMLElement) cancelWrap.hidden = !active;
+    if (langSelect instanceof HTMLSelectElement) langSelect.disabled = active;
+    if (trackSelect instanceof HTMLSelectElement) trackSelect.disabled = active;
+    setReadEnabled(pair !== null);
+    setActions(rows.length > 0);
+  }
+
+  function clearRows(): void {
+    for (const url of urls) URL.revokeObjectURL(url);
+    urls.length = 0;
+    rows = [];
+    if (list) list.replaceChildren();
+    if (preview instanceof HTMLElement) preview.hidden = true;
+    if (empty instanceof HTMLElement) empty.hidden = false;
+    if (unreadable instanceof HTMLElement) unreadable.hidden = true;
+    saved = true;
+  }
+
+  function showLanguageWarning(): void {
+    if (!(unreadable instanceof HTMLElement)) return;
+    const text = rows.map((row) => row.area.value).join('\n');
+    const confidence = rows.flatMap((row) => (typeof row.confidence === 'number' ? [row.confidence] : []));
+    unreadable.hidden = !ocrTextLooksUnreadable(text, recognisedLang, confidence);
+  }
+
+  function srtText(): string {
+    return serializeSrt(rows.map((row) => ({ start: row.start, end: row.end, text: row.area.value })));
+  }
+
+  function held(button: HTMLButtonElement): boolean {
+    return button.getAttribute('aria-disabled') === 'true';
+  }
+
+  function outputName(name: string): string {
+    const base = name.replace(/\.idx$/i, '') || 'subtitles';
+    return `${base}.srt`;
+  }
+
+  function fillTracks(idx: ByteFile): void {
+    if (!(trackSelect instanceof HTMLSelectElement) || !(trackRow instanceof HTMLElement)) return;
+    const text = new TextDecoder('iso-8859-1').decode(idx.bytes);
+    const tracks = listVobTracks(text);
+    trackSelect.replaceChildren();
+    for (const track of tracks) {
+      const option = document.createElement('option');
+      option.value = String(track.index);
+      option.textContent = track.label;
+      trackSelect.append(option);
+    }
+    if (tracks.length === 0) {
+      const option = document.createElement('option');
+      option.value = '0';
+      option.textContent = 'Track 0';
+      trackSelect.append(option);
+    }
+    trackRow.hidden = tracks.length < 2;
+  }
+
+  function matchPair(files: ByteFile[]): { pair: Pair | null; message: string | null } {
+    const idxFiles = files.filter((file) => file.name.toLowerCase().endsWith('.idx'));
+    const subFiles = files.filter((file) => file.name.toLowerCase().endsWith('.sub'));
+    const idx = idxFiles[0];
+    if (!idx || subFiles.length === 0) return { pair: null, message: 'Add the .idx file and the matching .sub file together.' };
+    const wanted = pairBaseName(idx.name);
+    const sub = subFiles.find((file) => pairBaseName(file.name) === wanted) ?? subFiles[0];
+    if (!sub) return { pair: null, message: 'Add the .idx file and the matching .sub file together.' };
+    const message = pairBaseName(sub.name) === wanted ? null : `${sub.name} does not match ${idx.name}. Using it anyway.`;
+    return { pair: { idx, sub }, message };
+  }
+
+  function addRow(index: number, start: number, end: number, text: string, png: ArrayBuffer, confidence?: number): void {
+    if (!(list instanceof HTMLElement) || !(preview instanceof HTMLElement) || !(empty instanceof HTMLElement)) return;
+    preview.hidden = false;
+    empty.hidden = true;
+    const item = document.createElement('li');
+    item.className = 'grid gap-3 border-t-2 border-line py-3 first:border-t-0 sm:grid-cols-[9rem_minmax(0,1fr)]';
+    const stamp = `${formatSrtTimestamp(start)} --> ${formatSrtTimestamp(end)}`;
+    const image = document.createElement('img');
+    image.alt = `Subtitle ${index + 1}, ${stamp}`;
+    image.className = 'max-h-24 w-full rounded-sf border-2 border-line bg-bg object-contain';
+    const url = URL.createObjectURL(new Blob([png], { type: 'image/png' }));
+    urls.push(url);
+    image.src = url;
+    const label = document.createElement('label');
+    label.className = 'flex min-w-0 flex-col gap-1';
+    const time = document.createElement('span');
+    time.className = 'font-mono text-[13px] font-medium text-muted';
+    time.textContent = `${index + 1} · ${stamp}`;
+    const area = document.createElement('textarea');
+    area.className = 'sf-field min-h-16 resize-y font-mono text-sm';
+    area.rows = 2;
+    area.value = text;
+    area.setAttribute('aria-label', `Text for subtitle ${index + 1}`);
+    area.addEventListener('input', () => {
+      saved = false;
+      showLanguageWarning();
+    });
+    label.append(time, area);
+    item.append(image, label);
+    list.append(item);
+    rows.push({ start, end, area, confidence });
+    saved = false;
+    showLanguageWarning();
+  }
+
+  function stop(): void {
+    if (!running || !(status instanceof HTMLElement)) return;
+    generation += 1;
+    worker?.terminate();
+    worker = null;
+    const count = rows.length;
+    setRunning(false);
+    showLanguageWarning();
+    showMessages([
+      count === 0
+        ? 'Stopped before any subtitle was read.'
+        : `Stopped. ${count} subtitle${count === 1 ? '' : 's'} read. You can edit these lines or start again.`,
+    ]);
+    renderStatus(status, count > 0 ? 'loaded' : 'error', [pair?.idx.name ?? '']);
+  }
+
+  function start(): void {
+    if (!(status instanceof HTMLElement) || !(read instanceof HTMLButtonElement) || held(read) || !pair || !(langSelect instanceof HTMLSelectElement)) return;
+    clearRows();
+    generation += 1;
+    const token = generation;
+    const name = pair.idx.name;
+    recognisedLang = isOcrLanguage(langSelect.value) ? langSelect.value : 'eng';
+    const idxCopy = pair.idx.bytes.slice();
+    const subCopy = pair.sub.bytes.slice();
+    const track = trackSelect instanceof HTMLSelectElement ? Number(trackSelect.value) : 0;
+    const origin = window.location.origin;
+    const next = spawnOcrWorker();
+    worker = next;
+    setRunning(true);
+    setProgress('Starting the OCR engine', 0, '');
+    showMessages([]);
+    renderStatus(status, 'working', [name]);
+    next.onerror = () => {
+      if (token !== generation) return;
+      generation += 1;
+      next.terminate();
+      if (worker === next) worker = null;
+      setRunning(false);
+      showMessages(['Could not start the OCR worker.']);
+      renderStatus(status, 'error', [name]);
+    };
+    next.onmessage = (event: MessageEvent<OcrOut>) => {
+      if (token !== generation || !isRecord(event.data)) return;
+      const data = event.data;
+      if (data.type === 'progress' && typeof data.label === 'string' && typeof data.ratio === 'number') {
+        const total = typeof data.total === 'number' ? data.total : 0;
+        const done = typeof data.done === 'number' ? data.done : 0;
+        const count = data.label.startsWith('Reading') && total > 0 ? `${Math.min(done + 1, total)} / ${total}` : '';
+        setProgress(data.label, data.ratio, count);
+        return;
+      }
+      if (data.type === 'cue' && data.png instanceof ArrayBuffer && typeof data.text === 'string') {
+        addRow(rows.length, Number(data.start), Number(data.end), data.text, data.png, typeof data.confidence === 'number' ? data.confidence : undefined);
+        setActions(true);
+        return;
+      }
+      if (data.type === 'done') {
+        setRunning(false);
+        worker = null;
+        const count = rows.length;
+        showMessages([count === 1 ? 'Read 1 subtitle. Check the text: OCR can miss letters.' : `Read ${count} subtitles. Check the text: OCR can miss letters.`]);
+        renderStatus(status, 'loaded', [name]);
+        showLanguageWarning();
+        return;
+      }
+      if (data.type === 'cancelled') {
+        stop();
+        return;
+      }
+      if (data.type === 'error' && typeof data.message === 'string') {
+        setRunning(false);
+        worker = null;
+        showMessages([data.message]);
+        renderStatus(status, 'error', [name]);
+      }
+    };
+    next.postMessage(
+      {
+        type: 'start',
+        source: 'vobsub',
+        bytes: idxCopy.buffer,
+        sub: subCopy.buffer,
+        track: Number.isFinite(track) ? track : 0,
+        lang: langSelect.value,
+        workerPath: ocrAssetUrl(origin, OCR_WORKER_PATH),
+        corePath: ocrAssetUrl(origin, OCR_CORE_PATH),
+        langPath: ocrAssetUrl(origin, OCR_LANG_PATH),
+      },
+      [idxCopy.buffer, subCopy.buffer],
+    );
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    read instanceof HTMLButtonElement &&
+    download instanceof HTMLButtonElement &&
+    editor instanceof HTMLButtonElement &&
+    cancel instanceof HTMLButtonElement &&
+    langSelect instanceof HTMLSelectElement &&
+    status instanceof HTMLElement
+  ) {
+    window.addEventListener('beforeunload', (event) => {
+      if (saved || rows.length === 0) return;
+      event.preventDefault();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+    });
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      const files: ByteFile[] = event.detail.files.filter(isByteFile);
+      clearRows();
+      const matched = matchPair(files);
+      pair = matched.pair;
+      setReadEnabled(pair !== null);
+      setActions(false);
+      if (!pair) {
+        showMessages([matched.message ?? 'Add the .idx file and the matching .sub file together.']);
+        renderStatus(status, 'error', files.map((file) => file.name));
+        return;
+      }
+      fillTracks(pair.idx);
+      showMessages(matched.message ? [matched.message] : []);
+      renderStatus(status, 'loaded', [pair.idx.name, pair.sub.name]);
+    });
+    read.addEventListener('click', () => {
+      start();
+    });
+    cancel.addEventListener('click', () => {
+      stop();
+    });
+    download.addEventListener('click', () => {
+      if (held(download) || !pair || rows.length === 0) return;
+      const name = outputName(pair.idx.name);
+      downloadText(name, srtText(), false);
+      saved = true;
+      if (note instanceof HTMLElement) note.hidden = false;
+      showMessages([`Downloaded ${name}.`, 'Check the text: OCR can miss letters.']);
+      renderStatus(status, 'ready', [name]);
+    });
+    editor.addEventListener('click', () => {
+      if (held(editor) || !pair || rows.length === 0) return;
+      const name = outputName(pair.idx.name);
+      if (!saveEditorHandoff(sessionStorage, { name, text: srtText() })) return;
+      saved = true;
+      window.location.assign('/srt-editor');
+    });
+  }
+</script>

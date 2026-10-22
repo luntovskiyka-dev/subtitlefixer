@@ -25,6 +25,15 @@ const WASHES: ReadonlyArray<readonly [string, keyof Palette]> = [
   ['--c-s2w', 'cS2w'],
   ['--c-smi', 'cSmi'],
   ['--c-sup', 'cSup'],
+  ['--c-a2v', 'cA2v'],
+  ['--c-xls', 'cXls'],
+  ['--c-t2v', 'cT2v'],
+  ['--c-stl', 'cStl'],
+  ['--c-ttml', 'cTtml'],
+  ['--c-dfxp', 'cDfxp'],
+  ['--c-xml', 'cXml'],
+  ['--c-val', 'cVal'],
+  ['--c-clean', 'cClean'],
 ];
 
 function valueOf(block: string, name: string): string | undefined {

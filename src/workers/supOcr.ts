@@ -4,6 +4,7 @@ import type { OcrIn, OcrOut } from '../lib/ocr/messages';
 import { preprocessForOcr } from '../lib/ocr/preprocess';
 import { cleanOcrText } from '../lib/ocr/text';
 import { PgsError, parseSup, type PgsImage } from '../lib/subs/pgs';
+import { parseVobSub, VobSubError } from '../lib/subs/vobsub';
 
 type WorkerScope = {
   onmessage: ((event: MessageEvent<OcrIn>) => void) | null;
@@ -27,13 +28,13 @@ function loadLabel(status: string): string {
   return 'Starting the OCR engine';
 }
 
-function failureMessage(error: unknown): string {
-  if (error instanceof PgsError) return error.message;
+function failureMessage(error: unknown, source?: string): string {
+  if (error instanceof PgsError || error instanceof VobSubError) return error.message;
   const message = error instanceof Error ? error.message : '';
   if (message.includes('fetch') || message.includes('Network') || message.includes('traineddata') || message.includes('Tesseract')) {
     return 'Could not load the OCR language data from this site. Check your connection and try again.';
   }
-  return 'Could not read this SUP file.';
+  return source === 'vobsub' ? 'Could not read this IDX/SUB pair.' : 'Could not read this SUP file.';
 }
 
 async function pngBytes(image: PgsImage): Promise<ArrayBuffer> {
@@ -57,9 +58,15 @@ function ocrCanvas(image: PgsImage): OffscreenCanvas {
 }
 
 async function run(data: Extract<OcrIn, { type: 'start' }>): Promise<void> {
-  const cues = parseSup(new Uint8Array(data.bytes));
+  const vobsub = data.source === 'vobsub';
+  const cues = vobsub
+    ? parseVobSub(new Uint8Array(data.bytes), new Uint8Array(data.sub ?? new ArrayBuffer(0)), data.track ?? 0)
+    : parseSup(new Uint8Array(data.bytes));
   if (cues.length === 0) {
-    post({ type: 'error', message: 'No subtitles found in this SUP file.' });
+    post({
+      type: 'error',
+      message: vobsub ? 'No subtitles found in this IDX/SUB pair.' : 'No subtitles found in this SUP file.',
+    });
     return;
   }
 
@@ -171,7 +178,7 @@ scope.onmessage = (event: MessageEvent<OcrIn>) => {
   void run(data)
     .catch((error: unknown) => {
       if (cancel) post({ type: 'cancelled', count: 0 });
-      else post({ type: 'error', message: failureMessage(error) });
+      else post({ type: 'error', message: failureMessage(error, data.source) });
     })
     .finally(() => {
       busy = false;

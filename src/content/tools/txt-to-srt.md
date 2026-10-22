@@ -18,10 +18,10 @@ faq:
   - q: "Can I make an SRT file for song lyrics?"
     a: "Yes. Put one lyric line on each line of text. If you know when each line is sung, add the times in front of the lines and use \"Text with timestamps\", because reading speed alone won't match the music."
   - q: "Can I get a VTT file instead of SRT?"
-    a: "Yes. Switch the output to VTT before you download, and you get a WebVTT file for HTML5 video players. You can also convert an SRT file later with the [SRT to VTT converter](/srt-to-vtt)."
+    a: "Yes. Switch the output to VTT before you download, or open [TXT to VTT](/txt-to-vtt), which starts on VTT. You can also convert an SRT file later with the [SRT to VTT converter](/srt-to-vtt)."
   - q: "Is my text uploaded?"
     a: "No. SubtitleFixer creates the subtitle file inside your browser, and your text never leaves your device. There is no upload and no sign-up."
-related: ["/srt-to-txt", "/shift-subtitles", "/fix-subtitle-drift", "/srt-to-vtt", "/fix-subtitle-encoding"]
+related: ["/txt-to-vtt", "/srt-to-txt", "/shift-subtitles", "/fix-subtitle-drift", "/srt-to-vtt", "/fix-subtitle-encoding"]
 ---
 
 ## How to convert TXT to SRT in 3 steps

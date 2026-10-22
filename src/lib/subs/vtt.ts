@@ -139,10 +139,21 @@ export function parseVtt(input: string, options?: ParseOptions): ParseResult {
   return { cues, errors };
 }
 
+/**
+ * Escape cue text for a WebVTT file. `<i>`, `<b>` and `<u>` stay.
+ * A bare `&` and any other `<` are escaped so a player does not read them as markup.
+ * Existing character references are left alone.
+ */
+export function escapeVttText(text: string): string {
+  return text
+    .replace(/&(?!(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);)/gi, '&amp;')
+    .replace(/<(?![biu]>|\/[biu]>)/gi, '&lt;');
+}
+
 export function serializeVtt(cues: readonly Cue[]): string {
   if (cues.length === 0) return '';
   const blocks = cues.map((cue) => {
-    const text = normalizeCueText(cue.text);
+    const text = escapeVttText(normalizeCueText(cue.text));
     const start = formatVttTimestamp(cue.start);
     const end = formatVttTimestamp(cue.end);
     return `${start} --> ${end}\n${text}`;
@@ -179,13 +190,14 @@ export function decodeVttEntities(text: string): string {
  * so the cue text is valid WebVTT. Existing character references are left alone.
  */
 export function srtCueTextToVtt(text: string): string {
-  return normalizeNewlines(text)
-    .replace(/<(\/?)([a-z][^\s<>]*)(?:\s[^<>]*)?>/gi, (_whole, slash?: string, name?: string) => {
+  const stripped = normalizeNewlines(text).replace(
+    /<(\/?)([a-z][^\s<>]*)(?:\s[^<>]*)?>/gi,
+    (_whole, slash?: string, name?: string) => {
       const tag = (name ?? '').toLowerCase();
       return tag === 'i' || tag === 'b' || tag === 'u' ? `<${slash ?? ''}${tag}>` : '';
-    })
-    .replace(/&(?!(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);)/gi, '&amp;')
-    .replace(/<(?![biu]>|\/[biu]>)/gi, '&lt;');
+    },
+  );
+  return escapeVttText(stripped);
 }
 
 /**

@@ -105,6 +105,33 @@
   --t-sup: #1B1A3A;
   --t-sup-bg: #C084FC;
   --c-sup: #FDE8FF;
+  --t-a2v: #1B1A3A;
+  --t-a2v-bg: #F9A8D4;
+  --c-a2v: #FBCFE8;
+  --t-xls: #1B1A3A;
+  --t-xls-bg: #FCD34D;
+  --c-xls: #FEF3C7;
+  --t-t2v: #1B1A3A;
+  --t-t2v-bg: #BEF264;
+  --c-t2v: #ECFCCB;
+  --t-stl: #1B1A3A;
+  --t-stl-bg: #FDBA74;
+  --c-stl: #FFEDD5;
+  --t-ttml: #1B1A3A;
+  --t-ttml-bg: #22D3EE;
+  --c-ttml: #CFFAFE;
+  --t-dfxp: #1B1A3A;
+  --t-dfxp-bg: #6EE7B7;
+  --c-dfxp: #D1FAE5;
+  --t-xml: #1B1A3A;
+  --t-xml-bg: #A5B4FC;
+  --c-xml: #E0E7FF;
+  --t-val: #1B1A3A;
+  --t-val-bg: #FCA5A5;
+  --c-val: #FEE2E2;
+  --t-clean: #1B1A3A;
+  --t-clean-bg: #7DD3FC;
+  --c-clean: #E0F2FE;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -164,5 +191,14 @@
     --c-s2w: #0C2F2C;
     --c-smi: #3F2E05;
     --c-sup: #4A044E;
+    --c-a2v: #500724;
+    --c-xls: #451A03;
+    --c-t2v: #1A2E05;
+    --c-stl: #431407;
+    --c-ttml: #083344;
+    --c-dfxp: #064E3B;
+    --c-xml: #1E1B4B;
+    --c-val: #450A0A;
+    --c-clean: #083044;
   }
 }

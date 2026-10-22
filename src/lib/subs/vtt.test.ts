@@ -157,6 +157,12 @@ describe('serializeVtt', () => {
   it('returns an empty string for no cues', () => {
     expect(serializeVtt([])).toBe('');
   });
+
+  it('escapes a bare ampersand and less-than, and keeps i, b and u', () => {
+    expect(serializeVtt([{ start: 0, end: 1000, text: 'Tom & Jerry <3 <i>yes</i>' }])).toContain(
+      'Tom &amp; Jerry &lt;3 <i>yes</i>',
+    );
+  });
 });
 
 describe('srtCueTextToVtt', () => {

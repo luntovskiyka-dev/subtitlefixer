@@ -1,0 +1,10 @@
+<tt xmlns="http://www.w3.org/2006/10/ttaf1" xmlns:tts="http://www.w3.org/2006/10/ttaf1#styling">
+  <head><styling><style xml:id="s1" tts:fontWeight="bold"/></styling></head>
+  <body>
+    <div>
+      <p begin="00:00:01.200" end="00:00:03.800">Hi, and welcome back.</p>
+      <p begin="00:00:04.100" end="00:00:07.450">Today we're<br/><span tts:fontStyle="italic">fixing</span> subtitles.</p>
+      <p begin="00:00:08.000" end="00:00:09.000" style="s1">Bold</p>
+    </div>
+  </body>
+</tt>

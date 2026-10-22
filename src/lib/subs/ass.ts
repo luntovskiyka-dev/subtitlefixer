@@ -298,6 +298,62 @@ export function mapAssDialogueTimes(
   return mapped.map((line) => line.text + line.ending).join('');
 }
 
+function replaceDialogueText(rawLine: string, fields: FieldMap, text: string): string {
+  const bom = rawLine.startsWith('\uFEFF') ? '\uFEFF' : '';
+  const rest = bom === '' ? rawLine : rawLine.slice(1);
+  const match = /^(\s*Dialogue:\s*)/i.exec(rest);
+  if (!match?.[1]) return rawLine;
+  const prefix = match[1];
+  const body = rest.slice(prefix.length);
+  const spans = fieldSpans(body, fields.count);
+  const textSpan = spans?.[fields.text];
+  if (!spans || !textSpan) return rawLine;
+  const written = text.replace(/\n/g, '\\N');
+  return `${bom}${prefix}${body.slice(0, textSpan.start)}${written}${body.slice(textSpan.end)}`;
+}
+
+/**
+ * Replace or drop Dialogue text. `next` returns null to drop the line.
+ * The same text keeps the line byte-for-byte. Header, styles and comments stay.
+ */
+export function mapAssDialogueText(input: string, next: (cue: Cue, index: number) => string | null): string {
+  const lines = splitKeepEndings(input);
+  let inEvents = false;
+  let fields = DEFAULT_FIELDS;
+  let cueIndex = 0;
+
+  const mapped = lines.flatMap((line, index) => {
+    const source = index === 0 ? line.text.replace(/^\uFEFF/, '') : line.text;
+    const trimmed = source.trim();
+    if (trimmed === '') return [line];
+
+    const section = /^\[(.+)]$/.exec(trimmed);
+    if (section?.[1]) {
+      inEvents = section[1].toLowerCase() === 'events';
+      return [line];
+    }
+
+    if (inEvents && /^Format:/i.test(trimmed)) {
+      const parsed = parseFormatLine(trimmed);
+      if (parsed) fields = parsed;
+      return [line];
+    }
+
+    if (!/^Dialogue:/i.test(trimmed)) return [line];
+
+    const parsed = parseDialogue(trimmed, fields, index + 1, true);
+    if (!parsed.cue) return [line];
+
+    const change = next(parsed.cue, cueIndex);
+    cueIndex += 1;
+    if (change === null) return [];
+    if (change === parsed.cue.text) return [line];
+    return [{ text: replaceDialogueText(line.text, fields, change), ending: line.ending }];
+  });
+
+  return mapped.map((line) => line.text + line.ending).join('');
+}
+
 export function serializeAss(cues: readonly Cue[]): string {
   if (cues.length === 0) return '';
   const header = [

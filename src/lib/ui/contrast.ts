@@ -82,6 +82,33 @@ export type Palette = {
   tSup: string;
   tSupBg: string;
   cSup: string;
+  tA2v: string;
+  tA2vBg: string;
+  cA2v: string;
+  tXls: string;
+  tXlsBg: string;
+  cXls: string;
+  tT2v: string;
+  tT2vBg: string;
+  cT2v: string;
+  tStl: string;
+  tStlBg: string;
+  cStl: string;
+  tTtml: string;
+  tTtmlBg: string;
+  cTtml: string;
+  tDfxp: string;
+  tDfxpBg: string;
+  cDfxp: string;
+  tXml: string;
+  tXmlBg: string;
+  cXml: string;
+  tVal: string;
+  tValBg: string;
+  cVal: string;
+  tClean: string;
+  tCleanBg: string;
+  cClean: string;
 };
 
 export const LIGHT: Palette = {
@@ -167,6 +194,33 @@ export const LIGHT: Palette = {
   tSup: '#1B1A3A',
   tSupBg: '#C084FC',
   cSup: '#FDE8FF',
+  tA2v: '#1B1A3A',
+  tA2vBg: '#F9A8D4',
+  cA2v: '#FBCFE8',
+  tXls: '#1B1A3A',
+  tXlsBg: '#FCD34D',
+  cXls: '#FEF3C7',
+  tT2v: '#1B1A3A',
+  tT2vBg: '#BEF264',
+  cT2v: '#ECFCCB',
+  tStl: '#1B1A3A',
+  tStlBg: '#FDBA74',
+  cStl: '#FFEDD5',
+  tTtml: '#1B1A3A',
+  tTtmlBg: '#22D3EE',
+  cTtml: '#CFFAFE',
+  tDfxp: '#1B1A3A',
+  tDfxpBg: '#6EE7B7',
+  cDfxp: '#D1FAE5',
+  tXml: '#1B1A3A',
+  tXmlBg: '#A5B4FC',
+  cXml: '#E0E7FF',
+  tVal: '#1B1A3A',
+  tValBg: '#FCA5A5',
+  cVal: '#FEE2E2',
+  tClean: '#1B1A3A',
+  tCleanBg: '#7DD3FC',
+  cClean: '#E0F2FE',
 };
 
 export const DARK: Palette = {
@@ -252,6 +306,33 @@ export const DARK: Palette = {
   tSup: '#1B1A3A',
   tSupBg: '#C084FC',
   cSup: '#4A044E',
+  tA2v: '#1B1A3A',
+  tA2vBg: '#F9A8D4',
+  cA2v: '#500724',
+  tXls: '#1B1A3A',
+  tXlsBg: '#FCD34D',
+  cXls: '#451A03',
+  tT2v: '#1B1A3A',
+  tT2vBg: '#BEF264',
+  cT2v: '#1A2E05',
+  tStl: '#1B1A3A',
+  tStlBg: '#FDBA74',
+  cStl: '#431407',
+  tTtml: '#1B1A3A',
+  tTtmlBg: '#22D3EE',
+  cTtml: '#083344',
+  tDfxp: '#1B1A3A',
+  tDfxpBg: '#6EE7B7',
+  cDfxp: '#064E3B',
+  tXml: '#1B1A3A',
+  tXmlBg: '#A5B4FC',
+  cXml: '#1E1B4B',
+  tVal: '#1B1A3A',
+  tValBg: '#FCA5A5',
+  cVal: '#450A0A',
+  tClean: '#1B1A3A',
+  tCleanBg: '#7DD3FC',
+  cClean: '#083044',
 };
 
 const SRGB_THRESHOLD = 0.04045;

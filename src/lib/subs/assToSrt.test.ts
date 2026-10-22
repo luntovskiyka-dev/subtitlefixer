@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import brokenAss from '../../../tests/fixtures/broken-block.ass?raw';
 import sampleAss from '../../../tests/fixtures/sample.ass?raw';
-import { assToSrt, parse } from './index';
+import { assToSrt, assToText } from './assToSrt';
+import { parse } from './index';
 
 function dialogue(start: string, end: string, text: string, style = 'Default'): string {
   return `Dialogue: 0,${start},${end},${style},,0,0,0,,${text}`;
@@ -165,5 +166,21 @@ describe('assToSrt', () => {
       { start: 1000, end: 2000, text: 'Good' },
       { start: 3000, end: 4000, text: 'Still here' },
     ]);
+  });
+
+  it('reads an SSA Dialogue line whose first field is Marked', () => {
+    const ssa = `[Script Info]
+ScriptType: v4.00
+
+[V4 Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel, Encoding
+Style: Default,Arial,20,16777215,16777215,16777215,0,0,0,1,2,2,2,10,10,10,0,1
+
+[Events]
+Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: Marked=0,0:00:01.20,0:00:03.80,Default,,0,0,0,,Hi, and welcome back.
+`;
+    const result = assToText(ssa, 'srt');
+    expect(parse(result.text, 'srt').cues).toEqual([{ start: 1200, end: 3800, text: 'Hi, and welcome back.' }]);
   });
 });

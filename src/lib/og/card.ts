@@ -37,7 +37,7 @@ function markdownCard(root: string, pagePath: string, relativeFile: string): OgC
 function cardsIn(root: string, dirName: string, pathFor: (slug: string) => string): OgCard[] {
   const dir = join(root, dirName);
   const files = readdirSync(dir)
-    .filter((name) => name.endsWith('.md'))
+    .filter((name) => name.endsWith('.md') && name !== 'idx-to-srt.md')
     .sort((a, b) => a.localeCompare(b));
   return files.map((name) => markdownCard(root, pathFor(name.replace(/\.md$/, '')), join(dirName, name)));
 }

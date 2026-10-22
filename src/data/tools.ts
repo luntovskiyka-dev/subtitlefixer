@@ -2,23 +2,62 @@ export const tools = {
   'shift-subtitles': 'Shift subtitles',
   'fix-subtitle-encoding': 'Fix subtitle encoding',
   'srt-editor': 'SRT editor',
+  'srt-validator': 'SRT validator',
+  'subtitle-cleaner': 'Subtitle cleaner',
   'srt-to-vtt': 'SRT to VTT',
   'vtt-to-srt': 'VTT to SRT',
   'ass-to-srt': 'ASS to SRT',
+  'ass-to-vtt': 'ASS to VTT',
   'fix-subtitle-drift': 'Fix subtitle drift',
   'srt-to-txt': 'SRT to TXT',
   'vtt-to-txt': 'VTT to TXT',
   'srt-to-word': 'SRT to Word',
+  'srt-to-excel': 'SRT to Excel',
   'txt-to-srt': 'TXT to SRT',
+  'txt-to-vtt': 'TXT to VTT',
   'merge-subtitles': 'Merge subtitles',
   'sub-to-srt': 'SUB to SRT',
+  'stl-to-srt': 'STL to SRT',
   'sbv-to-srt': 'SBV to SRT',
   'smi-to-srt': 'SMI to SRT',
+  'ttml-to-srt': 'TTML to SRT',
+  'dfxp-to-srt': 'DFXP to SRT',
+  'xml-to-srt': 'XML to SRT',
   'sup-to-srt': 'SUP to SRT',
 } as const;
 
+/** Built pages that stay out of the nav, footer, sitemap and llms.txt. */
+export const unlistedTools = {
+  'idx-to-srt': 'IDX/SUB to SRT',
+} as const;
+
 export type ToolSlug = keyof typeof tools;
-export type ToolKey = 'shift' | 'drift' | 'enc' | 'edit' | 's2v' | 'v2s' | 'ass' | 's2t' | 'v2t' | 's2w' | 't2s' | 'sub' | 'sbv' | 'smi' | 'sup' | 'merge';
+export type ToolKey =
+  | 'shift'
+  | 'drift'
+  | 'enc'
+  | 'edit'
+  | 'val'
+  | 'clean'
+  | 's2v'
+  | 'v2s'
+  | 'ass'
+  | 'a2v'
+  | 's2t'
+  | 'v2t'
+  | 's2w'
+  | 'xls'
+  | 't2s'
+  | 't2v'
+  | 'sub'
+  | 'stl'
+  | 'sbv'
+  | 'smi'
+  | 'ttml'
+  | 'dfxp'
+  | 'xml'
+  | 'sup'
+  | 'merge';
 export type ToolGroup = 'Timing' | 'Text' | 'Convert' | 'Combine';
 
 export type ToolMeta = {
@@ -31,14 +70,23 @@ export type ToolMeta = {
     | 'SRT→VTT'
     | 'VTT→SRT'
     | 'ASS→SRT'
+    | 'ASS→VTT'
     | 'SRT→TXT'
     | 'VTT→TXT'
     | 'SRT→Word'
+    | 'SRT→Excel'
     | 'TXT→SRT'
+    | 'TXT→VTT'
     | 'SUB→SRT'
+    | 'STL→SRT'
     | 'SBV→SRT'
     | 'SMI→SRT'
+    | 'TTML→SRT'
+    | 'DFXP→SRT'
+    | 'XML→SRT'
     | 'SUP→SRT'
+    | 'Check'
+    | 'Clean'
     | 'Merge';
   key: ToolKey;
   group: ToolGroup;
@@ -113,6 +161,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'ass-to-vtt',
+    nav: 'ASS→VTT',
+    key: 'a2v',
+    group: 'Convert',
+    icon: '<path d="M4 8h13l-3.5-3.5"/><path d="M14 16H4"/><path d="m16 13 4 3-4 3"/>',
+    formats: '.ass/.ssa → .vtt',
+    card: 'Turn ASS and SSA subtitles into WebVTT for HTML5 video.',
+    mark: 'VTT',
+  },
+  {
     slug: 'srt-to-txt',
     nav: 'SRT→TXT',
     key: 's2t',
@@ -143,6 +201,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'Word',
   },
   {
+    slug: 'srt-to-excel',
+    nav: 'SRT→Excel',
+    key: 'xls',
+    group: 'Convert',
+    icon: '<path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M4 14h16"/><path d="M9 4v16"/>',
+    formats: '.srt → .xlsx/.csv',
+    card: 'Turn SRT, VTT or ASS subtitles into an Excel sheet or CSV.',
+    mark: 'Excel',
+  },
+  {
     slug: 'txt-to-srt',
     nav: 'TXT→SRT',
     key: 't2s',
@@ -153,6 +221,16 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'txt-to-vtt',
+    nav: 'TXT→VTT',
+    key: 't2v',
+    group: 'Convert',
+    icon: '<path d="M4 6h10"/><path d="M4 11h6"/><path d="M14 14h6"/><path d="M14 18h6"/>',
+    formats: '.txt → .vtt',
+    card: 'Turn a script or transcript into WebVTT captions.',
+    mark: 'VTT',
+  },
+  {
     slug: 'sub-to-srt',
     nav: 'SUB→SRT',
     key: 'sub',
@@ -160,6 +238,16 @@ export const toolMeta: readonly ToolMeta[] = [
     icon: '<path d="M3.5 5.5h8v13h-8z"/><path d="M5.5 9.5h4"/><circle cx="17.5" cy="15.5" r="4.5"/><path d="M17.5 13.5v2l1.5 1"/>',
     formats: '.sub → .srt',
     card: 'Turn MicroDVD frame numbers in a .sub file into SRT timestamps.',
+    mark: 'SRT',
+  },
+  {
+    slug: 'stl-to-srt',
+    nav: 'STL→SRT',
+    key: 'stl',
+    group: 'Convert',
+    icon: '<path d="M5 5h14v14H5z"/><path d="M8 9h8"/><path d="M8 13h5"/>',
+    formats: 'EBU · Spruce',
+    card: 'Turn EBU STL and Spruce STL subtitles into SRT.',
     mark: 'SRT',
   },
   {
@@ -183,6 +271,36 @@ export const toolMeta: readonly ToolMeta[] = [
     mark: 'SRT',
   },
   {
+    slug: 'ttml-to-srt',
+    nav: 'TTML→SRT',
+    key: 'ttml',
+    group: 'Convert',
+    icon: '<path d="M4 6h16"/><path d="M7 6v12"/><path d="M12 6v12"/><path d="M17 6v12"/>',
+    formats: '.ttml → .srt/.vtt',
+    card: 'Turn TTML and IMSC text subtitles into SRT or VTT.',
+    mark: 'SRT',
+  },
+  {
+    slug: 'dfxp-to-srt',
+    nav: 'DFXP→SRT',
+    key: 'dfxp',
+    group: 'Convert',
+    icon: '<path d="M5 5h6l2 2h6v12H5z"/><path d="M8 12h8"/><path d="M8 16h5"/>',
+    formats: '.dfxp → .srt/.vtt',
+    card: 'Turn older DFXP Timed Text files into SRT or VTT.',
+    mark: 'SRT',
+  },
+  {
+    slug: 'xml-to-srt',
+    nav: 'XML→SRT',
+    key: 'xml',
+    group: 'Convert',
+    icon: '<path d="M8 7 4 12l4 5"/><path d="M16 7l4 5-4 5"/><path d="M13 6l-2 12"/>',
+    formats: 'TTML · YouTube XML',
+    card: 'Turn TTML, DFXP or YouTube subtitle XML into SRT.',
+    mark: 'SRT',
+  },
+  {
     slug: 'sup-to-srt',
     nav: 'SUP→SRT',
     key: 'sup',
@@ -201,6 +319,26 @@ export const toolMeta: readonly ToolMeta[] = [
     formats: 'SRT · VTT',
     card: 'Change subtitle text and times, add or delete lines, and mark problems.',
     mark: 'Editor',
+  },
+  {
+    slug: 'srt-validator',
+    nav: 'Check',
+    key: 'val',
+    group: 'Text',
+    icon: '<path d="M5 4h14v16H5z"/><path d="m8 12 2.5 2.5L16 9"/>',
+    formats: '.srt',
+    card: 'Check an SRT file for bad times, overlaps, empty lines and encoding.',
+    mark: 'Validator',
+  },
+  {
+    slug: 'subtitle-cleaner',
+    nav: 'Clean',
+    key: 'clean',
+    group: 'Text',
+    icon: '<path d="M5 19h10"/><path d="M8 16 16 8l2 2-8 8H8z"/><path d="m14 6 3-3 2 2-3 3"/>',
+    formats: 'SRT · VTT · ASS',
+    card: 'Remove hearing-impaired tags, speaker names, music lines and formatting.',
+    mark: 'Cleaner',
   },
   {
     slug: 'merge-subtitles',
@@ -223,7 +361,7 @@ export const toolGroups = [
 ] as const satisfies readonly { group: ToolGroup; label: string }[];
 
 /** Home hero trust pills, in display order. UI microcopy approved by Kirill on 2026-10-01. */
-export const homeTrust = ['No upload', 'No sign-up', 'Free, 16 tools', 'Many files → one zip'] as const;
+export const homeTrust = ['No upload', 'No sign-up', 'Free, 25 tools', 'Many files → one zip'] as const;
 
 /** Labels of the tool grid on the home page and the 404 page. */
 export const toolGridCopy = {

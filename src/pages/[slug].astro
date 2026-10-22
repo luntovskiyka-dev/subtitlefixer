@@ -1,22 +1,28 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import AssToSrtTool from '../components/AssToSrtTool.astro';
+import CleanerTool from '../components/CleanerTool.astro';
 import ConvertTool from '../components/ConvertTool.astro';
 import DriftFps from '../components/DriftFps.astro';
 import DriftTool from '../components/DriftTool.astro';
 import EditorTool from '../components/EditorTool.astro';
 import EncodingTool from '../components/EncodingTool.astro';
+import ExcelTool from '../components/ExcelTool.astro';
+import IdxToSrtTool from '../components/IdxToSrtTool.astro';
 import MergeTool from '../components/MergeTool.astro';
 import ShiftTool from '../components/ShiftTool.astro';
 import SmiToSrtTool from '../components/SmiToSrtTool.astro';
 import SrtToTxtTool from '../components/SrtToTxtTool.astro';
 import SrtToWordTool from '../components/SrtToWordTool.astro';
+import StlToSrtTool from '../components/StlToSrtTool.astro';
 import SbvToSrtTool from '../components/SbvToSrtTool.astro';
 import SubToSrtTool from '../components/SubToSrtTool.astro';
 import SupToSrtTool from '../components/SupToSrtTool.astro';
 import ToolPage from '../components/ToolPage.astro';
 import TxtToSrtTool from '../components/TxtToSrtTool.astro';
-import { tools } from '../data/tools';
+import ValidatorTool from '../components/ValidatorTool.astro';
+import XmlToSrtTool from '../components/XmlToSrtTool.astro';
+import { tools, unlistedTools } from '../data/tools';
 import Base from '../layouts/Base.astro';
 
 export async function getStaticPaths() {
@@ -33,7 +39,7 @@ interface Props {
 
 const { entry } = Astro.props;
 const { title, description, faq } = entry.data;
-const toolName = tools[entry.id as keyof typeof tools];
+const toolName = tools[entry.id as keyof typeof tools] ?? unlistedTools[entry.id as keyof typeof unlistedTools];
 if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
 ---
 
@@ -45,6 +51,7 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
   faq={faq}
   width="wide"
   spacing="tight"
+  noindex={entry.id === 'idx-to-srt'}
 >
   <ToolPage entry={entry}>
     {entry.id === 'shift-subtitles' && <ShiftTool />}
@@ -53,10 +60,20 @@ if (!toolName) throw new Error(`Missing tool name for /${entry.id}.`);
     {entry.id === 'srt-to-vtt' && <ConvertTool direction="srt-to-vtt" />}
     {entry.id === 'vtt-to-srt' && <ConvertTool direction="vtt-to-srt" />}
     {entry.id === 'ass-to-srt' && <AssToSrtTool />}
+    {entry.id === 'ass-to-vtt' && <AssToSrtTool output="vtt" />}
+    {entry.id === 'dfxp-to-srt' && <XmlToSrtTool mode="dfxp" />}
+    {entry.id === 'ttml-to-srt' && <XmlToSrtTool mode="ttml" />}
+    {entry.id === 'xml-to-srt' && <XmlToSrtTool mode="xml" />}
+    {entry.id === 'stl-to-srt' && <StlToSrtTool />}
+    {entry.id === 'srt-to-excel' && <ExcelTool />}
+    {entry.id === 'srt-validator' && <ValidatorTool />}
+    {entry.id === 'subtitle-cleaner' && <CleanerTool />}
+    {entry.id === 'idx-to-srt' && <IdxToSrtTool />}
     {entry.id === 'srt-to-txt' && <SrtToTxtTool />}
     {entry.id === 'vtt-to-txt' && <SrtToTxtTool variant="vtt" />}
     {entry.id === 'srt-to-word' && <SrtToWordTool />}
     {entry.id === 'txt-to-srt' && <TxtToSrtTool />}
+    {entry.id === 'txt-to-vtt' && <TxtToSrtTool defaultOutput="vtt" />}
     {entry.id === 'sub-to-srt' && <SubToSrtTool />}
     {entry.id === 'sup-to-srt' && <SupToSrtTool />}
     {entry.id === 'sbv-to-srt' && <SbvToSrtTool />}

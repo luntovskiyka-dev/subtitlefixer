@@ -4,13 +4,19 @@ import Dropzone from './Dropzone.astro';
 import ToolLayout from './ToolLayout.astro';
 import ToolStatus from './ToolStatus.astro';
 
+interface Props {
+  output?: 'srt' | 'vtt';
+}
+
+const { output = 'srt' } = Astro.props;
 const formats = [
   { label: 'ASS', tone: 'lilac' },
   { label: 'SSA', tone: 'teal-soft' },
 ] as const;
+const extension = output === 'vtt' ? 'vtt' : 'srt';
 ---
 
-<form id="ass-form">
+<form id="ass-form" data-output={extension}>
   <ToolLayout>
     <div slot="input" class="flex flex-col gap-3">
       <Dropzone
@@ -40,7 +46,7 @@ const formats = [
       </div>
     </div>
     <div slot="settings">
-      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.ass/.ssa → .srt</p>
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.ass/.ssa → .{extension}</p>
       <div class="mt-4 flex min-h-11 items-center gap-3">
         <input id="ass-bom" name="bom" type="checkbox" class="sf-check" />
         <label for="ass-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
@@ -48,7 +54,7 @@ const formats = [
     </div>
     <div slot="action">
       <Button id="ass-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
-        Download SRT file
+        Download {extension.toUpperCase()} file
       </Button>
       <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">
         Your file never leaves your device.
@@ -60,7 +66,8 @@ const formats = [
 
 <script>
   import type { DecodedSubtitleFile } from '../lib/subs/files';
-  import { assToSrt, downloadSubtitleFiles } from '../lib/subs/index';
+  import { assToText } from '../lib/subs/assToSrt';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
   import { slicePreviewCues } from '../lib/ui/previewSlice';
   import { renderStatus } from '../lib/ui/statusView';
 
@@ -89,8 +96,12 @@ const formats = [
     return lower.endsWith('.ass') || lower.endsWith('.ssa');
   }
 
-  function srtName(name: string): string {
-    return name.replace(/\.(?:ass|ssa)$/i, '.srt');
+  function outputFormat(): 'srt' | 'vtt' {
+    return form instanceof HTMLFormElement && form.dataset.output === 'vtt' ? 'vtt' : 'srt';
+  }
+
+  function outputName(name: string): string {
+    return name.replace(/\.(?:ass|ssa)$/i, `.${outputFormat()}`);
   }
 
   function showResult(messages: readonly string[], preview: string | null): void {
@@ -143,11 +154,11 @@ const formats = [
           messages.push(`${file.name}: Use an ASS or SSA file.`);
           continue;
         }
-        const output = assToSrt(file.text);
+        const output = assToText(file.text, outputFormat());
         for (const error of output.errors) messages.push(`${file.name}: ${error.message}`);
         if (preview === null) preview = output.text;
         ready.push({
-          name: srtName(file.name),
+          name: outputName(file.name),
           text: output.text,
         });
       }

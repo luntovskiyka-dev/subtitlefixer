@@ -1,7 +1,7 @@
 ---
-title: "ASS to SRT Converter Online – Free, Batch | SubtitleFixer"
+title: "ASS/SSA to SRT Converter, Free, Batch | SubtitleFixer"
 description: "Convert ASS/SSA subtitles to clean SRT. Style tags and duplicate layers removed; dialogue, timing, italics and bold kept. Batch, free, no upload."
-h1: "ASS to SRT Converter"
+h1: "ASS and SSA to SRT Converter"
 slug: "ass-to-srt"
 answer: "To convert ASS to SRT, drop your .ass or .ssa file on the page and SubtitleFixer removes the styling tags but keeps italics and bold, turns \\N into line breaks and merges duplicate layers into one SRT file, all in your browser, so your file never leaves your device."
 faq:
@@ -21,7 +21,7 @@ faq:
     a: "In Aegisub, go to File → Export Subtitles, click Export, and choose SubRip (*.srt) as the file type. If you only have the .ass file and no Aegisub, you can convert it here instead."
   - q: "Is my ASS file uploaded?"
     a: "No. SubtitleFixer converts ASS to SRT inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/fix-subtitle-encoding", "/shift-subtitles", "/srt-to-vtt", "/vtt-to-srt", "/fix-subtitle-drift", "/sup-to-srt"]
+related: ["/ass-to-vtt", "/fix-subtitle-encoding", "/shift-subtitles", "/srt-to-vtt", "/vtt-to-srt", "/fix-subtitle-drift", "/sup-to-srt"]
 ---
 
 ## How to convert ASS to SRT in 3 steps

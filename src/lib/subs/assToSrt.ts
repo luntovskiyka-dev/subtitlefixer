@@ -148,9 +148,14 @@ export function assToCues(text: string, options?: ParseOptions): { cues: Cue[]; 
  * Parser errors are returned unchanged. Nothing is sent over the network.
  */
 export function assToSrt(text: string): { text: string; errors: ParseError[] } {
+  return assToText(text, 'srt');
+}
+
+/** Same cue cleaning as ASS to SRT, then SRT or WebVTT. */
+export function assToText(text: string, format: 'srt' | 'vtt'): { text: string; errors: ParseError[] } {
   const converted = assToCues(text);
   return {
-    text: serialize(converted.cues, 'srt'),
+    text: serialize(converted.cues, format),
     errors: converted.errors,
   };
 }

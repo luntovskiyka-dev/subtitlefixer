@@ -27,7 +27,7 @@ export function redirectLocation(url: URL): string | null {
   return `${path}${url.search}`;
 }
 
-const UNLISTED = new Set(['/_styleguide']);
+const UNLISTED = new Set(['/_styleguide', '/idx-to-srt']);
 
 /** Sitemap `<loc>` for a page, or null when the page is not public. */
 export function canonicalSitemapLoc(page: string): string | null {

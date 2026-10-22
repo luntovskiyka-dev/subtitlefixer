@@ -10,15 +10,24 @@
 - [SRT to VTT](https://subtitlefixer.com/srt-to-vtt): convert SubRip (.srt) to WebVTT (.vtt) for HTML5 video; batch, timings kept exactly.
 - [VTT to SRT](https://subtitlefixer.com/vtt-to-srt): convert WebVTT, including YouTube, Zoom and Teams files, to numbered SRT; keeps italics and bold, strips other tags.
 - [ASS to SRT](https://subtitlefixer.com/ass-to-srt): convert ASS/SSA to clean SRT; removes style tags and duplicate layers, keeps dialogue, timing, italics and bold.
+- [ASS to VTT](https://subtitlefixer.com/ass-to-vtt): convert ASS/SSA to WebVTT for HTML5 video; style codes removed, text, timing, italics and bold kept.
 - [SRT to TXT](https://subtitlefixer.com/srt-to-txt): turn SRT, VTT, ASS or SSA subtitles into plain text, one line per subtitle, with timestamps, or as paragraphs; removes cue numbers and tags, can drop repeated YouTube caption lines; batch.
 - [VTT to TXT](https://subtitlefixer.com/vtt-to-txt): turn WebVTT captions, including YouTube, Zoom and Teams transcripts, into plain text. Removes the WEBVTT header, cue settings and tags, keeps speaker names, and can drop repeated lines.
 - [SRT to Word](https://subtitlefixer.com/srt-to-word): turn SRT, VTT or ASS subtitles into a Word .docx file: plain paragraphs, timestamps, or a table of number, start, end and text. Built in the browser.
+- [SRT to Excel](https://subtitlefixer.com/srt-to-excel): turn SRT, VTT or ASS subtitles into an .xlsx sheet or a UTF-8 CSV with a BOM. Cells that look like formulas get a leading apostrophe.
 - [TXT to SRT](https://subtitlefixer.com/txt-to-srt): turn a script or transcript into SRT or VTT, timed by reading speed or by timestamps already in the text (such as a YouTube transcript); timings are estimated from the text, not from audio.
+- [TXT to VTT](https://subtitlefixer.com/txt-to-vtt): the same text-to-subtitles tool with WebVTT output. A line longer than 42 characters is wrapped.
 - [SUB to SRT](https://subtitlefixer.com/sub-to-srt): turn MicroDVD frame numbers in a .sub file into SRT timestamps.
+- [STL to SRT](https://subtitlefixer.com/stl-to-srt): turn binary EBU STL or text Spruce STL into SRT or VTT. Spruce needs a frame rate.
 - [SBV to SRT](https://subtitlefixer.com/sbv-to-srt): turn YouTube .sbv captions into SRT or VTT.
 - [SMI to SRT](https://subtitlefixer.com/smi-to-srt): turn SAMI .smi or .sami subtitles into SRT. Pick one language class when the file has several. Reads EUC-KR and saves UTF-8.
+- [TTML to SRT](https://subtitlefixer.com/ttml-to-srt): turn text TTML and IMSC into SRT or VTT. Clock, frame and tick times. Image profiles are not converted.
+- [DFXP to SRT](https://subtitlefixer.com/dfxp-to-srt): the same Timed Text converter for older .dfxp files.
+- [XML to SRT](https://subtitlefixer.com/xml-to-srt): detect TTML, DFXP or YouTube timed-text XML and convert it to SRT or VTT.
 - [SUP to SRT](https://subtitlefixer.com/sup-to-srt): read a Blu-ray PGS .sup picture subtitle into SRT with OCR in the browser. The text can be wrong, so check it. The file is not uploaded.
-- [SRT editor](https://subtitlefixer.com/srt-editor): edit SRT and VTT text and times, add, delete, split or merge lines, and see lines that overlap, end too early, are empty or out of order. Saves SRT or VTT. No video preview.
+- [SRT editor](https://subtitlefixer.com/srt-editor): edit SRT and VTT text and times, add, delete, split or merge lines, and see lines that overlap, end too early, last zero seconds, are empty or out of order. Saves SRT or VTT. No video preview.
+- [SRT validator](https://subtitlefixer.com/srt-validator): check an SRT file for numbering, timestamps, overlaps, zero duration, empty lines and encoding. Report only. Open the file in the editor.
+- [Subtitle cleaner](https://subtitlefixer.com/subtitle-cleaner): remove hearing-impaired brackets, speaker names, music lines and formatting tags from SRT, VTT or ASS. Timing stays. Options start off.
 - [Merge subtitles](https://subtitlefixer.com/merge-subtitles): combine two subtitle files, either as dual-language lines or by joining CD1 and CD2.
 
 ## Guides

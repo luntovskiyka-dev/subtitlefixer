@@ -56,6 +56,7 @@ describe('canonicalSitemapLoc', () => {
       canonicalHref(site, '/shift-subtitles'),
     );
     expect(canonicalSitemapLoc('https://subtitlefixer.com/_styleguide')).toBeNull();
+    expect(canonicalSitemapLoc('https://subtitlefixer.com/idx-to-srt')).toBeNull();
     expect(canonicalSitemapLoc('https://subtitlefixer.com/_styleguide/')).toBeNull();
     expect(canonicalSitemapLoc('https://subtitlefixer.com/sup-to-srt')).toBe(canonicalHref(site, '/sup-to-srt'));
     expect(canonicalSitemapLoc('https://subtitlefixer.com/sup-to-srt.html')).toBe(canonicalHref(site, '/sup-to-srt'));

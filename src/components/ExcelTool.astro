@@ -1,0 +1,199 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [
+  { label: 'SRT', tone: 'accent-soft' },
+  { label: 'VTT', tone: 'teal-soft' },
+  { label: 'ASS', tone: 'lilac' },
+] as const;
+---
+
+<form id="xls-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="xls-dropzone"
+        variant="stage"
+        label="Add one or more SRT, VTT or ASS files"
+        stageTitle="Add one or more subtitle files"
+        accept=".srt,.vtt,.ass,.ssa"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="xls-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="xls-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the rows.</p>
+      <div id="xls-preview" class="overflow-x-auto rounded-sf-lg border-2.5 border-stage-line bg-surface text-ink" hidden>
+        <table class="w-full text-left text-sm">
+          <caption class="px-4 py-3 text-left font-display text-lg font-extrabold">Preview</caption>
+          <thead>
+            <tr class="border-y-2 border-line">
+              <th class="px-3 py-2">#</th>
+              <th class="px-3 py-2">Start</th>
+              <th class="px-3 py-2">End</th>
+              <th class="px-3 py-2">Text</th>
+            </tr>
+          </thead>
+          <tbody id="xls-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">.srt → .xlsx</p>
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="xls-output" class="text-sm font-extrabold">Format</label>
+        <select id="xls-output" name="output" class="sf-field">
+          <option value="xlsx" selected>.xlsx</option>
+          <option value="csv">.csv (UTF-8 with BOM)</option>
+        </select>
+      </div>
+      <p class="mt-3 text-sm text-muted">A cell that starts with =, +, -, @, a tab or a return gets a leading apostrophe, so the spreadsheet does not treat it as a formula.</p>
+    </div>
+    <div slot="action">
+      <Button id="xls-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        <span id="xls-download-label">Download XLSX file</span>
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">Your file never leaves your device.</p>
+      <div id="xls-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import { zipSync } from 'fflate';
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadBytes } from '../lib/subs/files';
+  import { sheetFileName, sheetRows, subtitlesToSheet, type SheetFormat } from '../lib/subs/sheet';
+  import { subtitleFormatFromName } from '../lib/subs/toText';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+  const form = document.getElementById('xls-form');
+  const result = document.getElementById('xls-result');
+  const status = document.getElementById('xls-status');
+  const download = document.getElementById('xls-download');
+  const hint = document.getElementById('xls-download-hint');
+  const label = document.getElementById('xls-download-label');
+  const output = document.getElementById('xls-output');
+  const body = document.getElementById('xls-rows');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.text === 'string';
+  }
+
+  function chosen(): SheetFormat {
+    return output instanceof HTMLSelectElement && output.value === 'csv' ? 'csv' : 'xlsx';
+  }
+
+  function showMessages(messages: readonly string[]): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+  }
+
+  function showPreview(): void {
+    const card = document.getElementById('xls-preview');
+    const empty = document.getElementById('xls-preview-empty');
+    if (!(body instanceof HTMLElement) || !(card instanceof HTMLElement)) return;
+    body.replaceChildren();
+    const first = files[0];
+    const format = first ? subtitleFormatFromName(first.name) : null;
+    if (!first || !format) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const table = sheetRows(first.text, format);
+    for (const row of table.rows.slice(0, 8)) {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-line';
+      for (const value of [String(row.index), row.start, row.end, row.text]) {
+        const cell = document.createElement('td');
+        cell.className = 'px-3 py-2 align-top font-mono text-[13px] whitespace-pre-wrap';
+        cell.textContent = value;
+        tr.append(cell);
+      }
+      body.append(tr);
+    }
+    card.hidden = table.rows.length === 0;
+    if (empty instanceof HTMLElement) empty.hidden = table.rows.length > 0;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    output instanceof HTMLSelectElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const refresh = () => {
+      if (label instanceof HTMLElement) label.textContent = chosen() === 'csv' ? 'Download CSV file' : 'Download XLSX file';
+      showPreview();
+    };
+
+    output.addEventListener('change', refresh);
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      setDownload(files.length > 0);
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      showMessages([]);
+      refresh();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const format = chosen();
+      const messages: string[] = [];
+      const ready: { name: string; bytes: Uint8Array }[] = [];
+      for (const file of files) {
+        const kind = subtitleFormatFromName(file.name);
+        if (!kind) {
+          messages.push(`${file.name}: Use an SRT, VTT, ASS or SSA file.`);
+          continue;
+        }
+        const sheet = subtitlesToSheet(file.text, kind, format);
+        for (const error of sheet.errors) messages.push(`${file.name}: ${error.message}`);
+        if (!sheet.bytes) {
+          messages.push(`${file.name}: No subtitle rows to export.`);
+          continue;
+        }
+        ready.push({ name: sheetFileName(file.name, format), bytes: sheet.bytes });
+      }
+      showMessages(messages);
+      showPreview();
+      if (ready.length === 0) {
+        renderStatus(status, 'error', names());
+        return;
+      }
+      if (ready.length === 1 && ready[0]) {
+        downloadBytes(ready[0].name, ready[0].bytes, format === 'csv' ? 'text/csv' : XLSX_TYPE);
+      } else {
+        const entries: Record<string, Uint8Array> = {};
+        for (const file of ready) entries[file.name] = file.bytes;
+        downloadBytes('subtitles.zip', zipSync(entries), 'application/zip');
+      }
+      renderStatus(status, 'ready', names());
+    });
+  }
+</script>

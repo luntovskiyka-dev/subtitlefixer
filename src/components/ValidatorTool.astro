@@ -1,0 +1,126 @@
+---
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+const formats = [{ label: 'SRT', tone: 'accent-soft' }] as const;
+---
+
+<form id="val-form">
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="val-dropzone"
+        variant="stage"
+        label="Add one or more SRT files"
+        stageTitle="Add one or more .srt files"
+        accept=".srt"
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="val-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="val-empty" class="text-sm font-medium text-on-brand-muted">Add an SRT file to see the report.</p>
+      <div id="val-report" class="flex flex-col gap-4" hidden></div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">Check .srt</p>
+      <p class="mt-3 text-sm text-muted">The same checks as the <a href="/srt-editor">SRT editor</a>: overlaps, zero duration, empty lines, order, and bad timestamps. This page only reports them.</p>
+    </div>
+    <div slot="action">
+      <p class="text-sm font-bold">Open a file in the editor from its report.</p>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">Your file never leaves your device.</p>
+      <div id="val-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { saveEditorHandoff } from '../lib/subs/editorHandoff';
+  import { countLevels, reportLabel, validateSrt } from '../lib/subs/validate';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('val-form');
+  const status = document.getElementById('val-status');
+  const report = document.getElementById('val-report');
+  const empty = document.getElementById('val-empty');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('text' in file) || !('bytes' in file)) return false;
+    return typeof file.name === 'string' && typeof file.text === 'string' && file.bytes instanceof Uint8Array;
+  }
+
+  function showReport(): void {
+    if (!(report instanceof HTMLElement) || !(empty instanceof HTMLElement)) return;
+    report.replaceChildren();
+    if (files.length === 0) {
+      report.hidden = true;
+      empty.hidden = false;
+      return;
+    }
+    empty.hidden = true;
+    report.hidden = false;
+    for (const file of files) {
+      const section = document.createElement('section');
+      section.className = 'rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink';
+      const title = document.createElement('h2');
+      title.className = 'font-display text-lg font-extrabold';
+      title.textContent = file.name;
+      section.append(title);
+      if (!file.name.toLowerCase().endsWith('.srt')) {
+        const note = document.createElement('p');
+        note.className = 'mt-2 text-sm';
+        note.textContent = 'Use an SRT file.';
+        section.append(note);
+        report.append(section);
+        continue;
+      }
+      const checked = validateSrt(file.text, file.bytes);
+      const counts = countLevels(checked.items);
+      const summary = document.createElement('p');
+      summary.className = 'mt-1 text-sm font-bold';
+      summary.textContent =
+        checked.items.length === 0
+          ? 'No problems found.'
+          : `${counts.errors} error${counts.errors === 1 ? '' : 's'}, ${counts.warnings} warning${counts.warnings === 1 ? '' : 's'}.`;
+      section.append(summary);
+      if (checked.items.length > 0) {
+        const list = document.createElement('ul');
+        list.className = 'mt-2 flex flex-col gap-1 text-sm';
+        for (const item of checked.items) {
+          const row = document.createElement('li');
+          row.textContent = reportLabel(item.level, item.cue, item.line, item.message);
+          list.append(row);
+        }
+        section.append(list);
+      }
+      const open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'mt-3 rounded-full border-2 border-edge bg-surface px-4 py-2 text-sm font-extrabold text-ink shadow-hard-sm';
+      open.textContent = 'Open in SRT editor';
+      open.addEventListener('click', () => {
+        if (!saveEditorHandoff(sessionStorage, { name: file.name, text: file.text })) return;
+        window.location.assign('/srt-editor');
+      });
+      section.append(open);
+      report.append(section);
+    }
+  }
+
+  if (form instanceof HTMLFormElement && status instanceof HTMLElement) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+    });
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', files.map((file) => file.name));
+      showReport();
+    });
+  }
+</script>

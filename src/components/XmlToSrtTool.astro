@@ -1,0 +1,228 @@
+---
+import Button from './Button.astro';
+import Dropzone from './Dropzone.astro';
+import ToolLayout from './ToolLayout.astro';
+import ToolStatus from './ToolStatus.astro';
+
+interface Props {
+  mode?: 'ttml' | 'dfxp' | 'xml';
+}
+
+const { mode = 'ttml' } = Astro.props;
+const accept = mode === 'dfxp' ? '.dfxp,.xml,.ttml' : mode === 'xml' ? '.xml,.ttml,.dfxp' : '.ttml,.xml,.dfxp';
+const title =
+  mode === 'dfxp' ? 'Add one or more .dfxp files' : mode === 'xml' ? 'Add one or more subtitle XML files' : 'Add one or more .ttml files';
+const heading = mode === 'dfxp' ? '.dfxp → .srt' : mode === 'xml' ? '.xml → .srt' : '.ttml → .srt';
+const formats =
+  mode === 'dfxp'
+    ? ([
+        { label: 'DFXP', tone: 'mint' },
+        { label: 'TTML', tone: 'teal-soft' },
+      ] as const)
+    : mode === 'xml'
+      ? ([
+          { label: 'XML', tone: 'lilac' },
+          { label: 'TTML', tone: 'teal-soft' },
+        ] as const)
+      : ([
+          { label: 'TTML', tone: 'teal-soft' },
+          { label: 'DFXP', tone: 'mint' },
+        ] as const);
+---
+
+<form id="xml-form" data-mode={mode}>
+  <ToolLayout>
+    <div slot="input" class="flex flex-col gap-3">
+      <Dropzone
+        id="xml-dropzone"
+        variant="stage"
+        label={title}
+        stageTitle={title}
+        accept={accept}
+        formats={formats}
+        interactive
+      />
+      <ToolStatus id="xml-status" tone="stage" />
+    </div>
+    <div slot="preview">
+      <p id="xml-preview-empty" class="text-sm font-medium text-on-brand-muted">Add a file to preview the conversion.</p>
+      <div
+        id="xml-preview"
+        class="rounded-sf-lg border-2.5 border-stage-line bg-surface px-4 py-3 text-ink sf-preview-scroll"
+        tabindex="0"
+        aria-label="Converted subtitle preview"
+        hidden
+      >
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+          <p class="font-display text-lg font-extrabold">Preview</p>
+          <p id="xml-preview-tag" class="rounded-full border-2 border-stage-line bg-footer-mint px-2.5 py-0.5 text-[12.5px] font-extrabold text-on-accent"></p>
+        </div>
+        <pre class="sf-preview-text"></pre>
+      </div>
+    </div>
+    <div slot="settings">
+      <p class="font-display text-[32px] font-extrabold leading-none tracking-tight">{heading}</p>
+      {mode !== 'ttml' && (
+        <p class="mt-3 text-sm font-bold">
+          Same converter as <a href="/ttml-to-srt">TTML to SRT</a>.
+        </p>
+      )}
+      <div class="mt-4 flex flex-col gap-2">
+        <label for="xml-output" class="text-sm font-extrabold">Output</label>
+        <select id="xml-output" name="output" class="sf-field">
+          <option value="srt" selected>SRT</option>
+          <option value="vtt">VTT</option>
+        </select>
+      </div>
+      <div class="mt-4 flex min-h-11 items-center gap-3">
+        <input id="xml-bom" name="bom" type="checkbox" class="sf-check" />
+        <label for="xml-bom" class="text-sm font-extrabold">Add BOM (old players)</label>
+      </div>
+    </div>
+    <div slot="action">
+      <Button id="xml-download" type="submit" size="lg" class="w-full gap-2" softDisabled hint="Add a file to enable the download.">
+        <span id="xml-download-label">Download SRT file</span>
+      </Button>
+      <p class="mt-3.5 flex items-center justify-center gap-2 text-[13px] font-bold">Your file never leaves your device.</p>
+      <div id="xml-result" class="mt-3" aria-live="polite"></div>
+    </div>
+  </ToolLayout>
+</form>
+
+<script>
+  import type { DecodedSubtitleFile } from '../lib/subs/files';
+  import { downloadSubtitleFiles } from '../lib/subs/index';
+  import { subtitleXmlToText, xmlKindLabel, type XmlKind } from '../lib/subs/ttml';
+  import { slicePreviewCues } from '../lib/ui/previewSlice';
+  import { renderStatus } from '../lib/ui/statusView';
+
+  const form = document.getElementById('xml-form');
+  const result = document.getElementById('xml-result');
+  const status = document.getElementById('xml-status');
+  const download = document.getElementById('xml-download');
+  const hint = document.getElementById('xml-download-hint');
+  const label = document.getElementById('xml-download-label');
+  const output = document.getElementById('xml-output');
+  const bomInput = document.getElementById('xml-bom');
+  const meta = document.querySelector('#xml-dropzone [data-file-meta]');
+
+  let files: DecodedSubtitleFile[] = [];
+
+  function isDecodedFile(file: unknown): file is DecodedSubtitleFile {
+    if (typeof file !== 'object' || file === null) return false;
+    if (!('name' in file) || !('encoding' in file) || !('text' in file)) return false;
+    return typeof file.name === 'string' && typeof file.encoding === 'string' && typeof file.text === 'string';
+  }
+
+  function outputFormat(): 'srt' | 'vtt' {
+    return output instanceof HTMLSelectElement && output.value === 'vtt' ? 'vtt' : 'srt';
+  }
+
+  function outputName(name: string, format: 'srt' | 'vtt'): string {
+    const base = name.replace(/\.(?:ttml|dfxp|xml)$/i, '') || 'subtitles';
+    return `${base}.${format}`;
+  }
+
+  function showResult(messages: readonly string[], preview: string | null, kind: XmlKind | null): void {
+    if (!(result instanceof HTMLElement)) return;
+    result.replaceChildren();
+    for (const message of messages) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'sf-msg sf-rise';
+      paragraph.textContent = message;
+      result.append(paragraph);
+    }
+    const card = document.getElementById('xml-preview');
+    const empty = document.getElementById('xml-preview-empty');
+    const pre = card?.querySelector('pre');
+    const tag = document.getElementById('xml-preview-tag');
+    if (!(card instanceof HTMLElement) || !pre) return;
+    if (preview === null) {
+      card.hidden = true;
+      if (empty instanceof HTMLElement) empty.hidden = false;
+      return;
+    }
+    const sliced = slicePreviewCues(preview);
+    pre.textContent = sliced.preview;
+    if (tag instanceof HTMLElement) tag.textContent = kind ? `${xmlKindLabel(kind)} · ${sliced.caption}` : sliced.caption;
+    card.hidden = false;
+    if (empty instanceof HTMLElement) empty.hidden = true;
+  }
+
+  if (
+    form instanceof HTMLFormElement &&
+    output instanceof HTMLSelectElement &&
+    bomInput instanceof HTMLInputElement &&
+    result instanceof HTMLElement &&
+    status instanceof HTMLElement &&
+    download instanceof HTMLButtonElement
+  ) {
+    const names = () => files.map((file) => file.name);
+    const setDownload = (enabled: boolean) => {
+      if (enabled) download.removeAttribute('aria-disabled');
+      else download.setAttribute('aria-disabled', 'true');
+      if (hint instanceof HTMLElement) hint.hidden = enabled;
+    };
+
+    const converted = () => {
+      const format = outputFormat();
+      const messages: string[] = [];
+      const ready: { name: string; text: string }[] = [];
+      let preview: string | null = null;
+      let kind: XmlKind | null = null;
+      for (const file of files) {
+        const xml = subtitleXmlToText(file.text, format);
+        if (kind === null) kind = xml.kind;
+        for (const warning of xml.warnings) messages.push(`${file.name}: ${warning}`);
+        if (xml.error || xml.text === '') {
+          messages.push(`${file.name}: ${xml.error ?? 'No subtitles found in this XML file.'}`);
+          continue;
+        }
+        if (preview === null) preview = xml.text;
+        ready.push({ name: outputName(file.name, format), text: xml.text });
+      }
+      if (label instanceof HTMLElement) label.textContent = `Download ${format.toUpperCase()} file`;
+      return { messages, ready, preview, kind };
+    };
+
+    const refresh = () => {
+      if (files.length === 0) return;
+      const next = converted();
+      showResult(next.messages, next.preview, next.kind);
+    };
+
+    output.addEventListener('change', refresh);
+    form.addEventListener('subtitlereading', () => {
+      renderStatus(status, 'working', names());
+    });
+    form.addEventListener('subtitlefailed', () => {
+      renderStatus(status, 'error', names());
+    });
+    form.addEventListener('subtitlefiles', (event) => {
+      if (!(event instanceof CustomEvent) || !Array.isArray(event.detail?.files)) return;
+      files = event.detail.files.filter(isDecodedFile);
+      setDownload(files.length > 0);
+      if (meta instanceof HTMLElement && files[0]) meta.textContent = files[0].encoding.replace(/^utf-8$/i, 'UTF-8');
+      renderStatus(status, files.length > 0 ? 'loaded' : 'empty', names());
+      if (files.length === 0) {
+        showResult([], null, null);
+        return;
+      }
+      refresh();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (download.getAttribute('aria-disabled') === 'true') return;
+      const chosen = names();
+      renderStatus(status, 'working', chosen);
+      const next = converted();
+      showResult(next.messages, next.preview, next.kind);
+      if (next.ready.length > 0) {
+        downloadSubtitleFiles(next.ready, bomInput.checked);
+        renderStatus(status, 'ready', chosen);
+        return;
+      }
+      renderStatus(status, 'error', chosen);
+    });
+  }
+</script>

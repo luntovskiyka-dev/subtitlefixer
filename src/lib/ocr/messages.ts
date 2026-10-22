@@ -5,6 +5,10 @@ export type OcrStart = {
   workerPath: string;
   corePath: string;
   langPath: string;
+  /** Blu-ray PGS when omitted. VobSub also sends the .sub bytes and a track index. */
+  source?: 'sup' | 'vobsub';
+  sub?: ArrayBuffer;
+  track?: number;
 };
 
 export type OcrIn = OcrStart | { type: 'cancel' };

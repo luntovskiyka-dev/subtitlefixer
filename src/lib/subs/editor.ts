@@ -9,7 +9,7 @@ export type EditorCue = {
   text: string;
 };
 
-export type CueIssue = 'negative' | 'overlap' | 'empty' | 'order';
+export type CueIssue = 'negative' | 'zero' | 'overlap' | 'empty' | 'order';
 
 /** Render every row at this size and below. Above it, only a window of rows is built. */
 export const EDITOR_VIRTUAL_THRESHOLD = 1000;
@@ -58,6 +58,7 @@ export function cueIssues(cues: readonly EditorCue[]): Map<string, CueIssue[]> {
   };
   cues.forEach((cue, index) => {
     if (cue.end < cue.start) add(cue.id, 'negative');
+    else if (cue.end === cue.start) add(cue.id, 'zero');
     if (cue.text.trim() === '') add(cue.id, 'empty');
     const previous = cues[index - 1];
     if (previous && cue.start < previous.start) add(cue.id, 'order');
@@ -69,6 +70,7 @@ export function cueIssues(cues: readonly EditorCue[]): Map<string, CueIssue[]> {
 
 export function issueLabel(issue: CueIssue): string {
   if (issue === 'negative') return 'Ends before it starts';
+  if (issue === 'zero') return 'Lasts zero seconds';
   if (issue === 'overlap') return 'Overlaps the next line';
   if (issue === 'empty') return 'No text';
   return 'Out of order';
