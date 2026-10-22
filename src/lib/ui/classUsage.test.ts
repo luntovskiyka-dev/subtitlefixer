@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -7,10 +7,10 @@ const FORBIDDEN = [/\b(?:text|outline|border)-brand\b(?!-)/, /\btext-bg\b/];
 
 function astroFiles(dir: string): string[] {
   const found: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...astroFiles(path));
-    else if (entry.name.endsWith('.astro')) found.push(path);
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) found.push(...astroFiles(path));
+    else if (name.endsWith('.astro')) found.push(path);
   }
   return found;
 }

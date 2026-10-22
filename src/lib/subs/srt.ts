@@ -16,7 +16,10 @@ function parseSrtTimeLine(line: string): { start: number; end: number } | null {
 
 function parseSrtBlock(block: string, blockNumber: number): { cue?: Cue; error?: ParseError } {
   const lines = block.split('\n');
-  if (lines.length < 2) {
+  const firstLine = lines[0]?.trim() ?? '';
+  // Cue numbers are optional in practice: some tools write the timestamp first.
+  const timeLineIndex = parseSrtTimeLine(firstLine) ? 0 : 1;
+  if (timeLineIndex >= lines.length) {
     return {
       error: {
         block: blockNumber,
@@ -25,17 +28,16 @@ function parseSrtBlock(block: string, blockNumber: number): { cue?: Cue; error?:
     };
   }
 
-  const cueNumber = lines[0].trim();
-  if (!/^\d+$/.test(cueNumber)) {
+  if (timeLineIndex === 1 && !/^\d+$/.test(firstLine)) {
     return {
       error: {
         block: blockNumber,
-        message: `Block ${blockNumber} has cue number "${cueNumber}", which is not a whole number.`,
+        message: `Block ${blockNumber} has cue number "${firstLine}", which is not a whole number.`,
       },
     };
   }
 
-  const timeLine = lines[1].trim();
+  const timeLine = lines[timeLineIndex].trim();
   const range = parseSrtTimeLine(timeLine);
   if (!range) {
     return {
@@ -58,7 +60,7 @@ function parseSrtBlock(block: string, blockNumber: number): { cue?: Cue; error?:
     cue: {
       start: range.start,
       end: range.end,
-      text: lines.slice(2).join('\n'),
+      text: lines.slice(timeLineIndex + 1).join('\n'),
     },
   };
 }

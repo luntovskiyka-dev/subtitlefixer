@@ -1,42 +1,40 @@
 ---
-title: "SRT to VTT Converter Online – Free, Batch | SubtitleFixer"
-description: "Convert SRT to WebVTT in your browser. Batch-convert many files at once, timings kept to the millisecond. Free, no upload, no sign-up."
+title: "SRT to VTT Converter: Free WebVTT, No Upload | SubtitleFixer"
+description: "Convert SRT to VTT (WebVTT) in your browser. Same text, same timings, many files at once. Free, no sign-up, and your files never leave your device."
 h1: "SRT to VTT Converter"
 slug: "srt-to-vtt"
-answer: "To convert SRT to VTT, drop one or more SRT files on the page and SubtitleFixer turns them into WebVTT (.vtt) files with the same text and the same timings, right in your browser, so your files never leave your device."
+answer: "To convert SRT to VTT, drop your .srt files on this page and download the WebVTT (.vtt) files: SubtitleFixer adds the WEBVTT header and changes the timestamp format in your browser, keeping the same text and timings, without uploading anything."
 faq:
   - q: "How do I convert SRT to VTT?"
-    a: "Drop your SRT file on this page and download the VTT file. SubtitleFixer adds the WEBVTT header, removes the cue numbers and changes the timestamp format, and the conversion happens in your browser with no upload."
-  - q: "What's the difference between SRT and VTT?"
-    a: "Both are plain-text subtitle formats with a timestamp and text for each line. VTT (WebVTT) is the format HTML5 video players in web browsers use, and it adds a header, a slightly different timestamp format and optional styling and positioning."
+    a: "Drop one or more SRT files on this page or paste SRT text, then download the VTT files. SubtitleFixer adds the WEBVTT header, removes the cue numbers and changes the comma in each timestamp to a period. It all happens in your browser, so nothing is uploaded."
   - q: "Can I just rename an .srt file to .vtt?"
-    a: "No. A VTT file must start with the line WEBVTT and use a period instead of a comma before the milliseconds, so web browsers reject a renamed SRT file. Converting the file on this page makes both changes for you."
-  - q: "Will the timing, formatting or special characters change?"
-    a: "No. Every start and end time is kept exactly, italic, bold and underline tags (`<i>`, `<b>`, `<u>`) are kept, and only the separator changes, from 00:00:01,200 to 00:00:01.200. SubtitleFixer detects your SRT file's encoding and saves the VTT file as UTF-8, which WebVTT requires."
-  - q: "Can I convert multiple SRT files at once?"
-    a: "Yes. Add as many SRT files as you need and SubtitleFixer converts them all in one go, then gives you all the VTT files together in one zip."
-  - q: "Why doesn't my browser show the converted VTT subtitles?"
-    a: "The file itself is usually fine; the problem is how it is loaded. Check that the track element points to the right file, that the server sends .vtt files as text/vtt, and that the page is not opened straight from your disk (file://), which some browsers block for subtitle tracks."
-  - q: "How do I convert SRT to VTT with FFmpeg?"
-    a: "Run ffmpeg -i subtitles.srt subtitles.vtt in a terminal. If you don't want to install anything, this page does the same conversion in your browser."
+    a: "No. A VTT file must start with the line WEBVTT and use a period before the milliseconds, so web browsers reject a renamed SRT file. Converting the file here makes both changes for you."
+  - q: "Will the timing or formatting change?"
+    a: "No. Every start and end time is kept to the millisecond, and italic, bold and underline tags (`<i>`, `<b>`, `<u>`) are kept. Only the timestamp separator changes, from 00:00:01,200 to 00:00:01.200. The VTT file is saved as UTF-8."
+  - q: "Can I convert many SRT files at once?"
+    a: "Yes. Add as many SRT files as you need. One file downloads as a .vtt file; several download together as one zip."
+  - q: "Do I need VTT for an HTML5 video player?"
+    a: "Yes. The `<track>` element of HTML5 video uses WebVTT, so web pages need a .vtt file, not an .srt file. See the code example on this page."
+  - q: "Does YouTube need VTT, or can I upload SRT?"
+    a: "YouTube accepts both SRT and VTT caption files, so you don't have to convert for YouTube. Convert when your web player, course platform or site asks for VTT."
+  - q: "Can VLC or Plex play VTT subtitles?"
+    a: "VLC and Plex can both load external .vtt subtitle files, but most desktop players and TVs handle SRT at least as well. Keep the SRT file for them and use VTT for the web."
   - q: "Is my SRT file uploaded?"
-    a: "No. SubtitleFixer converts SRT to VTT inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/vtt-to-srt", "/fix-subtitle-encoding", "/shift-subtitles", "/ass-to-srt", "/fix-subtitle-drift"]
+    a: "No. SubtitleFixer converts SRT to VTT inside your browser, and your file never leaves your device. There is no sign-up."
+related: ["/vtt-to-srt", "/shift-subtitles", "/fix-subtitle-encoding", "/ass-to-srt", "/sbv-to-srt", "/guides/srt-vs-vtt-vs-ass"]
 ---
+
+Free SRT to VTT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
 
 ## How to convert SRT to VTT in 3 steps
 
-You can convert SRT to VTT in three steps, and your files stay on your device the whole time.
-
-1. **Add your SRT files.** Drag one or more .srt files onto the page, or click to choose them.
-2. **Convert.** SubtitleFixer turns each SRT file into a WebVTT (.vtt) file with the same text and timings.
-3. **Download.** One file downloads as a VTT file; several files download together as one zip.
+1. **Add your SRT files.** Drag one or more .srt files onto the page, click to choose them, or paste SRT text with the "Paste text" option.
+2. **Check the preview.** SubtitleFixer shows the WebVTT result with the same text and timings.
+3. **Download.** One file downloads as a .vtt file; several files download together as one zip.
 
 ## Example: before and after
 
-The conversion adds a WEBVTT header, removes the cue numbers and changes the comma in each timestamp to a period.
-
-Before (SRT file):
+Before (SRT):
 
 ```srt
 1
@@ -48,7 +46,7 @@ Hi, and welcome back.
 Today we're fixing subtitles.
 ```
 
-After (VTT file):
+After (VTT):
 
 ```vtt
 WEBVTT
@@ -60,43 +58,40 @@ Hi, and welcome back.
 Today we're fixing subtitles.
 ```
 
-The times are exactly the same: `00:00:01,200` became `00:00:01.200`. The text didn't change, and the cue numbers are gone because VTT doesn't need them.
+The WEBVTT header is added, the cue numbers are gone (VTT doesn't need them), and `00:00:01,200` became `00:00:01.200`. The text and times didn't change.
 
-## What it does and doesn't do
-
-The converter changes the file format from SRT to VTT. It does not change the text or the timing.
+## What it can and can't do
 
 **What it does:**
 
-- Converts SubRip (.srt) subtitles to WebVTT (.vtt).
-- Adds the WEBVTT header, removes the cue numbers and uses the VTT timestamp format.
-- Keeps italic, bold and underline tags (`<i>`, `<b>`, `<u>`).
-- Detects the SRT file's encoding and saves the VTT file as UTF-8. Tick "Add BOM (old players)" if your device needs a BOM.
-- Keeps every start and end time exactly, to the millisecond.
-- Converts many SRT files at once, with one zip to download.
-- Runs in your browser: your files never leave your device, and there's no sign-up.
+- Convert SubRip (.srt) subtitles to WebVTT (.vtt).
+- Add the WEBVTT header, drop the cue numbers and switch to the VTT timestamp format.
+- Keep every start and end time exactly, to the millisecond.
+- Keep italic, bold and underline tags (`<i>`, `<b>`, `<u>`).
+- Turn old `<font>` tags into plain text so the WebVTT is valid.
+- Read SRT files in other encodings and save the VTT file as UTF-8. Tick "Add BOM (old players)" if your device needs a BOM.
+- Convert pasted SRT text as well as files.
+- Convert many files at once and give you one zip.
+- Run fully in your browser, with no upload and no sign-up.
 
 **What it doesn't do:**
 
-- It doesn't repair double-encoded text like `Ã©`. If your SRT file already shows garbled characters, fix it first with [Fix subtitle encoding](/fix-subtitle-encoding), then convert.
-- It doesn't fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles) for that.
-- It doesn't add styling or positioning. SRT files don't contain VTT positioning, so there is nothing to carry over.
-- It doesn't convert VTT back to SRT. For that, use the [VTT to SRT converter](/vtt-to-srt).
+- Repair garbled characters like `Ã©`. Fix them first with [Fix subtitle encoding](/fix-subtitle-encoding), then convert.
+- Fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles) for that.
+- Add VTT styling or positioning. SRT files don't contain it, so there is nothing to carry over.
+- Burn subtitles into a video. You get a separate .vtt file.
+- Extract subtitles that are embedded in a video file. You need a separate .srt file or its text.
 
 ## What changes between SRT and VTT
 
-SRT and VTT store almost the same information, so converting SRT to VTT only changes a few small things.
-
-- **Header:** a VTT file starts with the line `WEBVTT`. SRT files have no header.
+- **Header:** a VTT file starts with the line `WEBVTT`. SRT has no header.
 - **Timestamps:** SRT uses a comma before the milliseconds (`00:00:01,200`), VTT uses a period (`00:00:01.200`).
-- **Line numbers:** SRT needs a number above each subtitle. In VTT these numbers are optional, so SubtitleFixer leaves them out.
-- **Tags:** `<i>`, `<b>` and `<u>` work in both formats and are kept as they are.
+- **Cue numbers:** required in SRT, optional in VTT, so SubtitleFixer leaves them out.
+- **Tags:** `<i>`, `<b>` and `<u>` work in both formats.
 
-For a full comparison of the formats, read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).
+For a full comparison, read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).
 
 ## How to add a VTT file to an HTML5 video
-
-To show VTT subtitles on a web page, add a `<track>` element inside the `<video>` element.
 
 ```html
 <video controls src="movie.mp4">
@@ -104,17 +99,18 @@ To show VTT subtitles on a web page, add a `<track>` element inside the `<video>
 </video>
 ```
 
-If the subtitles don't appear:
+If the subtitles don't show:
 
-- Check that the `src` of the track points to the right .vtt file.
-- Make sure your server sends .vtt files with the content type `text/vtt`.
-- If the .vtt file is on a different domain from the page, the server must allow it (CORS), and the `<video>` element needs a `crossorigin` attribute.
-- Test the page through a web server, not by opening it from your disk (`file://`). Some browsers block subtitle tracks on local files.
+- Check that the track `src` points to the right .vtt file.
+- Make sure your server sends .vtt files as `text/vtt`.
+- If the .vtt file is on another domain, the server must allow it (CORS) and the `<video>` element needs a `crossorigin` attribute.
+- Test through a web server, not by opening the page from your disk (`file://`). Some browsers block subtitle tracks on local files.
 
 ## Related tools
 
 - [VTT to SRT converter](/vtt-to-srt): turn VTT captions back into an SRT file.
-- [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
-- [Shift subtitles](/shift-subtitles): for subtitles that appear too early or too late.
-- [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into a plain SRT file.
+- [Shift subtitles](/shift-subtitles): move every subtitle earlier or later.
+- [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©` or other garbled characters.
+- [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into SRT.
+- [SBV to SRT converter](/sbv-to-srt): turn YouTube SBV captions into SRT.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).

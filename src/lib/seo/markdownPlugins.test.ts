@@ -112,17 +112,17 @@ describe('decorateSections', () => {
       pathToFileURL(shiftFile),
     );
     expect(html).toContain('<ol class="sf-steps">');
-    expect(html.match(/class="sf-ba"/g)?.length).toBe(3);
-    expect(html.match(/class="sf-ba-after"/g)?.length).toBe(3);
+    expect(html.match(/class="sf-ba"/g)?.length).toBe(1);
+    expect(html.match(/class="sf-ba-after"/g)?.length).toBe(1);
     expect(html).toContain('class="sf-does"');
     expect(html).toContain('class="sf-doesnt"');
     expect(html.match(/class="sf-dd"/g)?.length).toBe(1);
     expect(html).toContain('<div class="sf-dd"><div class="sf-does">');
     expect(html.match(/sf-callout/g)?.length).toBe(1);
-    expect(html).toContain('<section class="sf-section sf-callout"><h2 id="constant-shift-vs-drift">');
-    expect(html).toContain('<section class="sf-section"><h2 id="player-delay-vs-fixing-the-file">');
+    expect(html).toContain('<section class="sf-section"><h2 id="shift-or-drift">');
+    expect(html).toContain('<section class="sf-section sf-callout"><h2 id="player-delay-vs-fixing-the-file">');
     expect(html).toContain('data-tool="fix-subtitle-drift"');
-    expect(html).toContain('data-tool="ass-to-srt"');
+    expect(html).toContain('data-tool="merge-subtitles"');
     expect(html).not.toContain('data-tool="guides/');
     expect(html).toContain('href="/guides/subtitles-out-of-sync"');
   });

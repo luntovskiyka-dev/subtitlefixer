@@ -1,42 +1,40 @@
 ---
-title: "VTT to SRT Converter Online – Free, Batch | SubtitleFixer"
-description: "Convert WebVTT to SRT in your browser: batch, YouTube and Zoom VTT, keeps italics and bold, strips other tags, exact timings. Free, no upload, no signup."
+title: "VTT to SRT Converter: Free WebVTT to SRT | SubtitleFixer"
+description: "Convert VTT to SRT in your browser: YouTube, Zoom and Teams captions, many files at once, exact timings. Free, no sign-up, files never leave your device."
 h1: "VTT to SRT Converter"
 slug: "vtt-to-srt"
-answer: "To convert VTT to SRT, drop one or more VTT files on the page and SubtitleFixer turns them into numbered SRT files with the same text and timings, right in your browser, so your files never leave your device."
+answer: "To convert VTT to SRT, drop your .vtt files on this page and download the SRT files: SubtitleFixer numbers each subtitle, changes the timestamp format and removes what SRT can't store, in your browser, with the same text and timings and no upload."
 faq:
   - q: "How do I convert VTT to SRT?"
-    a: "Drop your VTT file on this page and download the SRT file. SubtitleFixer detects the file's encoding, numbers each subtitle 1, 2, 3…, changes the timestamp format and saves the result as UTF-8, all in your browser with no upload."
-  - q: "Will I lose caption positioning, styling or comments?"
-    a: "Mostly, because SRT has no place for them. Cue settings such as `align:start` or `line:0`, `STYLE` and `REGION` blocks, `NOTE` comments and tags other than `<i>`, `<b>` and `<u>` are removed. Italic, bold and underline tags are kept, because SRT supports them too."
-  - q: "Will the subtitles stay in sync after converting?"
-    a: "Yes. Every start and end time is kept exactly, and only the separator changes, from 00:00:01.200 to 00:00:01,200. If the subtitles were already out of sync, fix them with [Shift subtitles](/shift-subtitles)."
-  - q: "Can I turn a Zoom or Teams transcript (.vtt) into SRT?"
-    a: "Yes. Zoom and Microsoft Teams save transcripts as .vtt files, so you can convert them here like any other VTT file. Speaker tags such as `<v Anna>` become a plain \"Anna: \" at the start of the line, so you can still see who is talking."
-  - q: "Why does my video editor reject .vtt files?"
-    a: "Many video editors, TVs and older players accept SRT files but not VTT. Converting the captions to SRT is usually the simplest fix."
-  - q: "Can I convert many VTT files at once?"
-    a: "Yes. Add as many VTT files as you need and SubtitleFixer converts them all in one go, then gives you all the SRT files together in one zip."
-  - q: "Can I convert VTT to SRT offline?"
-    a: "The conversion runs on your device, not on a server, so your file is never uploaded, but you need an internet connection to open this page. For a fully offline option, FFmpeg can do it with ffmpeg -i captions.vtt captions.srt."
+    a: "Drop one or more VTT files on this page or paste VTT text, then download the SRT files. SubtitleFixer numbers each subtitle 1, 2, 3…, changes the period in each timestamp to a comma and saves the result as UTF-8, all in your browser."
+  - q: "Will I lose positioning, styling or comments?"
+    a: "Yes, because SRT has no place for them. Cue settings like `align:start`, `STYLE` and `REGION` blocks, `NOTE` comments and tags other than `<i>`, `<b>` and `<u>` are removed. Italic, bold and underline are kept."
+  - q: "Will the subtitles stay in sync?"
+    a: "Yes. Every start and end time is kept to the millisecond. If they were already out of sync, fix them afterwards with [Shift subtitles](/shift-subtitles)."
+  - q: "Can I convert YouTube auto-generated VTT captions?"
+    a: "Yes. SubtitleFixer removes the `<c>` tags and word-by-word timestamps. It does not merge the repeated rolling lines, so each line stays a separate subtitle. If you only need the words, use [SRT to TXT](/srt-to-txt) with \"Remove repeated lines\"."
+  - q: "Can I turn a Zoom or Teams transcript into SRT?"
+    a: "Yes. Zoom and Microsoft Teams save transcripts as .vtt files. Speaker tags like `<v Anna>` become \"Anna: \" at the start of the line."
+  - q: "Does Premiere Pro need SRT instead of VTT?"
+    a: "Premiere Pro can import SRT caption files, so converting a VTT file to SRT is a simple way to bring web or meeting captions into your edit. Import the .srt file into your project and add it to the timeline."
+  - q: "Will the SRT file work in VLC, Plex or on my TV?"
+    a: "SRT is the most widely supported subtitle format for desktop players, media servers and TVs, including VLC and Plex. If an older TV shows wrong characters, tick \"Add BOM (old players)\" and convert again."
   - q: "Is my VTT file uploaded?"
-    a: "No. SubtitleFixer converts VTT to SRT inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/srt-to-vtt", "/shift-subtitles", "/fix-subtitle-encoding", "/ass-to-srt", "/fix-subtitle-drift"]
+    a: "No. SubtitleFixer converts VTT to SRT inside your browser, and your file never leaves your device. There is no sign-up."
+related: ["/srt-to-vtt", "/shift-subtitles", "/srt-to-txt", "/sbv-to-srt", "/fix-subtitle-encoding", "/guides/srt-vs-vtt-vs-ass"]
 ---
+
+Free VTT to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
 
 ## How to convert VTT to SRT in 3 steps
 
-You can convert VTT to SRT in three steps, and your files stay on your device the whole time.
-
-1. **Add your VTT files.** Drag one or more .vtt files onto the page, or click to choose them.
-2. **Convert.** SubtitleFixer turns each WebVTT file into a numbered SRT file with the same text and timings.
-3. **Download.** One file downloads as an SRT file; several files download together as one zip.
+1. **Add your VTT files.** Drag one or more .vtt files onto the page, click to choose them, or paste VTT text with the "Paste text" option.
+2. **Check the preview.** SubtitleFixer shows the numbered SRT result with the same text and timings.
+3. **Download.** One file downloads as an .srt file; several files download together as one zip.
 
 ## Example: before and after
 
-The conversion removes the WEBVTT header, numbers each subtitle, turns speaker tags into names and changes the period in each timestamp to a comma.
-
-Before (VTT file):
+Before (VTT):
 
 ```vtt
 WEBVTT
@@ -50,7 +48,7 @@ Good afternoon, everyone.
 <v Anna>Let's start with the numbers.
 ```
 
-After (SRT file):
+After (SRT):
 
 ```srt
 1
@@ -62,60 +60,56 @@ Good afternoon, everyone.
 Anna: Let's start with the numbers.
 ```
 
-The times are exactly the same: `00:00:02.500` became `00:00:02,500`. The `NOTE` comment and the `align:start` setting are gone, because SRT files can't store them. The speaker tag `<v Anna>` became "Anna: " in front of the line.
+The times are the same: `00:00:02.500` became `00:00:02,500`. The `NOTE` comment and `align:start` are gone because SRT can't store them, and `<v Anna>` became "Anna: ".
 
-## What it does and doesn't do
-
-The converter changes the file format from VTT to SRT. It does not change the text or the timing.
+## What it can and can't do
 
 **What it does:**
 
-- Converts WebVTT (.vtt) captions to SubRip (.srt) subtitles.
-- Numbers every subtitle 1, 2, 3… and uses the SRT timestamp format.
-- Keeps italic, bold and underline tags (`<i>`, `<b>`, `<u>`) and removes all other tags.
-- Turns speaker tags like `<v Anna>` into "Anna: " in front of the text.
-- Removes YouTube `<c>` tags and the word-by-word timestamps inside auto-generated captions.
-- Turns codes like `&amp;` back into normal characters (`&`) and drops cues that have no text left.
-- Keeps every start and end time exactly, to the millisecond.
-- Detects the file's encoding and saves the SRT file as UTF-8. Tick "Add BOM (old players)" if your device needs a BOM.
-- Converts many VTT files at once, with one zip to download.
-- Runs in your browser: your files never leave your device, and there's no sign-up.
+- Convert WebVTT (.vtt) captions to SubRip (.srt).
+- Number every subtitle and use the SRT timestamp format.
+- Keep every start and end time exactly, to the millisecond.
+- Keep `<i>`, `<b>` and `<u>` tags and remove all other tags.
+- Turn speaker tags like `<v Anna>` into "Anna: ".
+- Remove YouTube `<c>` tags and word-by-word timestamps from auto-generated captions.
+- Turn codes like `&amp;` back into normal characters and drop cues with no text left.
+- Read files in other encodings and save the SRT file as UTF-8, with an optional BOM for old players.
+- Convert pasted VTT text as well as files.
+- Convert many files at once and give you one zip.
+- Run fully in your browser, with no upload and no sign-up.
 
 **What it doesn't do:**
 
-- It doesn't keep VTT positioning, `STYLE` or `REGION` blocks, or `NOTE` comments. SRT has no place for them.
-- It doesn't merge the rolling, repeated lines in auto-generated YouTube captions. Each line stays a separate subtitle. If you only need the words, [convert the subtitles to text](/srt-to-txt) and tick "Remove repeated lines".
-- It doesn't repair double-encoded text like `Ã©`. Use [Fix subtitle encoding](/fix-subtitle-encoding) for that, where you can compare previews and pick the right reading.
-- It doesn't fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles) for that.
+- Keep VTT positioning, `STYLE` or `REGION` blocks, or `NOTE` comments. SRT has no place for them.
+- Merge the repeated rolling lines of YouTube auto-captions.
+- Download captions from a video link. You need the .vtt file, or its text, on your device.
+- Repair garbled text like `Ã©`. Use [Fix subtitle encoding](/fix-subtitle-encoding).
+- Fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles).
 
 ## What changes from VTT to SRT
 
-A VTT file and an SRT file hold the same timings and text, so converting VTT to SRT only changes the parts SRT doesn't support.
+- **Header:** the `WEBVTT` line is removed.
+- **Numbers:** every subtitle gets a number, which SRT requires.
+- **Speakers:** `<v Anna>` becomes "Anna: ".
+- **Tags:** `<i>`, `<b>` and `<u>` stay; other tags are removed.
+- **Timestamps:** `00:00:02.500` becomes `00:00:02,500`.
+- **Removed:** cue settings, `STYLE`, `REGION` and `NOTE` blocks, and YouTube word timestamps.
 
-- **Header:** the `WEBVTT` line at the top is removed.
-- **Numbers:** every subtitle gets a number (1, 2, 3…), which SRT requires.
-- **Speakers:** a voice tag like `<v Anna>` becomes "Anna: " at the start of the line.
-- **Tags:** `<i>`, `<b>` and `<u>` are kept; other tags, such as class tags, are removed.
-- **Timestamps:** the period before the milliseconds becomes a comma (`00:00:02.500` → `00:00:02,500`).
-- **Removed:** cue settings (such as `align:start`), `STYLE` and `REGION` blocks, `NOTE` comments, and YouTube `<c>` tags with their word-by-word timestamps.
-
-For a full comparison of the formats, read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).
+For a full comparison, read [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).
 
 ## VTT files from YouTube, Zoom and Teams
 
-VTT is the usual format for captions from websites and meeting apps, and you can convert all of them to SRT here.
+- **YouTube:** downloaded captions are often .vtt files. Tags and word timestamps are cleaned; repeated rolling lines stay.
+- **Zoom and Microsoft Teams:** meeting transcripts are .vtt files, and speaker names are kept as "Name: ".
+- **Web players:** most HTML5 players use VTT captions.
 
-- **YouTube:** captions you download (for example with yt-dlp) are usually .vtt files. SubtitleFixer removes the `<c>` tags and word-by-word timestamps of auto-generated captions, but it doesn't merge the repeated rolling lines. A YouTube .sbv (SubViewer) file is a different format: convert it with the [SBV to SRT converter](/sbv-to-srt).
-- **Zoom and Microsoft Teams:** meeting transcripts are saved as .vtt files. Teams speaker tags (`<v Name>`) become "Name: " in front of each line.
-- **Web video players:** most HTML5 players use VTT captions.
-
-Once they are SRT files, you can use them in video editors, on TVs and in most desktop players.
+Once converted, the SRT file works in video editors, on TVs and in most desktop players.
 
 ## Related tools
 
-- [SRT to VTT converter](/srt-to-vtt): turn SRT subtitles into VTT for web video players.
-- [Shift subtitles](/shift-subtitles): for subtitles that appear too early or too late.
-- [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
-- [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into a plain SRT file.
-- [SRT to TXT](/srt-to-txt): turn VTT captions into plain text, with or without timestamps.
+- [SRT to VTT converter](/srt-to-vtt): turn SRT back into VTT for web players.
+- [Shift subtitles](/shift-subtitles): move every subtitle earlier or later.
+- [SRT to TXT](/srt-to-txt): get plain text from VTT or SRT captions.
+- [SBV to SRT converter](/sbv-to-srt): turn YouTube SBV captions into SRT.
+- [Fix subtitle encoding](/fix-subtitle-encoding): for garbled characters.
 - Guide: [SRT vs VTT vs ASS](/guides/srt-vs-vtt-vs-ass).

@@ -57,6 +57,32 @@ Also good
     expect(result.cues).toEqual([{ start: 1000, end: 3500, text: 'Hello' }]);
   });
 
+  it('accepts a cue without a cue number', () => {
+    const result = parseSrt(`00:00:01,000 --> 00:00:02,000
+No number
+
+00:00:03,000 --> 00:00:04,000
+Still no number
+`);
+    expect(result.errors).toEqual([]);
+    expect(result.cues).toEqual([
+      { start: 1000, end: 2000, text: 'No number' },
+      { start: 3000, end: 4000, text: 'Still no number' },
+    ]);
+  });
+
+  it('accepts numbered and unnumbered cues in the same file', () => {
+    const result = parseSrt(`1
+00:00:01,000 --> 00:00:02,000
+Numbered
+
+00:00:03,000 --> 00:00:04,000
+Unnumbered
+`);
+    expect(result.errors).toEqual([]);
+    expect(result.cues.map((cue) => cue.text)).toEqual(['Numbered', 'Unnumbered']);
+  });
+
   it('keeps a cue whose end equals its start', () => {
     const result = parseSrt('1\n00:00:01,000 --> 00:00:01,000\nHold\n');
     expect(result.errors).toEqual([]);

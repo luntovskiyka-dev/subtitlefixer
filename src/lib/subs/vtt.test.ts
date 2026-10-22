@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import sample from '../../../tests/fixtures/sample.vtt?raw';
 import youtube from '../../../tests/fixtures/youtube-auto.vtt?raw';
-import { parseVtt, serializeVtt } from './vtt';
+import { parseVtt, serializeVtt, srtCueTextToVtt } from './vtt';
 
 describe('parseVtt', () => {
   it('parses cues and skips NOTE, STYLE, and REGION without errors', () => {
@@ -150,5 +150,27 @@ describe('serializeVtt', () => {
 
   it('returns an empty string for no cues', () => {
     expect(serializeVtt([])).toBe('');
+  });
+});
+
+describe('srtCueTextToVtt', () => {
+  it('removes font tags, keeps b/i/u, and escapes bare & and <', () => {
+    expect(
+      srtCueTextToVtt(
+        '<font color="red">Tom & Jerry</font> <b>bold</b> <i>italic</i> <u>under</u> a < b',
+      ),
+    ).toBe('Tom &amp; Jerry <b>bold</b> <i>italic</i> <u>under</u> a &lt; b');
+  });
+
+  it('leaves existing character references alone', () => {
+    expect(srtCueTextToVtt('Tom &amp; Jerry &lt;3 caf&#233; &#xE9;')).toBe(
+      'Tom &amp; Jerry &lt;3 caf&#233; &#xE9;',
+    );
+  });
+
+  it('normalizes tag case and drops attributes from b/i/u', () => {
+    expect(srtCueTextToVtt('<B class="x">bold</B><I>italic</I>')).toBe(
+      '<b>bold</b><i>italic</i>',
+    );
   });
 });

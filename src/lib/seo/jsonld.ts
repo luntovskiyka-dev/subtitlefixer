@@ -14,6 +14,25 @@ export type JsonLdInput =
   | { kind: 'article'; headline: string; description: string; url: string }
   | { kind: 'webapp'; name: string; description: string; url: string };
 
+export type BreadcrumbItem = {
+  name: string;
+  url: string;
+};
+
+/** BreadcrumbList for a page: Home first, the page itself last. */
+export function breadcrumbJsonLd(items: readonly BreadcrumbItem[]): string {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }).replace(/</g, '\\u003c');
+}
+
 export function buildJsonLd(input: JsonLdInput): unknown {
   switch (input.kind) {
     case 'none':

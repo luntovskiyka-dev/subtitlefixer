@@ -178,6 +178,21 @@ export function decodeVttEntities(text: string): string {
 }
 
 /**
+ * One SRT cue's text for a WebVTT file. `<i>`, `<b>` and `<u>` are kept, `<font>` and
+ * other tags are removed with their text left in place, and bare `&` and `<` are escaped
+ * so the cue text is valid WebVTT. Existing character references are left alone.
+ */
+export function srtCueTextToVtt(text: string): string {
+  return normalizeNewlines(text)
+    .replace(/<(\/?)([a-z][^\s<>]*)(?:\s[^<>]*)?>/gi, (_whole, slash?: string, name?: string) => {
+      const tag = (name ?? '').toLowerCase();
+      return tag === 'i' || tag === 'b' || tag === 'u' ? `<${slash ?? ''}${tag}>` : '';
+    })
+    .replace(/&(?!(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);)/gi, '&amp;')
+    .replace(/<(?![biu]>|\/[biu]>)/gi, '&lt;');
+}
+
+/**
  * One VTT cue's text for an SRT file. `<i>`, `<b>` and `<u>` are kept (classes dropped),
  * `<v Anna>` becomes "Anna: ", every other tag is removed (`<c>`, YouTube word timestamps
  * such as `<00:00:02.639>`, `<ruby>`, `<lang>`), character references are decoded, and

@@ -1,7 +1,7 @@
 ---
 import { ogImageFilename } from '../lib/og/card';
 import { faqPageJsonLd, type FaqItem } from '../lib/seo/faqText';
-import { buildJsonLd, type JsonLdInput } from '../lib/seo/jsonld';
+import { breadcrumbJsonLd, buildJsonLd, type JsonLdInput } from '../lib/seo/jsonld';
 import { BRAND, canonicalHref } from '../lib/seo/urls';
 
 interface Props {
@@ -49,6 +49,14 @@ const jsonLdInput: JsonLdInput = (() => {
 const jsonLdData = buildJsonLd(jsonLdInput);
 const jsonLd = jsonLdData === null ? null : JSON.stringify(jsonLdData).replace(/</g, '\\u003c');
 const faqJsonLd = faq && faq.length > 0 ? faqPageJsonLd(faq) : null;
+const breadcrumbName = schemaName?.trim() ?? '';
+const breadcrumb =
+  schema === 'webapp' && breadcrumbName
+    ? breadcrumbJsonLd([
+        { name: 'Home', url: new URL('/', site).href },
+        { name: breadcrumbName, url: canonical },
+      ])
+    : null;
 ---
 
 <title>{title}</title>
@@ -69,3 +77,4 @@ const faqJsonLd = faq && faq.length > 0 ? faqPageJsonLd(faq) : null;
 {!noindex && <link rel="alternate" hreflang="x-default" href={canonical} />}
 {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 {faqJsonLd && <script type="application/ld+json" set:html={faqJsonLd} />}
+{breadcrumb && <script type="application/ld+json" set:html={breadcrumb} />}

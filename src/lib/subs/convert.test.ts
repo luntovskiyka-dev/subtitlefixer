@@ -156,10 +156,20 @@ describe('convertSubtitle: VTT to SRT cleans the text', () => {
     expect(convertSubtitle(vtt, 'vtt', 'srt')).toEqual({ text: '1\n00:00:03,000 --> 00:00:04,000\nKept\n', errors: [] });
   });
 
-  it('leaves SRT to VTT unchanged: tags stay as they are', () => {
-    const srt = '1\n00:00:01,000 --> 00:00:02,000\n<font color="red">Red</font> &amp;\n';
+  it('escapes bare & and < and turns <font> into plain text in SRT to VTT', () => {
+    const srt =
+      '1\n00:00:01,000 --> 00:00:02,000\n<font color="red">Tom & Jerry</font> <b>bold</b> a < b &amp;\n';
     expect(convertSubtitle(srt, 'srt', 'vtt').text).toBe(
-      'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\n<font color="red">Red</font> &amp;\n',
+      'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nTom &amp; Jerry <b>bold</b> a &lt; b &amp;\n',
+    );
+  });
+
+  it('keeps SRT text through SRT to VTT to SRT escaping', () => {
+    const srt = '1\n00:00:01,000 --> 00:00:02,000\nTom & Jerry <3\n';
+    const asVtt = convertSubtitle(srt, 'srt', 'vtt');
+    expect(asVtt.text).toBe('WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nTom &amp; Jerry &lt;3\n');
+    expect(convertSubtitle(asVtt.text, 'vtt', 'srt').text).toBe(
+      '1\n00:00:01,000 --> 00:00:02,000\nTom & Jerry <3\n',
     );
   });
 });

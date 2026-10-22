@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildJsonLd } from './jsonld';
+import { breadcrumbJsonLd, buildJsonLd } from './jsonld';
 import { BRAND } from './urls';
 
 describe('buildJsonLd', () => {
@@ -89,6 +89,35 @@ describe('buildJsonLd', () => {
 
   it('emits nothing for pages that are not a tool, guide, or the home page', () => {
     expect(buildJsonLd({ kind: 'none' })).toBeNull();
+  });
+});
+
+describe('breadcrumbJsonLd', () => {
+  it('lists Home and the current page in order', () => {
+    const data = JSON.parse(
+      breadcrumbJsonLd([
+        { name: 'Home', url: 'https://subtitlefixer.com/' },
+        { name: 'SRT to VTT', url: 'https://subtitlefixer.com/srt-to-vtt' },
+      ]),
+    );
+    expect(data).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://subtitlefixer.com/',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'SRT to VTT',
+          item: 'https://subtitlefixer.com/srt-to-vtt',
+        },
+      ],
+    });
   });
 });
 
