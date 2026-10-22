@@ -1,7 +1,7 @@
 import { classifyCueShift } from './shift';
 import { isBlankInput, normalizeCueText, normalizeNewlines } from './text';
 import { formatAssTimestamp, parseAssTimestamp } from './time';
-import type { Cue, ParseError, ParseResult } from './types';
+import type { Cue, ParseError, ParseOptions, ParseResult } from './types';
 
 type FieldMap = {
   start: number;
@@ -51,6 +51,7 @@ function parseDialogue(
   line: string,
   fields: FieldMap,
   lineNumber: number,
+  keepInverted: boolean,
 ): { cue?: Cue; error?: ParseError } {
   const parts = splitFields(line.replace(/^Dialogue:\s*/i, ''), fields.count);
   if (!parts) {
@@ -74,15 +75,6 @@ function parseDialogue(
       },
     };
   }
-  if (end < start) {
-    return {
-      error: {
-        block: lineNumber,
-        message: `Line ${lineNumber} ends before it starts (${startText} --> ${endText}).`,
-      },
-    };
-  }
-
   const cue: Cue = {
     start,
     end,
@@ -90,12 +82,21 @@ function parseDialogue(
   };
   const style = fields.style >= 0 ? parts[fields.style]?.trim() : undefined;
   if (style) cue.style = style;
+  if (end < start) {
+    const error: ParseError = {
+      block: lineNumber,
+      message: `Line ${lineNumber} ends before it starts (${startText} --> ${endText}).`,
+    };
+    if (!keepInverted) return { error };
+    return { cue, error };
+  }
   return { cue };
 }
 
-export function parseAss(input: string): ParseResult {
+export function parseAss(input: string, options?: ParseOptions): ParseResult {
   if (isBlankInput(input)) return { cues: [], errors: [] };
 
+  const keepInverted = options?.keepInverted === true;
   const cues: Cue[] = [];
   const errors: ParseError[] = [];
   let inEvents = false;
@@ -120,7 +121,7 @@ export function parseAss(input: string): ParseResult {
 
     if (!/^Dialogue:/i.test(trimmed)) continue;
 
-    const parsed = parseDialogue(trimmed, fields, i + 1);
+    const parsed = parseDialogue(trimmed, fields, i + 1, keepInverted);
     if (parsed.cue) cues.push(parsed.cue);
     if (parsed.error) errors.push(parsed.error);
   }
@@ -226,7 +227,7 @@ export function shiftAssText(input: string, offsetMs: number, fromCue?: number):
 
     if (!/^Dialogue:/i.test(trimmed)) return [line];
 
-    const parsed = parseDialogue(trimmed, fields, index + 1);
+    const parsed = parseDialogue(trimmed, fields, index + 1, false);
     if (!parsed.cue) return [line];
 
     const change = classifyCueShift(parsed.cue, offsetMs, cueIndex, fromCue);
@@ -279,7 +280,7 @@ export function mapAssDialogueTimes(
 
     if (!/^Dialogue:/i.test(trimmed)) return [line];
 
-    const parsed = parseDialogue(trimmed, fields, index + 1);
+    const parsed = parseDialogue(trimmed, fields, index + 1, false);
     if (!parsed.cue) return [line];
 
     const change = next(parsed.cue, cueIndex);

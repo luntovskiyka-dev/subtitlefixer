@@ -83,6 +83,14 @@ Unnumbered
     expect(result.cues.map((cue) => cue.text)).toEqual(['Numbered', 'Unnumbered']);
   });
 
+  it('keeps a cue that ends before it starts when asked, and still reports it', () => {
+    const result = parseSrt(broken, { keepInverted: true });
+    expect(result.cues.map((cue) => cue.text)).toEqual(['Hello', 'Backwards', 'Still here']);
+    expect(result.cues[1]).toMatchObject({ start: 5000, end: 4000 });
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]?.message).toMatch(/before/i);
+  });
+
   it('keeps a cue whose end equals its start', () => {
     const result = parseSrt('1\n00:00:01,000 --> 00:00:01,000\nHold\n');
     expect(result.errors).toEqual([]);

@@ -1,6 +1,6 @@
 import { isBlankInput, normalizeCueText, normalizeNewlines } from './text';
 import { formatVttTimestamp, parseVttTimestamp } from './time';
-import type { Cue, ParseError, ParseResult } from './types';
+import type { Cue, ParseError, ParseOptions, ParseResult } from './types';
 
 const VTT_ARROW =
   /^((?:\d+:)?[0-5]\d:[0-5]\d\.\d{1,3})\s*-->\s*((?:\d+:)?[0-5]\d:[0-5]\d\.\d{1,3})(?:\s+.*)?$/;
@@ -67,7 +67,7 @@ function isSkippableVttBlock(block: string): boolean {
   return /^(NOTE|STYLE|REGION)($|\s)/.test(firstLine(block));
 }
 
-function parseVttBlock(block: string, blockNumber: number): { cue?: Cue; error?: ParseError } {
+function parseVttBlock(block: string, blockNumber: number, keepInverted: boolean): { cue?: Cue; error?: ParseError } {
   const lines = block.split('\n');
   const timeLineIndex = lines[0].includes('-->') ? 0 : 1;
   if (timeLineIndex >= lines.length) {
@@ -89,27 +89,23 @@ function parseVttBlock(block: string, blockNumber: number): { cue?: Cue; error?:
       },
     };
   }
+  const text = lines.slice(timeLineIndex + 1).join('\n');
   if (range.end < range.start) {
-    return {
-      error: {
-        block: blockNumber,
-        message: `Block ${blockNumber} ends before it starts (${timeLine}).`,
-      },
+    const error: ParseError = {
+      block: blockNumber,
+      message: `Block ${blockNumber} ends before it starts (${timeLine}).`,
     };
+    if (!keepInverted) return { error };
+    return { error, cue: { start: range.start, end: range.end, text } };
   }
 
-  return {
-    cue: {
-      start: range.start,
-      end: range.end,
-      text: lines.slice(timeLineIndex + 1).join('\n'),
-    },
-  };
+  return { cue: { start: range.start, end: range.end, text } };
 }
 
-export function parseVtt(input: string): ParseResult {
+export function parseVtt(input: string, options?: ParseOptions): ParseResult {
   if (isBlankInput(input)) return { cues: [], errors: [] };
 
+  const keepInverted = options?.keepInverted === true;
   const blocks = splitVttBlocks(input);
   const cues: Cue[] = [];
   const errors: ParseError[] = [];
@@ -134,7 +130,7 @@ export function parseVtt(input: string): ParseResult {
       previousCue.text = previousCue.text === '' ? block : `${previousCue.text}\n${block}`;
       continue;
     }
-    const parsed = parseVttBlock(block, index + 1);
+    const parsed = parseVttBlock(block, index + 1, keepInverted);
     previousCue = parsed.cue ?? null;
     if (parsed.cue) cues.push(parsed.cue);
     if (parsed.error) errors.push(parsed.error);

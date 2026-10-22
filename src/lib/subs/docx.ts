@@ -98,9 +98,10 @@ function textBody(text: string, layout: TextLayout): string {
 type TableCue = { start: number; end: number; lines: string[] };
 
 function readCues(input: string, format: SubtitleFormat): { cues: Cue[]; errors: ParseError[] } {
-  if (format === 'srt') return parseSrt(input);
-  if (format === 'vtt') return parseVtt(dropInnerSpaceLines(input));
-  return assToCues(input);
+  const options = { keepInverted: true };
+  if (format === 'srt') return parseSrt(input, options);
+  if (format === 'vtt') return parseVtt(dropInnerSpaceLines(input), options);
+  return assToCues(input, options);
 }
 
 function tableCues(input: string, format: SubtitleFormat, removeRepeats: boolean): { cues: TableCue[]; errors: ParseError[] } {
@@ -140,6 +141,7 @@ export function subtitlesToDocx(input: string, format: SubtitleFormat, options: 
     layout: options.layout,
     pauseMs: options.pauseMs,
     removeRepeats: options.removeRepeats,
+    keepInverted: true,
   });
   if (result.count === 0) return { bytes: null, count: 0, errors: result.errors };
   return {

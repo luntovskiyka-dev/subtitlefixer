@@ -1,15 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
+  EDITOR_ROW_HEIGHT,
   EDITOR_VIRTUAL_THRESHOLD,
   blankCueAfter,
   cueIssues,
+  cuesForDownload,
   editorOutputName,
   formatIssueCount,
   issueLabel,
+  loadEditorCues,
+  mergeEditorCueAt,
   mergeEditorCues,
   parseEditorTime,
+  rememberEditorCues,
   sortForDownload,
   splitEditorCue,
+  undoEditorCues,
+  virtualCueBox,
   visibleCueRange,
   type EditorCue,
 } from './editor';
@@ -69,6 +76,26 @@ describe('edits', () => {
     });
   });
 
+  it('undoes a merge back to the separate lines', () => {
+    const original = [cue('a', 0, 1000, 'Hi'), cue('b', 1000, 2000, 'there'), cue('c', 2000, 3000, 'again')];
+    const merged = mergeEditorCueAt(original, 0);
+    expect(merged?.map((item) => item.text)).toEqual(['Hi\nthere', 'again']);
+    expect(mergeEditorCueAt(original, 2)).toBeNull();
+    const history = rememberEditorCues([], original);
+    if (merged?.[0]) merged[0].text = 'changed';
+    expect(undoEditorCues(history).cues).toEqual(original);
+  });
+
+  it('asks before downloading empty lines and can skip them', () => {
+    const cues = [cue('a', 0, 1000, 'Hi'), cue('b', 1000, 2000, '  '), cue('c', 2000, 3000, '')];
+    expect(cuesForDownload(cues, false)).toEqual({ cues: [], skipped: 2, blocked: true });
+    const skipped = cuesForDownload(cues, true);
+    expect(skipped.blocked).toBe(false);
+    expect(skipped.cues.map((item) => item.id)).toEqual(['a']);
+    expect(cuesForDownload([cue('a', 0, 1000, '')], true).blocked).toBe(true);
+    expect(cuesForDownload([cue('a', 0, 1000, 'Hi')], false).cues).toHaveLength(1);
+  });
+
   it('adds a two-second blank cue after the current line', () => {
     expect(blankCueAfter(cue('a', 0, 1500, 'Hi'), 'b')).toEqual({ id: 'b', start: 1500, end: 3500, text: '' });
     expect(blankCueAfter(null, 'a').start).toBe(0);
@@ -93,6 +120,45 @@ describe('visibleCueRange', () => {
     expect(range.start).toBeGreaterThan(0);
     expect(range.end).toBeLessThan(5000);
     expect(range.end - range.start).toBeLessThan(40);
+  });
+
+  it('keeps one scroll height for 2000 cues and moves the window off the first rows', () => {
+    const row = EDITOR_ROW_HEIGHT;
+    const top = visibleCueRange(2000, 0, 448, row);
+    const scrolled = visibleCueRange(2000, 1500 * row, 448, row);
+    expect(top).toEqual({ start: 0, end: 15 });
+    expect(scrolled.start).toBe(1494);
+    expect(scrolled.end).toBe(1509);
+    const atTop = virtualCueBox(2000, top, row);
+    const below = virtualCueBox(2000, scrolled, row);
+    expect(atTop.total).toBe(2000 * row);
+    expect(below.total).toBe(atTop.total);
+    expect(below.offset).toBe(1494 * row);
+  });
+});
+
+describe('loadEditorCues', () => {
+  it('keeps a cue that ends before it starts and marks it', () => {
+    const text = `1
+00:00:01,000 --> 00:00:03,500
+Hello
+
+2
+00:00:05,000 --> 00:00:04,000
+Backwards
+
+3
+00:00:06,000 --> 00:00:07,500
+Still here
+`;
+    const loaded = loadEditorCues(text, 'srt', (index) => `c${index}`);
+    expect(loaded.cues.map((item) => item.text)).toEqual(['Hello', 'Backwards', 'Still here']);
+    expect(loaded.cues[1]?.end).toBeLessThan(loaded.cues[1]?.start ?? 0);
+    expect(cueIssues(loaded.cues).get('c1')).toContain('negative');
+    expect(issueLabel('negative')).toBe('Ends before it starts');
+    expect(loaded.errors[0]?.message).toMatch(/before/i);
+    const vtt = loadEditorCues('WEBVTT\n\n00:00:05.000 --> 00:00:01.000\nBackwards\n', 'vtt', () => 'v');
+    expect(vtt.cues).toEqual([{ id: 'v', start: 5000, end: 1000, text: 'Backwards' }]);
   });
 });
 

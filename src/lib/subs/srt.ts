@@ -1,6 +1,6 @@
 import { isBlankInput, normalizeCueText, splitBlocks } from './text';
 import { parseSrtTimestamp, formatSrtTimestamp } from './time';
-import type { Cue, ParseError, ParseResult } from './types';
+import type { Cue, ParseError, ParseOptions, ParseResult } from './types';
 
 const SRT_ARROW =
   /^(\d+:[0-5]\d:[0-5]\d,\d{3})\s*-->\s*(\d+:[0-5]\d:[0-5]\d,\d{3})(?:\s+.*)?$/;
@@ -14,7 +14,7 @@ function parseSrtTimeLine(line: string): { start: number; end: number } | null {
   return { start, end };
 }
 
-function parseSrtBlock(block: string, blockNumber: number): { cue?: Cue; error?: ParseError } {
+function parseSrtBlock(block: string, blockNumber: number, keepInverted: boolean): { cue?: Cue; error?: ParseError } {
   const lines = block.split('\n');
   const firstLine = lines[0]?.trim() ?? '';
   // Cue numbers are optional in practice: some tools write the timestamp first.
@@ -47,31 +47,27 @@ function parseSrtBlock(block: string, blockNumber: number): { cue?: Cue; error?:
       },
     };
   }
+  const text = lines.slice(timeLineIndex + 1).join('\n');
   if (range.end < range.start) {
-    return {
-      error: {
-        block: blockNumber,
-        message: `Block ${blockNumber} ends before it starts (${timeLine}).`,
-      },
+    const error: ParseError = {
+      block: blockNumber,
+      message: `Block ${blockNumber} ends before it starts (${timeLine}).`,
     };
+    if (!keepInverted) return { error };
+    return { error, cue: { start: range.start, end: range.end, text } };
   }
 
-  return {
-    cue: {
-      start: range.start,
-      end: range.end,
-      text: lines.slice(timeLineIndex + 1).join('\n'),
-    },
-  };
+  return { cue: { start: range.start, end: range.end, text } };
 }
 
-export function parseSrt(input: string): ParseResult {
+export function parseSrt(input: string, options?: ParseOptions): ParseResult {
   if (isBlankInput(input)) return { cues: [], errors: [] };
 
+  const keepInverted = options?.keepInverted === true;
   const cues: Cue[] = [];
   const errors: ParseError[] = [];
   for (const [index, block] of splitBlocks(input).entries()) {
-    const parsed = parseSrtBlock(block, index + 1);
+    const parsed = parseSrtBlock(block, index + 1, keepInverted);
     if (parsed.cue) cues.push(parsed.cue);
     if (parsed.error) errors.push(parsed.error);
   }

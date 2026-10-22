@@ -96,7 +96,15 @@ export function cleanSmiText(raw: string): string {
 
 type Event = { start: number; text: string };
 
-function cuesFromEvents(events: readonly Event[]): { cues: Cue[]; dropped: number } {
+type BuiltEvents = { cues: Cue[]; dropped: number; open: Event | null };
+
+/**
+ * A cue with no following sync used to end one second later (the reading-time
+ * minimum). Hold every still-open cue until the same file end instead.
+ */
+export const SMI_OPEN_END_MS = 2000;
+
+function cuesFromEvents(events: readonly Event[]): BuiltEvents {
   const cues: Cue[] = [];
   let dropped = 0;
   let open: Event | null = null;
@@ -110,17 +118,42 @@ function cuesFromEvents(events: readonly Event[]): { cues: Cue[]; dropped: numbe
     close(event.start);
     if (event.text !== '') open = event;
   }
-  if (open) {
-    const duration = readingMs(open.text, DEFAULT_PLAIN);
-    cues.push({ start: open.start, end: open.start + duration, text: open.text });
+  return { cues, dropped, open };
+}
+
+/** Later closed cue, otherwise the last sync plus one shared hold (at least 2s, longer when the line needs it). */
+function sharedOpenEnd(built: readonly BuiltEvents[]): number {
+  let closedEnd = 0;
+  let lastStart = 0;
+  let tail = SMI_OPEN_END_MS;
+  for (const group of built) {
+    for (const cue of group.cues) {
+      if (cue.end > closedEnd) closedEnd = cue.end;
+      if (cue.start > lastStart) lastStart = cue.start;
+    }
+    if (!group.open) continue;
+    if (group.open.start > lastStart) lastStart = group.open.start;
+    tail = Math.max(tail, readingMs(group.open.text, DEFAULT_PLAIN));
   }
-  return { cues, dropped };
+  if (closedEnd > lastStart) return closedEnd;
+  return lastStart + tail;
+}
+
+function withOpenCue(group: BuiltEvents, fileEnd: number): { cues: Cue[]; dropped: number } {
+  if (!group.open) return { cues: group.cues, dropped: group.dropped };
+  const end = fileEnd > group.open.start ? fileEnd : group.open.start + SMI_OPEN_END_MS;
+  if (end <= group.open.start) return { cues: group.cues, dropped: group.dropped + 1 };
+  return {
+    cues: [...group.cues, { start: group.open.start, end, text: group.open.text }],
+    dropped: group.dropped,
+  };
 }
 
 /**
  * SAMI (.smi, .sami) to cues, one group per language class.
  * An empty sync (often `&nbsp;`) ends the previous cue and adds none.
- * The last cue, which has no following sync, is timed by reading speed.
+ * A cue with no following sync ends when the file already has a later end, or
+ * after one shared hold (at least 2 seconds) so every open class stops together.
  */
 export function parseSmi(input: string): SmiResult {
   const meta = classMeta(input);
@@ -191,13 +224,15 @@ export function parseSmi(input: string): SmiResult {
     return { groups: [], warnings, dropped: 0, error: "This doesn't look like an SMI file." };
   }
 
+  const built = order.map((id) => cuesFromEvents(events.get(id.toLowerCase()) ?? []));
+  const fileEnd = sharedOpenEnd(built);
   let dropped = 0;
-  const groups: SmiGroup[] = order.map((id) => {
+  const groups: SmiGroup[] = order.map((id, index) => {
     const key = id.toLowerCase();
-    const built = cuesFromEvents(events.get(key) ?? []);
-    dropped += built.dropped;
+    const finished = withOpenCue(built[index] ?? { cues: [], dropped: 0, open: null }, fileEnd);
+    dropped += finished.dropped;
     const info = meta.get(key);
-    return { id, name: info?.name ?? null, lang: info?.lang ?? null, cues: built.cues };
+    return { id, name: info?.name ?? null, lang: info?.lang ?? null, cues: finished.cues };
   });
   if (dropped > 0) {
     warnings.push(`${dropped} subtitle${dropped === 1 ? '' : 's'} had no duration and ${dropped === 1 ? 'was' : 'were'} left out.`);

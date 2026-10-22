@@ -128,6 +128,12 @@ describe('parseVtt: YouTube automatic captions', () => {
     expect(afterBadCue.cues).toEqual([]);
     expect(afterBadCue.errors.map((error) => error.block)).toEqual([2, 3]);
   });
+
+  it('can keep a cue that ends before it starts', () => {
+    const result = parseVtt('WEBVTT\n\n00:00:05.000 --> 00:00:01.000\nBackwards\n', { keepInverted: true });
+    expect(result.cues).toEqual([{ start: 5000, end: 1000, text: 'Backwards' }]);
+    expect(result.errors[0]?.message).toMatch(/before/i);
+  });
 });
 
 describe('serializeVtt', () => {

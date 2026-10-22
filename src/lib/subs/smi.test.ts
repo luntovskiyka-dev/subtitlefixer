@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSrt } from './srt';
-import { classLabel, cleanSmiText, isSmiName, parseSmi, selectSmiGroup, smiOutputNames } from './smi';
+import { classLabel, cleanSmiText, isSmiName, parseSmi, selectSmiGroup, SMI_OPEN_END_MS, smiOutputNames } from './smi';
 
 const PAGE = `<SAMI>
 <HEAD><STYLE TYPE="text/css"><!--
@@ -58,11 +58,32 @@ describe('parseSmi', () => {
     expect(result.groups[0]?.cues[0]?.start).toBe(1000);
   });
 
-  it('times the last cue by reading speed when nothing follows it', () => {
+  it('holds the last cue when nothing follows it', () => {
     const smi = '<SAMI><BODY><SYNC Start=1000><P Class=ENCC>Hi</BODY></SAMI>';
     const cue = parseSmi(smi).groups[0]?.cues[0];
     expect(cue?.start).toBe(1000);
-    expect(cue?.end).toBe(2000);
+    expect(cue?.end).toBe(1000 + SMI_OPEN_END_MS);
+    expect(SMI_OPEN_END_MS).toBeGreaterThan(1000);
+  });
+
+  it('ends an open class at the later end already used by another class', () => {
+    const smi = '<SAMI><BODY><SYNC Start=1000><P Class=ENCC>Hi<P Class=KRCC>안녕<SYNC Start=8000><P Class=ENCC>&nbsp;</BODY></SAMI>';
+    const result = parseSmi(smi);
+    expect(result.groups[0]?.cues[0]).toEqual({ start: 1000, end: 8000, text: 'Hi' });
+    expect(result.groups[1]?.cues[0]).toEqual({ start: 1000, end: 8000, text: '안녕' });
+  });
+
+  it('gives every class with no closing sync the same end', () => {
+    const long = 'a'.repeat(200);
+    const smi = `<SAMI><BODY><SYNC Start=1000><P Class=ENCC>Hello<SYNC Start=5000><P Class=KRCC>안녕<P Class=ENCC>${long}</BODY></SAMI>`;
+    const result = parseSmi(smi);
+    const english = result.groups.find((group) => group.id === 'ENCC')?.cues ?? [];
+    const korean = result.groups.find((group) => group.id === 'KRCC')?.cues ?? [];
+    expect(english[0]).toEqual({ start: 1000, end: 5000, text: 'Hello' });
+    expect(korean[0]?.start).toBe(5000);
+    expect(english[1]?.start).toBe(5000);
+    expect(korean[0]?.end).toBe(english[1]?.end);
+    expect((korean[0]?.end ?? 0) - 5000).toBeGreaterThan(SMI_OPEN_END_MS);
   });
 
   it('drops a cue whose end is not after its start', () => {

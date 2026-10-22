@@ -13,6 +13,8 @@ export type ToTextOptions = {
   pauseMs: number;
   /** Drop a line that is the same as the line kept right before it. */
   removeRepeats: boolean;
+  /** Keep a cue whose end is before its start. The parser error is still returned. */
+  keepInverted?: boolean;
 };
 
 export const DEFAULT_TO_TEXT: ToTextOptions = {
@@ -106,10 +108,11 @@ export function cleanCueLines(text: string, format: SubtitleFormat): string[] {
     .filter((line) => line !== '');
 }
 
-function readCues(input: string, format: SubtitleFormat): { cues: Cue[]; errors: ParseError[] } {
-  if (format === 'srt') return parseSrt(input);
-  if (format === 'vtt') return parseVtt(dropInnerSpaceLines(input));
-  return assToCues(input);
+function readCues(input: string, format: SubtitleFormat, keepInverted: boolean): { cues: Cue[]; errors: ParseError[] } {
+  const options = keepInverted ? { keepInverted: true } : undefined;
+  if (format === 'srt') return parseSrt(input, options);
+  if (format === 'vtt') return parseVtt(dropInnerSpaceLines(input), options);
+  return assToCues(input, options);
 }
 
 /** Drop a line when it equals the line kept right before it, across cue borders. */
@@ -169,7 +172,7 @@ export function subtitlesToText(
   format: SubtitleFormat,
   options: ToTextOptions = DEFAULT_TO_TEXT,
 ): ToTextResult {
-  const parsed = readCues(input, format);
+  const parsed = readCues(input, format, options.keepInverted === true);
   let cues: TextCue[] = parsed.cues
     .map((cue) => ({ start: cue.start, end: cue.end, lines: cleanCueLines(cue.text, format) }))
     .filter((cue) => cue.lines.length > 0);

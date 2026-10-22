@@ -70,6 +70,13 @@ Dialogue: 0:00:01.00,0:00:03.50,Custom,Hello, world
     expect(result.errors[0]?.message).toMatch(/before/i);
   });
 
+  it('can keep a Dialogue line that ends before it starts', () => {
+    const result = parseAss(broken, { keepInverted: true });
+    expect(result.cues.map((cue) => cue.text)).toEqual(['Good', 'Nope', 'Still here']);
+    expect(result.cues[1]).toMatchObject({ start: 5000, end: 1000 });
+    expect(result.errors[0]?.message).toMatch(/before/i);
+  });
+
   it('describes a malformed Dialogue line and keeps the others', () => {
     const result = parseAss(`[Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

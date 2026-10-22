@@ -6,7 +6,7 @@ import { parseVtt, serializeVtt } from './vtt';
 export { FPS_23_976, scaleCues, scaleSubtitleFile, syncCues, syncSubtitleFile } from './drift';
 export type { DriftFileResult, DriftResult } from './drift';
 
-export type { Cue, ParseError, ParseResult, SubtitleFormat } from './types';
+export type { Cue, ParseError, ParseOptions, ParseResult, SubtitleFormat } from './types';
 export { parseAss, serializeAss } from './ass';
 export { candidateDecodings, decodeBytes, decodeWithLabel, encodeUtf8, repairMojibake } from './encoding';
 export type { MojibakeVia } from './encoding';

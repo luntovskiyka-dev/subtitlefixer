@@ -61,6 +61,19 @@ describe('subtitlesToDocx', () => {
     expect(xml).not.toContain('Tom & Jerry');
   });
 
+  it('keeps a cue that ends before it starts and still reports it', () => {
+    const srt = '1\n00:00:01,000 --> 00:00:03,000\nHello\n\n2\n00:00:05,000 --> 00:00:04,000\nBackwards\n';
+    const text = subtitlesToDocx(srt, 'srt');
+    expect(text.count).toBe(2);
+    expect(text.errors[0]?.message).toMatch(/before/i);
+    expect(documentXml(text.bytes ?? new Uint8Array())).toContain('Backwards');
+    const table = subtitlesToDocx(srt, 'srt', { layout: 'table', pauseMs: 2000, removeRepeats: false });
+    const xml = documentXml(table.bytes ?? new Uint8Array());
+    expect(xml).toContain('Backwards');
+    expect(xml).toContain('00:00:05,000');
+    expect(xml).toContain('00:00:04,000');
+  });
+
   it('returns no document when the file has no text', () => {
     const result = subtitlesToDocx('', 'srt');
     expect(result.bytes).toBeNull();

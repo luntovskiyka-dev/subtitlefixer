@@ -19,3 +19,8 @@ export type ParseResult = {
   cues: Cue[];
   errors: ParseError[];
 };
+
+export type ParseOptions = {
+  /** Keep a cue whose end is before its start. The error is still reported. */
+  keepInverted?: boolean;
+};

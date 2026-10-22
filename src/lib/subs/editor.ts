@@ -1,4 +1,6 @@
-import type { Cue, SubtitleFormat } from './types';
+import { parseSrt } from './srt';
+import type { Cue, ParseError, SubtitleFormat } from './types';
+import { parseVtt } from './vtt';
 
 export type EditorCue = {
   id: string;
@@ -34,6 +36,16 @@ export function editorCuesFrom(cues: readonly Cue[], idAt: (index: number) => st
     end: cue.end,
     text: cue.text,
   }));
+}
+
+/** Load SRT or VTT for the editor. A cue that ends before it starts is kept. */
+export function loadEditorCues(
+  text: string,
+  format: 'srt' | 'vtt',
+  idAt: (index: number) => string,
+): { cues: EditorCue[]; errors: ParseError[] } {
+  const parsed = format === 'srt' ? parseSrt(text, { keepInverted: true }) : parseVtt(text, { keepInverted: true });
+  return { cues: editorCuesFrom(parsed.cues, idAt), errors: parsed.errors };
 }
 
 /** end before start, overlap with the next row, empty text, or a start before the previous start. */
@@ -86,6 +98,55 @@ export function mergeEditorCues(first: EditorCue, second: EditorCue): EditorCue 
   return { id: first.id, start: first.start, end: second.end, text };
 }
 
+export function cloneEditorCues(cues: readonly EditorCue[]): EditorCue[] {
+  return cues.map((cue) => ({ id: cue.id, start: cue.start, end: cue.end, text: cue.text }));
+}
+
+/** One undo step. The stored rows are copies, so later edits do not change them. */
+export function rememberEditorCues(
+  history: readonly (readonly EditorCue[])[],
+  cues: readonly EditorCue[],
+  limit = 50,
+): EditorCue[][] {
+  const next = [...history.map((step) => cloneEditorCues(step)), cloneEditorCues(cues)];
+  return next.length > limit ? next.slice(next.length - limit) : next;
+}
+
+export function undoEditorCues(history: readonly (readonly EditorCue[])[]): { history: EditorCue[][]; cues: EditorCue[] | null } {
+  if (history.length === 0) return { history: [], cues: null };
+  const cues = history[history.length - 1] ?? null;
+  return {
+    history: history.slice(0, -1).map((step) => cloneEditorCues(step)),
+    cues: cues ? cloneEditorCues(cues) : null,
+  };
+}
+
+/** Merge index with the next row. Null when there is no next row. */
+export function mergeEditorCueAt(cues: readonly EditorCue[], index: number): EditorCue[] | null {
+  const first = cues[index];
+  const second = cues[index + 1];
+  if (!first || !second) return null;
+  const next = cues.slice();
+  next.splice(index, 2, mergeEditorCues(first, second));
+  return next;
+}
+
+/**
+ * Empty lines are not written unless the user chooses to skip them.
+ * `blocked` means the download should not start.
+ */
+export function cuesForDownload(
+  cues: readonly EditorCue[],
+  skipEmpty: boolean,
+): { cues: EditorCue[]; skipped: number; blocked: boolean } {
+  const skipped = cues.filter((cue) => cue.text.trim() === '').length;
+  if (skipped === 0) return { cues: cues.slice(), skipped: 0, blocked: false };
+  if (!skipEmpty) return { cues: [], skipped, blocked: true };
+  const kept = cues.filter((cue) => cue.text.trim() !== '');
+  if (kept.length === 0) return { cues: [], skipped, blocked: true };
+  return { cues: kept, skipped, blocked: false };
+}
+
 /** A blank cue after the previous one, or at 00:00:00,000 when there is no previous cue. */
 export function blankCueAfter(previous: EditorCue | null, id: string): EditorCue {
   const start = previous ? previous.end : 0;
@@ -113,6 +174,12 @@ export function visibleCueRange(
   const start = Math.max(0, Math.floor(Math.max(0, scrollTop) / height) - overscan);
   const visible = Math.ceil(Math.max(viewHeight, height) / height) + overscan * 2;
   return { start, end: Math.min(count, start + visible) };
+}
+
+/** Scroll height stays `count * rowHeight` wherever the window sits, so the scrollbar does not collapse. */
+export function virtualCueBox(count: number, range: VisibleRange, rowHeight: number): { total: number; offset: number } {
+  const height = rowHeight > 0 ? rowHeight : 1;
+  return { total: Math.max(0, count) * height, offset: range.start * height };
 }
 
 export function editorOutputName(name: string, format: 'srt' | 'vtt'): string {

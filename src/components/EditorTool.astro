@@ -34,7 +34,7 @@ const formats = [
           <p class="font-display text-lg font-extrabold">Subtitles</p>
           <p id="editor-count" class="text-sm font-extrabold"></p>
         </div>
-        <div id="editor-scroll" class="max-h-[28rem] overflow-y-auto border-t-2 border-line" tabindex="0" aria-label="Subtitle lines">
+        <div id="editor-scroll" class="max-h-[28rem] overflow-y-auto border-t-2 border-line" style="overflow-anchor: none" tabindex="0" aria-label="Subtitle lines">
           <div id="editor-list"></div>
         </div>
       </div>
@@ -75,24 +75,28 @@ const formats = [
     EDITOR_VIRTUAL_THRESHOLD,
     blankCueAfter,
     cueIssues,
-    editorCuesFrom,
+    cuesForDownload,
     editorFormatFromName,
     editorOutputName,
     formatIssueCount,
     issueLabel,
-    mergeEditorCues,
+    loadEditorCues,
+    mergeEditorCueAt,
     parseEditorTime,
+    rememberEditorCues,
     sortForDownload,
     splitEditorCue,
+    undoEditorCues,
+    virtualCueBox,
     visibleCueRange,
     type CueIssue,
     type EditorCue,
   } from '../lib/subs/editor';
   import type { DecodedSubtitleFile } from '../lib/subs/files';
   import { downloadText } from '../lib/subs/files';
-  import { parseSrt, serializeSrt } from '../lib/subs/srt';
+  import { serializeSrt } from '../lib/subs/srt';
   import { formatSrtTimestamp } from '../lib/subs/time';
-  import { parseVtt, serializeVtt } from '../lib/subs/vtt';
+  import { serializeVtt } from '../lib/subs/vtt';
   import { renderStatus } from '../lib/ui/statusView';
 
   const lineCount = (count: number) => `${count} line${count === 1 ? '' : 's'}`;
@@ -121,6 +125,9 @@ const formats = [
   let sourceName = 'subtitles.srt';
   let scrollTop = 0;
   let frame = 0;
+  let scrollLock = false;
+  let rowAction = false;
+  let painted: { start: number; end: number; count: number } | null = null;
 
   function freshId(): string {
     nextId += 1;
@@ -156,8 +163,7 @@ const formats = [
   }
 
   function remember(): void {
-    undoStack.push(cues.map((cue) => ({ ...cue })));
-    if (undoStack.length > 50) undoStack.shift();
+    undoStack = rememberEditorCues(undoStack, cues);
     dirty = true;
     setUndo();
   }
@@ -165,7 +171,7 @@ const formats = [
   function replaceCues(next: EditorCue[]): void {
     cues = next;
     setDownload(cues.length > 0);
-    renderList();
+    scheduleRender();
   }
 
   function button(label: string, onClick: () => void): HTMLButtonElement {
@@ -173,7 +179,12 @@ const formats = [
     control.type = 'button';
     control.className = 'min-h-11 rounded-sf border-2 border-edge bg-surface px-3 text-sm font-extrabold text-ink';
     control.textContent = label;
-    control.addEventListener('click', onClick);
+    control.addEventListener('click', () => {
+      if (rowAction) return;
+      rowAction = true;
+      onClick();
+      rowAction = false;
+    });
     return control;
   }
 
@@ -187,20 +198,65 @@ const formats = [
     panel.hidden = !started;
     empty.hidden = started;
     if (addFirst instanceof HTMLButtonElement) addFirst.hidden = started;
-    list.replaceChildren();
-    if (!started) return;
-    const range = visibleCueRange(cues.length, scrollTop, scroll.clientHeight || 448, EDITOR_ROW_HEIGHT);
-    const top = document.createElement('div');
-    top.style.height = `${range.start * EDITOR_ROW_HEIGHT}px`;
-    list.append(top);
-    for (let index = range.start; index < range.end; index += 1) {
-      const cue = cues[index];
-      if (!cue) continue;
-      list.append(renderRow(cue, index, issues.get(cue.id) ?? []));
+    const saved = scrollTop;
+    scrollLock = true;
+    try {
+      if (!started) {
+        list.replaceChildren();
+        list.style.height = '';
+        list.style.position = '';
+        painted = null;
+        return;
+      }
+      holdScrollFocus();
+      const range = visibleCueRange(cues.length, saved, scroll.clientHeight || 448, EDITOR_ROW_HEIGHT);
+      const virtual = cues.length > EDITOR_VIRTUAL_THRESHOLD;
+      if (!virtual) {
+        list.style.height = '';
+        list.style.position = '';
+        list.replaceChildren();
+        for (let index = 0; index < cues.length; index += 1) {
+          const cue = cues[index];
+          if (!cue) continue;
+          list.append(renderRow(cue, index, issues.get(cue.id) ?? []));
+        }
+        painted = { start: 0, end: cues.length, count: cues.length };
+      } else {
+        const box = virtualCueBox(cues.length, range, EDITOR_ROW_HEIGHT);
+        list.style.position = 'relative';
+        list.style.overflowAnchor = 'none';
+        list.style.height = `${box.total}px`;
+        const found = list.querySelector(':scope > [data-cue-window]');
+        const port = found instanceof HTMLElement ? found : document.createElement('div');
+        if (!(found instanceof HTMLElement)) {
+          port.dataset.cueWindow = '';
+          port.style.position = 'absolute';
+          port.style.left = '0';
+          port.style.right = '0';
+          port.style.overflowAnchor = 'none';
+          list.replaceChildren();
+          list.append(port);
+        }
+        port.style.top = `${box.offset}px`;
+        port.replaceChildren();
+        for (let index = range.start; index < range.end; index += 1) {
+          const cue = cues[index];
+          if (!cue) continue;
+          port.append(renderRow(cue, index, issues.get(cue.id) ?? []));
+        }
+        painted = { start: range.start, end: range.end, count: cues.length };
+      }
+      if (scroll.scrollTop !== saved) scroll.scrollTop = saved;
+    } finally {
+      scrollLock = false;
     }
-    const bottom = document.createElement('div');
-    bottom.style.height = `${(cues.length - range.end) * EDITOR_ROW_HEIGHT}px`;
-    list.append(bottom);
+  }
+
+  function holdScrollFocus(): void {
+    if (!(list instanceof HTMLElement) || !(scroll instanceof HTMLElement)) return;
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement) || active === scroll || !list.contains(active)) return;
+    scroll.focus({ preventScroll: true });
   }
 
   function renderRow(cue: EditorCue, index: number, issues: readonly CueIssue[]): HTMLElement {
@@ -277,13 +333,10 @@ const formats = [
       }),
     );
     const merge = button('Merge with next', () => {
-      const current = cues[index];
-      const following = cues[index + 1];
-      if (!current || !following) return;
+      const merged = mergeEditorCueAt(cues, index);
+      if (!merged) return;
       remember();
-      const next = cues.slice();
-      next.splice(index, 2, mergeEditorCues(current, following));
-      replaceCues(next);
+      replaceCues(merged);
     });
     if (index === cues.length - 1) merge.disabled = true;
     actions.append(merge);
@@ -352,8 +405,8 @@ const formats = [
     dirty = false;
     scrollTop = 0;
     if (scroll instanceof HTMLElement) scroll.scrollTop = 0;
-    const parsed = format === 'srt' ? parseSrt(text) : parseVtt(text);
-    cues = editorCuesFrom(parsed.cues, () => freshId());
+    const parsed = loadEditorCues(text, format, () => freshId());
+    cues = parsed.cues;
     setUndo();
     setDownload(cues.length > 0);
     renderList();
@@ -376,8 +429,14 @@ const formats = [
     });
 
     scroll.addEventListener('scroll', () => {
-      scrollTop = scroll.scrollTop;
-      if (cues.length > EDITOR_VIRTUAL_THRESHOLD) scheduleRender();
+      if (scrollLock) return;
+      const next = scroll.scrollTop;
+      if (next === scrollTop) return;
+      scrollTop = next;
+      if (cues.length <= EDITOR_VIRTUAL_THRESHOLD) return;
+      const range = visibleCueRange(cues.length, next, scroll.clientHeight || 448, EDITOR_ROW_HEIGHT);
+      if (painted && painted.count === cues.length && painted.start === range.start && painted.end === range.end) return;
+      scheduleRender();
     });
 
     newButton.addEventListener('click', () => {
@@ -404,11 +463,12 @@ const formats = [
     }
 
     undoButton.addEventListener('click', () => {
-      const previous = undoStack.pop();
-      if (!previous) return;
+      const undone = undoEditorCues(undoStack);
+      if (!undone.cues) return;
+      undoStack = undone.history;
       dirty = true;
       setUndo();
-      replaceCues(previous);
+      replaceCues(undone.cues);
     });
 
     form.addEventListener('subtitlereading', () => renderStatus(status, 'working', [sourceName]));
@@ -448,13 +508,36 @@ const formats = [
         renderStatus(status, 'error', [sourceName]);
         return;
       }
+      const blanks = cues.filter((cue) => cue.text.trim() === '').length;
+      let chosen = cues;
+      if (blanks > 0) {
+        const skip = window.confirm(
+          blanks === 1
+            ? '1 line has no text. Skip it and download the rest?'
+            : `${blanks} lines have no text. Skip them and download the rest?`,
+        );
+        const selection = cuesForDownload(cues, skip);
+        if (selection.blocked) {
+          showMessages([
+            skip
+              ? 'Every line is empty. Add text before downloading.'
+              : blanks === 1
+                ? '1 line has no text. Add text, or download and skip that line.'
+                : `${blanks} lines have no text. Add text, or download and skip those lines.`,
+          ]);
+          renderStatus(status, 'error', [sourceName]);
+          return;
+        }
+        chosen = selection.cues;
+      }
       const format = formatInput.value === 'vtt' ? 'vtt' : 'srt';
-      const sorted = sortForDownload(cues);
+      const sorted = sortForDownload(chosen);
       const text = format === 'vtt' ? serializeVtt(sorted.cues) : serializeSrt(sorted.cues);
       const name = editorOutputName(sourceName, format);
       downloadText(name, text, bomInput.checked);
       dirty = false;
       const messages = [`Downloaded ${name}.`];
+      if (blanks > 0) messages.push(blanks === 1 ? 'Skipped 1 empty line.' : `Skipped ${blanks} empty lines.`);
       if (sorted.orderChanged) messages.unshift('Lines were out of order, so the file was sorted by start time.');
       const attention = formatIssueCount(cueIssues(sorted.cues));
       if (attention) messages.push(attention);

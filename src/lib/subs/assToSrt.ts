@@ -1,5 +1,6 @@
-import { parse, serialize } from './index';
-import type { Cue, ParseError } from './types';
+import { parseAss } from './ass';
+import { serialize } from './index';
+import type { Cue, ParseError, ParseOptions } from './types';
 
 type Mark = 'i' | 'b';
 
@@ -137,8 +138,8 @@ function collapseLayerDuplicates(cues: readonly Cue[]): Cue[] {
  * Parse ASS/SSA, strip overrides, drop drawings, and collapse duplicate layers.
  * Italic and bold stay as <i> and <b>. Parser errors are returned unchanged.
  */
-export function assToCues(text: string): { cues: Cue[]; errors: ParseError[] } {
-  const parsed = parse(text, 'ass');
+export function assToCues(text: string, options?: ParseOptions): { cues: Cue[]; errors: ParseError[] } {
+  const parsed = parseAss(text, options);
   return { cues: collapseLayerDuplicates(parsed.cues), errors: parsed.errors };
 }
 
