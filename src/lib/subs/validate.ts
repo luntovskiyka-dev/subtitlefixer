@@ -200,7 +200,8 @@ export function validateSrt(text: string, bytes?: Uint8Array): SrtReport {
 export function reportLabel(level: ReportLevel, cue: number | null, line: number, message: string): string {
   const where = cue === null ? `line ${line}` : `subtitle ${cue} (line ${line})`;
   const name = level === 'info' ? 'Info' : level === 'warning' ? 'Warning' : 'Error';
-  return `${name}, ${where}: ${message}.`;
+  const sentence = message.endsWith('.') ? message : `${message}.`;
+  return `${name}, ${where}: ${sentence}`;
 }
 
 export function countLevels(items: readonly ReportItem[]): { errors: number; warnings: number } {

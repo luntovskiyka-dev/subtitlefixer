@@ -30,6 +30,17 @@ describe('validateSrt', () => {
     );
   });
 
+  it('does not put a second period on messages that already end with one', () => {
+    const report = validateSrt('not a subtitle\n');
+    const item = report.items[0];
+    expect(item).toBeDefined();
+    if (!item) return;
+    const line = reportLabel(item.level, item.cue, item.line, item.message);
+    expect(line.endsWith('..')).toBe(false);
+    expect(line.endsWith('.')).toBe(true);
+    expect(line).toBe('Error, line 1: is missing a cue number or timestamp.');
+  });
+
   it('shares the editor issue for an overlap', () => {
     const text = '1\n00:00:01,000 --> 00:00:04,000\nA\n\n2\n00:00:03,000 --> 00:00:05,000\nB\n';
     const report = validateSrt(text);

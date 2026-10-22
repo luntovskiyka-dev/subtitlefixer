@@ -145,6 +145,7 @@ Timings from reading speed are a starting point, and they rarely match the speec
 
 ## Related tools
 
+- [TXT to VTT](/txt-to-vtt): the same tool with WebVTT as the output.
 - [SRT to TXT](/srt-to-txt): turn subtitles back into plain text.
 - [Shift subtitles](/shift-subtitles): move every subtitle earlier or later.
 - [Fix subtitle drift](/fix-subtitle-drift): re-time subtitles that slowly go out of sync.

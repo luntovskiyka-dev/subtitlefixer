@@ -21,7 +21,7 @@ faq:
     a: "No. Nothing is stored, on our side or in your browser, so download your file before you close the page."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer edits your subtitles inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-validator", "/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
+related: ["/srt-validator", "/subtitle-cleaner", "/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-word", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
 ---
 
 Free online SRT editor that runs in your browser: your file never leaves your device, and there is no sign-up.
@@ -82,6 +82,8 @@ The editor marked line 2 because its end time was earlier than its start time.
 
 ## Related tools
 
+- [SRT validator](/srt-validator): a full report of bad times, numbering, overlaps and encoding.
+- [Subtitle cleaner](/subtitle-cleaner): remove hearing-impaired tags, speaker names and formatting.
 - [Shift subtitles](/shift-subtitles): move every line earlier or later.
 - [Fix subtitle drift](/fix-subtitle-drift): for subtitles that get further off over time.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for garbled characters.

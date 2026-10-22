@@ -62,7 +62,7 @@ After (spreadsheet):
 - Put the number, start, end and text of each subtitle in its own row.
 - Keep two-line subtitles in one cell.
 - Save CSV as UTF-8 with a BOM.
-- Prefix a leading apostrophe when a cell starts with `=`, `+`, `-`, `@`, a tab or a return, so the spreadsheet does not treat it as a formula.
+- Prefix a leading apostrophe in CSV when a cell starts with `=`, `+`, `-`, `@`, a tab or a return, so the spreadsheet does not treat it as a formula. An .xlsx cell is stored as text, so it has no extra apostrophe.
 - Read older encodings, so non-Latin text shows correctly.
 - Convert many files at once.
 

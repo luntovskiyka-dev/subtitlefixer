@@ -168,6 +168,39 @@ describe('assToSrt', () => {
     ]);
   });
 
+  it('escapes literal tags in VTT and keeps generated italic and bold balanced', () => {
+    const result = assToText(
+      [
+        dialogue('0:00:01.00', '0:00:02.00', 'see <b> and {\\i1}yes <i>no'),
+        dialogue('0:00:03.00', '0:00:04.00', '{\\b1}bold <b>literal{\\b0}'),
+        dialogue('0:00:05.00', '0:00:06.00', '{\\i1}a</i>b{\\b1}c'),
+        dialogue('0:00:07.00', '0:00:08.00', 'a < b > c & d'),
+      ].join('\n'),
+      'vtt',
+    );
+
+    expect(result.text).toContain('see &lt;b&gt; and <i>yes &lt;i&gt;no</i>');
+    expect(result.text).toContain('<b>bold &lt;b&gt;literal</b>');
+    expect(result.text).toContain('<i>a&lt;/i&gt;b<b>c</b></i>');
+    expect(result.text).toContain('a &lt; b &gt; c &amp; d');
+    expect(result.text).not.toContain('<b> and');
+    expect(result.text).not.toContain('</i>b');
+
+    const stack: string[] = [];
+    for (const tag of result.text.matchAll(/<\/?[ib]>/g)) {
+      const token = tag[0];
+      if (token.startsWith('</')) {
+        expect(stack.pop()).toBe(token.slice(2, 3));
+      } else {
+        stack.push(token.slice(1, 2));
+      }
+    }
+    expect(stack).toEqual([]);
+
+    const srt = assToText(dialogue('0:00:01.00', '0:00:02.00', 'see <b> now'), 'srt');
+    expect(srt.text).toContain('see <b> now');
+  });
+
   it('reads an SSA Dialogue line whose first field is Marked', () => {
     const ssa = `[Script Info]
 ScriptType: v4.00

@@ -21,7 +21,7 @@ faq:
     a: "Yes. Add as many MicroDVD .sub files as you need. They convert in one go and download together as one zip."
   - q: "Is my .sub file uploaded?"
     a: "No. SubtitleFixer converts MicroDVD to SRT inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-vtt", "/ass-to-srt", "/shift-subtitles"]
+related: ["/stl-to-srt", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-vtt", "/ass-to-srt", "/shift-subtitles"]
 ---
 
 ## How to convert SUB to SRT in 3 steps
@@ -94,5 +94,6 @@ The converter turns MicroDVD text into SRT. It does not change your words.
 - [Fix subtitle drift](/fix-subtitle-drift): re-time subtitles that slowly go out of sync, or change between frame rates such as 23.976 and 25.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
 - [SRT to VTT converter](/srt-to-vtt): turn the result into VTT for HTML5 video players.
+- [STL to SRT converter](/stl-to-srt): turn EBU STL and Spruce STL subtitles into SRT.
 - [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into a plain SRT file.
 - [Shift subtitles](/shift-subtitles): move every subtitle earlier or later by the same amount.

@@ -41,11 +41,14 @@ function decodeEntitiesOnce(text: string): string {
   });
 }
 
-/** YouTube often escapes an entity twice, so `&amp;#39;` should become an apostrophe. */
+/**
+ * YouTube often escapes an entity twice. `&amp;quot;`, `&amp;lt;`, `&amp;gt;`, `&amp;amp;`
+ * and `&amp;#NN;` should become the character, not stop after the first `&amp;`.
+ */
 export function decodeRepeatedEntities(text: string): string {
   let current = text;
   for (let pass = 0; pass < 2; pass += 1) {
-    if (!/&(?:#\d+|#x[0-9a-f]+|amp);/i.test(current)) break;
+    if (!/&(?:#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/i.test(current)) break;
     const next = decodeEntitiesOnce(current);
     if (next === current) break;
     current = next;

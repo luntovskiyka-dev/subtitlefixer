@@ -21,7 +21,7 @@ faq:
     a: "Yes. SubtitleFixer detects the encoding of each file, including older ones like Windows-1251 or Windows-1256, and saves the text as UTF-8. If the text already shows characters like `Ã©`, repair it first with [Fix subtitle encoding](/fix-subtitle-encoding)."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer converts subtitles to text inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/txt-to-srt", "/vtt-to-txt", "/srt-to-word", "/vtt-to-srt", "/fix-subtitle-encoding", "/srt-editor"]
+related: ["/srt-to-excel", "/txt-to-vtt", "/txt-to-srt", "/vtt-to-txt", "/srt-to-word", "/vtt-to-srt", "/fix-subtitle-encoding", "/srt-editor"]
 ---
 
 ## How to convert subtitles to text in 3 steps
@@ -120,6 +120,8 @@ If you need the captions as a subtitle file rather than text, use the [VTT to SR
 
 ## Related tools
 
+- [SRT to Excel](/srt-to-excel): put the number, start, end and text of each subtitle in a spreadsheet.
+- [TXT to VTT](/txt-to-vtt): turn a script or transcript into WebVTT.
 - [TXT to SRT](/txt-to-srt): turn a script or transcript back into a timed subtitle file.
 - [VTT to SRT converter](/vtt-to-srt): turn YouTube, Zoom or Teams VTT captions into an SRT file.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.

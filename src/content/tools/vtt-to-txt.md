@@ -19,7 +19,7 @@ faq:
     a: "Only if you keep the timestamps. Use [TXT to SRT](/txt-to-srt) with \"Text with timestamps\"."
   - q: "Is my VTT file uploaded?"
     a: "No. SubtitleFixer converts VTT to text inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-to-txt", "/srt-to-word", "/vtt-to-srt", "/txt-to-srt", "/fix-subtitle-encoding"]
+related: ["/txt-to-vtt", "/srt-to-txt", "/srt-to-word", "/vtt-to-srt", "/txt-to-srt", "/fix-subtitle-encoding"]
 ---
 
 Free VTT to TXT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -76,5 +76,6 @@ The header, times and tags are gone. Speaker tags became names.
 - [SRT to TXT](/srt-to-txt): the same conversion for SRT and ASS files.
 - [SRT to Word](/srt-to-word): get a .docx file instead of plain text.
 - [VTT to SRT converter](/vtt-to-srt): keep the timings and get an SRT file.
+- [TXT to VTT](/txt-to-vtt): turn text back into WebVTT captions.
 - [TXT to SRT](/txt-to-srt): turn text back into subtitles.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for garbled characters.

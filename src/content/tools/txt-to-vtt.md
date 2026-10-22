@@ -19,7 +19,7 @@ faq:
     a: "Yes. Switch Output to SRT, or use [TXT to SRT](/txt-to-srt), which is the same tool."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer creates the VTT file inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/txt-to-srt", "/srt-to-vtt", "/shift-subtitles", "/srt-to-txt", "/vtt-to-srt"]
+related: ["/txt-to-srt", "/srt-to-vtt", "/vtt-to-txt", "/shift-subtitles", "/srt-to-txt", "/vtt-to-srt"]
 ---
 
 Free TXT to VTT conversion that runs in your browser: your files never leave your device, and there is no sign-up. This is [TXT to SRT](/txt-to-srt) with the output set to VTT.
@@ -73,5 +73,7 @@ Each caption ends when the next one starts. The last one has nothing after it, s
 
 - [TXT to SRT](/txt-to-srt): the same tool with SRT output, plus all settings explained.
 - [SRT to VTT converter](/srt-to-vtt): includes how to add a VTT file to a web page.
+- [VTT to SRT converter](/vtt-to-srt): turn WebVTT back into SRT.
 - [Shift subtitles](/shift-subtitles): move captions earlier or later.
+- [VTT to TXT](/vtt-to-txt): get the text back out of a WebVTT file.
 - [SRT to TXT](/srt-to-txt): get the text back out.

@@ -20,7 +20,7 @@ describe('sheet export', () => {
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
   });
 
-  it('writes an xlsx worksheet with the same guard', () => {
+  it('writes formula text into xlsx inline strings without a leading apostrophe', () => {
     const table = sheetRows('1\n00:00:01,200 --> 00:00:02,000\nHi\nthere\n', 'srt');
     expect(table.rows[0]?.text).toBe('Hi\nthere');
     const packed = rowsToXlsx(table.rows);
@@ -30,6 +30,9 @@ describe('sheet export', () => {
     expect(sheet).toContain('<v>1</v>');
     const guarded = rowsToXlsx(sheetRows(formula, 'srt').rows);
     const guardedSheet = new TextDecoder().decode(unzipSync(guarded)['xl/worksheets/sheet1.xml']);
-    expect(guardedSheet).toContain("'=1+1");
+    expect(guardedSheet).toContain('t="inlineStr"');
+    expect(guardedSheet).toContain('=1+1');
+    expect(guardedSheet).not.toContain("'=1+1");
+    expect(guardedSheet).not.toContain("'+plus");
   });
 });

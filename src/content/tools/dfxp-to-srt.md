@@ -19,7 +19,7 @@ faq:
     a: "Yes. Switch the output to VTT before you download."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer converts DFXP to SRT inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/ttml-to-srt", "/xml-to-srt", "/vtt-to-srt", "/srt-to-vtt", "/sbv-to-srt", "/shift-subtitles", "/fix-subtitle-encoding"]
+related: ["/stl-to-srt", "/ttml-to-srt", "/xml-to-srt", "/vtt-to-srt", "/srt-to-vtt", "/sbv-to-srt", "/shift-subtitles", "/fix-subtitle-encoding"]
 ---
 
 Free DFXP to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up. This is the same converter as [TTML to SRT](/ttml-to-srt).
@@ -83,6 +83,7 @@ DFXP is the original name of the W3C Timed Text format. You'll find .dfxp files 
 
 ## Related tools
 
+- [STL to SRT converter](/stl-to-srt): turn EBU STL and Spruce STL subtitles into SRT.
 - [TTML to SRT](/ttml-to-srt): the same converter, written for the TTML name.
 - [XML to SRT](/xml-to-srt): also reads YouTube timed-text XML.
 - [VTT to SRT converter](/vtt-to-srt) and [SRT to VTT converter](/srt-to-vtt).

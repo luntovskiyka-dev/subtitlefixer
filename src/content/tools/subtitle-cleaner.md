@@ -19,7 +19,7 @@ faq:
     a: "The options work on brackets, parentheses, symbols and tags, so they work in any language. The speaker-name option only finds names written in capital Latin letters."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer cleans your subtitles inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-to-txt", "/ass-to-srt", "/vtt-to-srt", "/shift-subtitles", "/fix-subtitle-encoding", "/merge-subtitles"]
+related: ["/srt-editor", "/srt-to-txt", "/ass-to-srt", "/vtt-to-srt", "/shift-subtitles", "/fix-subtitle-encoding", "/merge-subtitles"]
 ---
 
 Free subtitle cleaner that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -79,6 +79,7 @@ Subtitles 1 and 3 had nothing left, so they were deleted and the file was renumb
 
 ## Related tools
 
+- [SRT editor](/srt-editor): change the text and times after cleaning.
 - [SRT to TXT](/srt-to-txt): get only the text, without timings.
 - [ASS to SRT converter](/ass-to-srt): remove ASS styling and get SRT.
 - [VTT to SRT converter](/vtt-to-srt): removes VTT tags while converting.

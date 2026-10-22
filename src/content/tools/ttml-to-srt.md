@@ -19,7 +19,7 @@ faq:
     a: "Yes. Switch the output to VTT before you download. That's useful for HTML5 video players."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer converts TTML to SRT inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/dfxp-to-srt", "/xml-to-srt", "/srt-to-vtt", "/vtt-to-srt", "/sbv-to-srt", "/shift-subtitles", "/fix-subtitle-encoding"]
+related: ["/stl-to-srt", "/dfxp-to-srt", "/xml-to-srt", "/srt-to-vtt", "/vtt-to-srt", "/sbv-to-srt", "/shift-subtitles", "/fix-subtitle-encoding"]
 ---
 
 Free TTML to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -78,6 +78,7 @@ With a tick rate of 10,000,000 ticks per second, `12000000t` is 1.2 seconds.
 
 ## Related tools
 
+- [STL to SRT converter](/stl-to-srt): turn EBU STL and Spruce STL subtitles into SRT.
 - [DFXP to SRT](/dfxp-to-srt) and [XML to SRT](/xml-to-srt): the same converter, for those file names.
 - [SRT to VTT converter](/srt-to-vtt) and [VTT to SRT converter](/vtt-to-srt): switch between SRT and WebVTT.
 - [SBV to SRT converter](/sbv-to-srt): for YouTube SBV captions.

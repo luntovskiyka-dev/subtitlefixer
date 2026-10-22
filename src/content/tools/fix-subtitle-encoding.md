@@ -21,7 +21,7 @@ faq:
     a: "Yes. SubtitleFixer shows 3–4 possible readings of your file side by side, so you can pick the one that looks right. Choosing your subtitle language also helps it make a better guess."
   - q: "Is my file uploaded, and does fixing the encoding change the timing?"
     a: "No to both. SubtitleFixer fixes the encoding inside your browser, so your file never leaves your device. Only the characters change (plus the optional BOM); the timings, line breaks and everything else stay exactly as they were."
-related: ["/shift-subtitles", "/fix-subtitle-drift", "/srt-to-vtt", "/vtt-to-srt", "/ass-to-srt"]
+related: ["/subtitle-cleaner", "/shift-subtitles", "/fix-subtitle-drift", "/srt-to-vtt", "/vtt-to-srt", "/ass-to-srt"]
 ---
 
 ## How to fix subtitle encoding in 3 steps
@@ -149,3 +149,4 @@ SubtitleFixer saves without a BOM by default. Tick **Add BOM (old players)** if 
 - [SRT to VTT converter](/srt-to-vtt): turn SRT subtitles into VTT for web video players.
 - [VTT to SRT converter](/vtt-to-srt): turn VTT captions into an SRT file.
 - [ASS to SRT converter](/ass-to-srt): turn styled ASS subtitles into a plain SRT file.
+- [Subtitle cleaner](/subtitle-cleaner): remove hearing-impaired tags, speaker names and formatting.

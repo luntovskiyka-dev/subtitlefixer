@@ -21,7 +21,7 @@ faq:
     a: "No. This tool only works with subtitle files on your device. It can't change subtitles inside streaming services."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer shifts your subtitles inside your browser, and the file never leaves your device. There is no sign-up."
-related: ["/fix-subtitle-drift", "/guides/subtitles-out-of-sync", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
+related: ["/srt-validator", "/fix-subtitle-drift", "/guides/subtitles-out-of-sync", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt", "/merge-subtitles"]
 ---
 
 Free subtitle shifter that runs in your browser: your file never leaves your device, and there is no sign-up.
@@ -126,6 +126,7 @@ A player's subtitle delay is temporary. In VLC, the subtitle delay shortcuts (fo
 
 ## Related tools
 
+- [SRT validator](/srt-validator): check an SRT file for bad times, overlaps and numbering.
 - [Fix subtitle drift](/fix-subtitle-drift): for subtitles that get further out of sync over time.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for garbled characters.
 - [SRT to VTT converter](/srt-to-vtt) and [VTT to SRT converter](/vtt-to-srt): change the format after fixing the timing.

@@ -17,7 +17,7 @@ faq:
     a: "Yes. Upload the .docx file to Google Drive and open it with Google Docs, or open it in Word or LibreOffice."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer creates the Word document inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-to-txt", "/vtt-to-txt", "/srt-editor", "/txt-to-srt", "/vtt-to-srt", "/fix-subtitle-encoding"]
+related: ["/srt-to-excel", "/srt-to-txt", "/vtt-to-txt", "/srt-editor", "/txt-to-srt", "/vtt-to-srt", "/fix-subtitle-encoding"]
 ---
 
 Free SRT to Word conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -71,6 +71,7 @@ With "Text only", the document has two paragraphs: "Hi, and welcome back." and "
 
 ## Related tools
 
+- [SRT to Excel](/srt-to-excel): the same columns in an Excel sheet or CSV file.
 - [SRT to TXT](/srt-to-txt): get a plain .txt file instead.
 - [VTT to TXT](/vtt-to-txt): turn VTT captions into plain text.
 - [SRT editor](/srt-editor): change the text and times, then download SRT or VTT.

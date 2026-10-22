@@ -19,7 +19,7 @@ faq:
     a: "You can switch the output to VTT. For plain text, convert to SRT first and then use [SRT to TXT](/srt-to-txt)."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer converts XML subtitles inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/ttml-to-srt", "/dfxp-to-srt", "/srt-to-txt", "/vtt-to-srt", "/srt-to-vtt", "/sbv-to-srt", "/fix-subtitle-encoding"]
+related: ["/stl-to-srt", "/ttml-to-srt", "/dfxp-to-srt", "/srt-to-txt", "/vtt-to-srt", "/srt-to-vtt", "/sbv-to-srt", "/fix-subtitle-encoding"]
 ---
 
 Free XML to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up. Timed Text files use the same converter as [TTML to SRT](/ttml-to-srt).
@@ -81,6 +81,7 @@ Start plus duration gives the end time: 1.2 + 2.6 = 3.8 seconds. The doubled cod
 
 ## Related tools
 
+- [STL to SRT converter](/stl-to-srt): turn EBU STL and Spruce STL subtitles into SRT.
 - [TTML to SRT](/ttml-to-srt) and [DFXP to SRT](/dfxp-to-srt): the same Timed Text converter.
 - [SRT to TXT](/srt-to-txt): get the plain text after converting.
 - [VTT to SRT converter](/vtt-to-srt): for YouTube captions saved as .vtt.

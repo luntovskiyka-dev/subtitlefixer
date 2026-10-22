@@ -45,25 +45,33 @@ function marksFromBlock(block: string, open: Mark[]): string {
   return tags;
 }
 
+/** Literal `<b>` in ASS dialogue is text. Escape it before our own tags are written. */
+function escapeLiteralMarkup(text: string): string {
+  return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /**
  * Drop drawing cues. Turn italic and bold into HTML, strip other overrides,
  * turn \N and \n into newlines and \h into a space, then trim each line.
  * A tag that is still open at the end of the cue is closed there.
  * Returns null when the cue is a drawing and must be removed.
+ * When escapeLiteral is set, angle brackets in the dialogue are escaped
+ * so only the `<i>` and `<b>` tags this function writes remain.
  */
-function stripCueText(text: string): string | null {
+function stripCueText(text: string, escapeLiteral: boolean): string | null {
   if (hasDrawingOn(text)) return null;
 
   const open: Mark[] = [];
   let cleaned = '';
   let last = 0;
+  const literal = (slice: string) => (escapeLiteral ? escapeLiteralMarkup(slice) : slice);
   for (const match of text.matchAll(/\{[^}]*\}/g)) {
     const index = match.index ?? 0;
-    cleaned += text.slice(last, index);
+    cleaned += literal(text.slice(last, index));
     cleaned += marksFromBlock(match[0], open);
     last = index + match[0].length;
   }
-  cleaned += text.slice(last);
+  cleaned += literal(text.slice(last));
 
   cleaned = cleaned.replace(/\\N/g, '\n').replace(/\\n/g, '\n').replace(/\\h/g, ' ');
   cleaned = cleaned
@@ -103,12 +111,12 @@ function chooseText(texts: readonly string[]): string {
 }
 
 /** Cues that share a start and an end are one group, in their original order. */
-function collapseLayerDuplicates(cues: readonly Cue[]): Cue[] {
+function collapseLayerDuplicates(cues: readonly Cue[], escapeLiteral: boolean): Cue[] {
   const order: string[] = [];
   const groups = new Map<string, { start: number; end: number; texts: string[] }>();
 
   for (const cue of cues) {
-    const text = stripCueText(cue.text);
+    const text = stripCueText(cue.text, escapeLiteral);
     if (text === null || isEmptyText(text)) continue;
 
     const key = `${cue.start}\0${cue.end}`;
@@ -140,7 +148,7 @@ function collapseLayerDuplicates(cues: readonly Cue[]): Cue[] {
  */
 export function assToCues(text: string, options?: ParseOptions): { cues: Cue[]; errors: ParseError[] } {
   const parsed = parseAss(text, options);
-  return { cues: collapseLayerDuplicates(parsed.cues), errors: parsed.errors };
+  return { cues: collapseLayerDuplicates(parsed.cues, false), errors: parsed.errors };
 }
 
 /**
@@ -151,11 +159,11 @@ export function assToSrt(text: string): { text: string; errors: ParseError[] } {
   return assToText(text, 'srt');
 }
 
-/** Same cue cleaning as ASS to SRT, then SRT or WebVTT. */
+/** Same cue cleaning as ASS to SRT, then SRT or WebVTT. VTT escapes literal tags. */
 export function assToText(text: string, format: 'srt' | 'vtt'): { text: string; errors: ParseError[] } {
-  const converted = assToCues(text);
+  const parsed = parseAss(text);
   return {
-    text: serialize(converted.cues, format),
-    errors: converted.errors,
+    text: serialize(collapseLayerDuplicates(parsed.cues, format === 'vtt'), format),
+    errors: parsed.errors,
   };
 }

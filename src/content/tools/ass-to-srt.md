@@ -21,7 +21,7 @@ faq:
     a: "In Aegisub, go to File → Export Subtitles, click Export, and choose SubRip (*.srt) as the file type. If you only have the .ass file and no Aegisub, you can convert it here instead."
   - q: "Is my ASS file uploaded?"
     a: "No. SubtitleFixer converts ASS to SRT inside your browser, and your file never leaves your device. There is no upload and no sign-up."
-related: ["/ass-to-vtt", "/fix-subtitle-encoding", "/shift-subtitles", "/srt-to-vtt", "/vtt-to-srt", "/fix-subtitle-drift", "/sup-to-srt"]
+related: ["/ass-to-vtt", "/subtitle-cleaner", "/fix-subtitle-encoding", "/shift-subtitles", "/srt-to-vtt", "/vtt-to-srt", "/fix-subtitle-drift", "/sup-to-srt"]
 ---
 
 ## How to convert ASS to SRT in 3 steps
@@ -102,6 +102,8 @@ For a full comparison of the formats, read [SRT vs VTT vs ASS](/guides/srt-vs-vt
 
 ## Related tools
 
+- [ASS to VTT converter](/ass-to-vtt): turn ASS or SSA into WebVTT for HTML5 video.
+- [Subtitle cleaner](/subtitle-cleaner): remove hearing-impaired tags, speaker names and formatting.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
 - [Shift subtitles](/shift-subtitles): for subtitles that appear too early or too late, in SRT, VTT or ASS files.
 - [SRT to VTT converter](/srt-to-vtt): turn SRT subtitles into VTT for web video players.

@@ -17,7 +17,7 @@ export type SheetResult = {
 
 const FORMULA = /^[=+\-@\t\r]/;
 
-/** Stop a spreadsheet from treating a cell as a formula. */
+/** Stop a spreadsheet from treating a CSV cell as a formula. XLSX inline strings are already text. */
 export function guardFormula(value: string): string {
   return FORMULA.test(value) ? `'${value}` : value;
 }
@@ -39,9 +39,9 @@ export function sheetRows(input: string, format: SubtitleFormat): { rows: SheetR
     return [
       {
         index: index + 1,
-        start: guardFormula(formatSrtTimestamp(cue.start)),
-        end: guardFormula(formatSrtTimestamp(cue.end)),
-        text: guardFormula(lines.join('\n')),
+        start: formatSrtTimestamp(cue.start),
+        end: formatSrtTimestamp(cue.end),
+        text: lines.join('\n'),
       },
     ];
   });
@@ -60,7 +60,11 @@ function csvField(value: string): string {
 export function rowsToCsv(rows: readonly SheetRow[]): string {
   const lines = ['#,Start,End,Text'];
   for (const row of rows) {
-    lines.push([String(row.index), csvField(row.start), csvField(row.end), csvField(row.text)].join(','));
+    lines.push(
+      [String(row.index), csvField(guardFormula(row.start)), csvField(guardFormula(row.end)), csvField(guardFormula(row.text))].join(
+        ',',
+      ),
+    );
   }
   return `${lines.join('\r\n')}\r\n`;
 }

@@ -19,7 +19,7 @@ faq:
     a: "Yes. Switch the output to VTT before you download."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer converts STL to SRT inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/sub-to-srt", "/vtt-to-srt", "/srt-to-vtt", "/fix-subtitle-drift", "/shift-subtitles"]
+related: ["/ttml-to-srt", "/dfxp-to-srt", "/sub-to-srt", "/vtt-to-srt", "/srt-to-vtt", "/fix-subtitle-drift", "/shift-subtitles"]
 ---
 
 Free STL to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -82,6 +82,7 @@ If the subtitles drift because the frame rate was wrong, use [Fix subtitle drift
 
 ## Related tools
 
+- [TTML to SRT](/ttml-to-srt) and [DFXP to SRT](/dfxp-to-srt): for timed-text XML.
 - [SUB to SRT converter](/sub-to-srt): for MicroDVD files, which also count frames.
 - [VTT to SRT converter](/vtt-to-srt) and [SRT to VTT converter](/srt-to-vtt).
 - [Fix subtitle drift](/fix-subtitle-drift): for a frame rate mismatch.

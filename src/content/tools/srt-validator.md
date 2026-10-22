@@ -19,7 +19,7 @@ faq:
     a: "Not on this page. It checks SRT files only."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer checks your file inside your browser, and your file never leaves your device. There is no sign-up."
-related: ["/srt-editor", "/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/vtt-to-srt", "/srt-to-vtt"]
+related: ["/srt-editor", "/shift-subtitles", "/fix-subtitle-drift", "/merge-subtitles", "/fix-subtitle-encoding", "/vtt-to-srt", "/srt-to-vtt"]
 ---
 
 Free SRT checker that runs in your browser: your files never leave your device, and there is no sign-up.
@@ -85,5 +85,6 @@ Report:
 - [SRT editor](/srt-editor): change the lines the report marks.
 - [Shift subtitles](/shift-subtitles): fix a constant delay.
 - [Fix subtitle drift](/fix-subtitle-drift): fix timing that gets worse over time.
+- [Merge subtitles](/merge-subtitles): combine two files, then check the result.
 - [Fix subtitle encoding](/fix-subtitle-encoding): fix garbled characters and save as UTF-8.
 - [VTT to SRT converter](/vtt-to-srt) and [SRT to VTT converter](/srt-to-vtt).

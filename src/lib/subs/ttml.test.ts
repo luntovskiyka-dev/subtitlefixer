@@ -4,7 +4,7 @@ import frames from '../../../tests/fixtures/ttml-frames.xml?raw';
 import ticks from '../../../tests/fixtures/ttml-ticks.xml?raw';
 import youtube from '../../../tests/fixtures/youtube-transcript.xml?raw';
 import { serializeSrt } from './srt';
-import { parseSubtitleXml as parseXml, parseTtmlTime as parseTime } from './ttml';
+import { decodeRepeatedEntities, parseSubtitleXml as parseXml, parseTtmlTime as parseTime } from './ttml';
 
 describe('TTML time', () => {
   const clock = { frameRate: 30, subFrameRate: 1, tickRate: 1 };
@@ -54,6 +54,23 @@ describe('parseSubtitleXml', () => {
       { start: 1200, end: 3800, text: 'Hi, and welcome back.' },
       { start: 4100, end: 7450, text: "Today we're fixing subtitles." },
     ]);
+  });
+
+  it('decodes double-escaped named and numeric entities', () => {
+    expect(decodeRepeatedEntities('&amp;quot;hi&amp;quot;')).toBe('"hi"');
+    expect(decodeRepeatedEntities('&amp;lt;3')).toBe('<3');
+    expect(decodeRepeatedEntities('a&amp;gt;b')).toBe('a>b');
+    expect(decodeRepeatedEntities('&amp;amp;')).toBe('&');
+    expect(decodeRepeatedEntities('&amp;apos;')).toBe("'");
+    expect(decodeRepeatedEntities('&amp;#39;')).toBe("'");
+    expect(decodeRepeatedEntities('&amp;#60;')).toBe('<');
+    expect(decodeRepeatedEntities('&amp;#x3e;')).toBe('>');
+    const xml =
+      '<transcript><text start="1.2" dur="1.0">Say &amp;quot;hi&amp;quot; &amp;gt;3 &amp;lt;3 &amp;amp; &amp;#38; &amp;#x26; &amp;apos;ok&amp;apos;</text></transcript>';
+    expect(parseXml(xml).cues[0]?.text).toBe('Say "hi" >3 <3 & & & \'ok\'');
+    expect(parseXml('<transcript><text start="1" dur="1">&amp;lt;b&amp;gt;Hi&amp;lt;/b&amp;gt;</text></transcript>').cues[0]?.text).toBe(
+      'Hi',
+    );
   });
 
   it('reads YouTube timedtext paragraphs', () => {

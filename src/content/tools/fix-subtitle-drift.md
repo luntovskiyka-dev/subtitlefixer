@@ -21,7 +21,7 @@ faq:
     a: "Use two-point sync on this page: set the correct time for one line near the start and one near the end, and every line in between is re-timed. If the delay is the same everywhere, a simple [shift](/shift-subtitles) is enough."
   - q: "Is my subtitle file uploaded?"
     a: "No. SubtitleFixer fixes subtitle drift inside your browser, and the file never leaves your device. There is no upload and no sign-up."
-related: ["/shift-subtitles", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt", "/ass-to-srt"]
+related: ["/srt-validator", "/shift-subtitles", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt", "/ass-to-srt"]
 ---
 
 ## How to fix subtitle drift in 3 steps
@@ -153,6 +153,7 @@ Presets work in batch: add several files, such as every episode of a season, and
 
 ## Related tools
 
+- [SRT validator](/srt-validator): check an SRT file for bad times, overlaps and numbering.
 - [Shift subtitles](/shift-subtitles): for subtitles that are off by the same amount all the way through, or that jump at one point.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
 - [SRT to VTT converter](/srt-to-vtt): turn SRT subtitles into VTT for web video players.

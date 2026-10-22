@@ -21,7 +21,7 @@ faq:
     a: "No. SubtitleFixer creates a separate subtitle file; it doesn't burn subtitles into the picture or add them to the video file. Load the merged file in your player, or use a video editor if you need the subtitles inside the video."
   - q: "Are my subtitle files uploaded?"
     a: "No. SubtitleFixer merges subtitles inside your browser, and your files never leave your device. There is no upload and no sign-up."
-related: ["/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt"]
+related: ["/srt-validator", "/shift-subtitles", "/fix-subtitle-drift", "/fix-subtitle-encoding", "/srt-to-vtt", "/vtt-to-srt"]
 ---
 
 ## How to merge subtitles in 3 steps
@@ -152,6 +152,7 @@ Merging works best when both files already match the same video.
 
 ## Related tools
 
+- [SRT validator](/srt-validator): check the merged SRT file for bad times, overlaps and numbering.
 - [Shift subtitles](/shift-subtitles): move one file earlier or later before merging.
 - [Fix subtitle drift](/fix-subtitle-drift): re-time a file that slowly goes out of sync.
 - [Fix subtitle encoding](/fix-subtitle-encoding): for subtitles that show `Ã©`, `Ð¿Ñ€Ð¸` or other garbled characters.
