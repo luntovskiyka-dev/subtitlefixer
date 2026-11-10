@@ -19,10 +19,14 @@ faq:
     a: "You can switch the output to VTT. For plain text, convert to SRT first and then use [SRT to TXT](/srt-to-txt)."
   - q: "Is my file uploaded?"
     a: "No. SubtitleFixer converts XML subtitles inside your browser, and your file never leaves your device. There is no sign-up."
+  - q: "Can I convert TTML to SRT on this page?"
+    a: "Yes. A TTML file starts with a <tt> element, and this page converts it to SRT the same way as [TTML to SRT](/ttml-to-srt). If your file uses a .ttml extension, you can drop it here or on that page."
+  - q: "What's the difference between TTML and DFXP?"
+    a: "DFXP is the older name for the first version of TTML (W3C Timed Text). Both are XML files that start with <tt>. This page accepts both; it labels a file as DFXP when it uses the older TTAF namespace. [DFXP to SRT](/dfxp-to-srt) is the same converter under that name."
 related: ["/stl-to-srt", "/ttml-to-srt", "/dfxp-to-srt", "/srt-to-txt", "/vtt-to-srt", "/srt-to-vtt", "/sbv-to-srt", "/fix-subtitle-encoding"]
 ---
 
-Free XML to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up. Timed Text files use the same converter as [TTML to SRT](/ttml-to-srt).
+Free XML to SRT conversion that runs in your browser: your files never leave your device, and there is no sign-up. If you need TTML to SRT, this page uses the same converter as [TTML to SRT](/ttml-to-srt).
 
 ## How to convert XML to SRT in 3 steps
 
@@ -64,6 +68,36 @@ Today we're fixing subtitles.
 
 Start plus duration gives the end time: 1.2 + 2.6 = 3.8 seconds. The doubled code `&amp;#39;` becomes an apostrophe.
 
+## Example: TTML (`<tt>`) to SRT
+
+Before:
+
+```xml
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <body>
+    <div>
+      <p begin="00:00:01.200" end="00:00:03.800">Hi, and welcome back.</p>
+      <p begin="00:00:04.100" end="00:00:07.450">Today we're<br/><span tts:fontStyle="italic">fixing</span> subtitles.</p>
+    </div>
+  </body>
+</tt>
+```
+
+After:
+
+```srt
+1
+00:00:01,200 --> 00:00:03,800
+Hi, and welcome back.
+
+2
+00:00:04,100 --> 00:00:07,450
+Today we're
+<i>fixing</i> subtitles.
+```
+
+The root element is `<tt>`, so this is TTML (W3C Timed Text). Each `<p>` becomes one SRT subtitle. `<br/>` becomes a new line, and the italic span becomes `<i>`.
+
 ## What it can and can't do
 
 **It can:**
@@ -78,6 +112,7 @@ Start plus duration gives the end time: 1.2 + 2.6 = 3.8 seconds. The doubled cod
 - Read video editor XML (Final Cut Pro, Premiere Pro, DaVinci Resolve) or other XML formats.
 - Download captions from YouTube. You need the file on your device.
 - Merge the overlapping lines of YouTube auto-captions.
+- Fix subtitles that are out of sync. Use [Shift subtitles](/shift-subtitles).
 
 ## Related tools
 

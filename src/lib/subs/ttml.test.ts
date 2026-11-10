@@ -4,7 +4,7 @@ import frames from '../../../tests/fixtures/ttml-frames.xml?raw';
 import ticks from '../../../tests/fixtures/ttml-ticks.xml?raw';
 import youtube from '../../../tests/fixtures/youtube-transcript.xml?raw';
 import { serializeSrt } from './srt';
-import { decodeRepeatedEntities, parseSubtitleXml as parseXml, parseTtmlTime as parseTime } from './ttml';
+import { decodeRepeatedEntities, parseSubtitleXml as parseXml, parseTtmlTime as parseTime, subtitleXmlToText } from './ttml';
 
 describe('TTML time', () => {
   const clock = { frameRate: 30, subFrameRate: 1, tickRate: 1 };
@@ -84,6 +84,30 @@ describe('parseSubtitleXml', () => {
     expect(parseXml(image).warnings.join(' ')).toMatch(/image/i);
     expect(parseXml('<tt><p></tt>').error).toMatch(/valid XML/i);
     expect(parseXml('<project/>').error).toMatch(/isn't a supported/);
+  });
+
+  it('converts the xml-to-srt TTML example', () => {
+    const xml = `<tt xmlns="http://www.w3.org/ns/ttml" xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <body>
+    <div>
+      <p begin="00:00:01.200" end="00:00:03.800">Hi, and welcome back.</p>
+      <p begin="00:00:04.100" end="00:00:07.450">Today we're<br/><span tts:fontStyle="italic">fixing</span> subtitles.</p>
+    </div>
+  </body>
+</tt>`;
+    const result = subtitleXmlToText(xml, 'srt');
+    expect(result.kind).toBe('ttml');
+    expect(result.error).toBeNull();
+    expect(result.warnings).toEqual([]);
+    expect(result.text).toBe(`1
+00:00:01,200 --> 00:00:03,800
+Hi, and welcome back.
+
+2
+00:00:04,100 --> 00:00:07,450
+Today we're
+<i>fixing</i> subtitles.
+`);
   });
 
   it('keeps SMPTE-TT text and drops a paragraph with no end', () => {
